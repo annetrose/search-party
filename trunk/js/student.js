@@ -1,0 +1,42 @@
+function updateHistory(data) {
+    var activities = data
+    var html = "";
+    
+    for (var i in activities) {
+        if (i > 0) {
+            html += " => ";
+        }
+        var activity = activities[i];
+        var activityType = activity[0];
+        var action = activity[1];
+        if (activityType == 'search') {
+            var searchCall = "doSearch(\"" + action + "\")";
+            html += "<a class='term' onclick='" + searchCall + "'>" + action + "</a>";
+        } else if (activityType == 'link') {
+            var linkFollowed = "linkFollowed(\"" + action + "\")";
+            html += "<a target='_blank' onclick='" + linkFollowed + "' href = '" + action + "'>" + action + "</a>";
+        }
+    }
+    
+    $("#history").html(html);
+}
+
+function onMessage(msg) {
+    var state = JSON.parse(msg.data);
+    $("#log").append("message received: " + state.log + "<br>");
+    // if (state.change == "student_login") {
+    //  $.getJSON("/query", "qt=students", updateStudents);
+    // } else if (state.change == "student_logout") {
+    //  $.getJSON("/query", "qt=students", updateStudents);
+    // } else if (state.change == "student_search") {
+    //  $.getJSON("/query", "qt=students", updateStudents);
+    // } else if (state.change == "student_link_followed") {
+    //  $.getJSON("/query", "qt=students", updateStudents);
+    // }
+}
+
+function openChannel(token) {
+  var channel = new goog.appengine.Channel(token);
+  var socket = channel.open();
+  socket.onmessage = onMessage;
+}

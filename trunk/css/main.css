@@ -1,0 +1,102 @@
+/*
+ bgnd: #EDEDA9
+ color1: BD6E46
+ color2: 453B2C
+ hilite1: 294A49
+ hilite2: 82BF93
+ */
+
+body {
+    margin:5;
+    padding:5;
+    background-color: #EDEDA9;
+}
+
+body, td {
+    font-family: Verdana, Helvetica, sans-serif;
+    font-size: 0.8em;
+}
+
+a {
+    color: #BD6E46;
+}
+
+a:hover {
+    background-color: #CDCD89;
+}
+
+h1 {
+    font-size: 1.2em;
+}
+
+#resultsOverview {
+    font-style: italic;
+}
+
+.header {
+    font-size: 1.4em;
+    font-weight: bold;
+    width: 100%;
+}
+
+.title {
+    font-size: 1.2em;
+    cursor: hand;
+}
+
+.help {
+    color: #888;
+}
+
+.term {
+    cursor: pointer;
+}
+
+#searchers {
+    display: none;
+    position: absolute;
+    background: white;
+    padding: 5px;
+}
+
+.rowTools {
+    font-size: 0.6em;
+    width: 50px;
+    text-align: right;
+    vertical-align: top;
+    padding-top: 3px;
+    padding-right: 5px;
+}
+
+.rowHeading {
+    font-size: 0.6em;
+    width: 75px;
+    text-align: right;
+    vertical-align: top;
+    padding-top: 3px;
+    padding-right: 5px;
+}
+
+#log {
+    display: inline;
+}
+
+#newPaper {
+    display: inline;
+}
+
+.noteTools {
+    background-color: #EDEDDA;
+}
+
+#editNote {
+    position: relative;
+}
+
+.public {
+    background-color: #EDEDDA;
+}
+
+.private {
+    background-color: #EDCCCC;
+}
