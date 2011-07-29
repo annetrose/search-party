@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+# SearchParty - Learning to Search in a Web-Based Classroom
+# Author: Ben Bederson - www.cs.umd.edu/~bederson
+#         University of Maryland, Human-Computer Interaction Lab - www.cs.umd.edu/hcil
+# Date: Originally created July 2011
+# License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
 # see history of how students got to a link
 # image search
 # need to specify timecut off for teacher starting new class
