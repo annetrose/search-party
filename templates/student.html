@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<link type="text/css" rel="stylesheet" href="/css/main.css" />
+	<script type="text/javascript" src="/_ah/channel/jsapi"></script>
+	<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+	<script type="text/javascript" src="js/student.js"></script>
+	<title>Search Party - Student Browser</title>
+
+	<!-- Google Analytics -->
+	<script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-97669-8']);
+	  _gaq.push(['_trackPageview']);
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>
+  </head>
+  <body id="body">
+	<script type="text/javascript">
+		$(function() {
+			openChannel("{{ token }}");
+			onResize();
+
+			// Refresh dynamic data on page load
+			getHistory();
+		});
+
+		$(window).resize(function() {
+//			onResize();
+		});
+		
+		function onResize() {
+			var height = $("#body").height();
+			$("#browser_table_row").css("height", height - 100);
+//			$("#browser_iframe").attr("src", "http://www.google.com");
+		}
+		
+		function getHistory() {
+	    	$.getJSON("/query", "qt=student_activity&student={{ nickname }}&teacher_id={{ teacher_id }}", updateHistory);			
+		}
+	</script>
+	
+	{{ header }}
+	<p>
+	{% if msg %}<div style="color:red">{{ msg }}<p></div>{% endif %}
+
+	<script type="text/javascript">
+		function initEventHandlers() {
+			$("#cse").contents().find("input[name='search']").focus();
+			$("#cse").contents().find("input[value='Search']").click(function(event) {
+				var searchTerms = $("input[name='search']").val();
+				searchExecuted(searchTerms);
+			});
+		}
+		
+		function doSearch(searchStr) {
+			$("input[name='search']").focus();
+			$("input[name='search']").val(searchStr);
+			$("input[value='Search']").trigger('click');
+		}
+		
+		function searchCompleteCallback() {
+			$("#cse").contents().find("a[class='gs-title']").click(function(event) {
+				var href = $(this).attr("href");
+				linkFollowed(href)
+			});
+			
+			// Ads seem to show up a bit later, so we wait a bit and then remove them
+			setTimeout("hideAds()", 500);
+		}
+		
+		function hideAds() {
+			$("#cse").contents().find(".gsc-adBlock").css("display", "none");
+			$("#cse").contents().find(".gsc-adBlockVertical").css("display", "none");
+			$("#cse").contents().find(".gsc-tabsArea").css("display", "none");			
+		}
+
+		function searchExecuted(searchTerms) {
+	        $.post("/search_executed", {"q" : searchTerms});
+			getHistory();
+		}
+		
+		function linkFollowed(href) {
+	        $.post("/link_followed", {"href" : href});			
+			getHistory();
+		}		
+	</script>
+	
+	{% if logged_in %}
+		<table width="100%">
+			<tr id="browser_table_row" width="100%" height="600px">
+				<td width="100%" valign="top">
+				
+					<!-- CUSTOM SEARCH -->
+					<div id="cse" style="width: 100%;">Loading</div>
+					<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+					<script type="text/javascript"> 
+					  google.load('search', '1', {language : 'en'});
+					  google.setOnLoadCallback(function() {
+					    var customSearchControl = new google.search.CustomSearchControl('011823409747730989012:4citusfmkhu');
+	   			    	customSearchControl.setResultSetSize(5);
+					    customSearchControl.draw('cse');
+						customSearchControl.setSearchCompleteCallback(null, searchCompleteCallback)
+						initEventHandlers();
+					  }, true);
+					</script>
+					<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+					<link rel="stylesheet" href="css/custom-search.css" type="text/css" />
+				</td>
+			</tr>
+			<tr height="100%">
+				<td>
+					<hr>
+					Search History: 
+					<span id="history">
+					</span>
+				</td>
+			</tr>
+		</table>
+	{% endif %}
+	
+	<hr>
+	Log:
+	<div id="log"></div>
+	
+  </body>
+</html>

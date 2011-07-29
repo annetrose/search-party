@@ -1,0 +1,107 @@
+<html>
+  <head>
+	<script type="text/javascript" src="/_ah/channel/jsapi"></script>
+	<script type="text/javascript" src="js/jquery-1.6.1.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
+	<script type="text/javascript" src="js/teacher.js"></script>
+	<link type="text/css" rel="stylesheet" href="/css/main.css" />
+	<link type="text/css" rel="stylesheet" href="/css/ui-lightness/jquery-ui-1.8.14.custom.css" />
+	<title>Search Party - Teacher View</title>
+
+	<!-- Google Analytics -->
+	<script type="text/javascript">
+	  	var _gaq = _gaq || [];
+	  	_gaq.push(['_setAccount', 'UA-97669-8']);
+	  	_gaq.push(['_trackPageview']);
+	  	(function() {
+	    	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  	})();
+	</script>
+  </head>
+
+  <body>
+	<script type="text/javascript">
+		$(function() {
+   			openChannel("{{ token }}");
+			$("#todayButton").button();
+			$("#todayButton").button("disable");
+			$("#todayButton").click(function() {
+				$("#activityFromDate").html("today");
+				$("#activitySlider").slider("value", 5);
+				$("#todayButton").button("disable");
+			});
+			$("#activitySlider").slider({
+				min: 1,
+				max: 5,
+				value: 5
+			});
+			$("#activitySlider").bind( "slide", function(event, ui) {
+				switch (ui.value) {
+					case 1:
+						$("#activityFromDate").html("the beginning");
+						$("#todayButton").button("enable");
+						break;
+					case 2:
+						$("#activityFromDate").html("last week");
+						$("#todayButton").button("enable");
+						break;
+					case 3:
+						$("#activityFromDate").html("this week");
+						$("#todayButton").button("enable");
+						break;
+					case 4:
+						$("#activityFromDate").html("yesterday");
+						$("#todayButton").button("enable");
+						break;
+					case 5:
+						$("#activityFromDate").html("this morning");
+						$("#todayButton").button("disable");
+						break;
+				}
+				$.getJSON("/query", "qt=data&since=" + ui.value, displayData);
+			});
+			$("#activitySlider").bind( "slidechange", function(event, ui) {
+				$.getJSON("/query", "qt=data&since=" + ui.value, displayData);
+			});
+
+			// Refresh dynamic data on page load
+	    	$.getJSON("/query", "qt=num_students", updateNumStudents);
+			$.getJSON("/query", "qt=data&since=5", displayData);
+		});
+	</script>
+	
+	{{ header }}
+	<p>
+	{% if msg %}<div style="color:red">{{ msg }}<p></div>{% endif %}
+		
+	<table width="100%">
+		<tr>
+			<td>
+				{{ teacher_info }}
+			</td>
+			<td width="150px">
+				Activity: <button id="todayButton">Today</button>
+				<div id="activitySlider"></div>
+				Since <span id="activityFromDate">this morning</span>
+			</td>
+		</tr>
+	</table>
+
+	<span id="num_students"></span>
+	
+	{% if password %}
+		<h3>Search Terms:</h3>
+		<div id="searchTerms"></div>
+
+		<h3>Followed Links:</h3>
+		<div id="links"></div>
+	{% endif %}
+
+	<div id="log"></div>
+	
+	<span id="searchers"></span>
+	
+  </body>
+</html>
