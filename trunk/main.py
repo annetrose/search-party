@@ -10,7 +10,7 @@
 from model import Teacher, Student, StudentActivity, SearchParty, Client
 
 import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'dummy_django_settings'
 
 from google.appengine.dist import use_library
 use_library('django', '0.96')

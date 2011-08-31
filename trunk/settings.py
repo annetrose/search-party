@@ -1,3 +1,9 @@
-# Dummy to silence Django error like the following...
-#
-# WARNING  2011-08-29 15:23:38,051 __init__.py:165] Could not import settings 'settings' (Is it on sys.path? Does it have syntax errors?): No module named settings
+# SearchParty - Learning to Search in a Web-Based Classroom
+# Authors: Ben Bederson - www.cs.umd.edu/~bederson
+#          Alex Quinn - www.cs.umd.edu/~aq
+#          University of Maryland, Human-Computer Interaction Lab - www.cs.umd.edu/hcil
+# Date: Originally created July 2011
+# License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
+ENABLE_DEBUG_LOGGING = False
+ENABLE_UPDATE_LOGGING = False

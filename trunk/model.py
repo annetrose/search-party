@@ -33,13 +33,20 @@ class Teacher(db.Model):
 	__repr__ = generic_repr
 	nickname = property(lambda self: self.user.nickname())
 
-	@property
-	def client_ids(self):
+	def get_all_client_ids(self):
 		client_ids = []
 		for client in Client.all().filter("teacher =", self):
 			client_ids.append( client.client_id )
+
+		# Might end up with multiple copies of same client.  For now, bandage over it.  FIXME
+		client_ids = tuple(set(client_ids))
+
+		# Teacher is allowed to be logged in at multiple computers.  Students are not.
 		return tuple(client_ids)
 
+	def make_client_id(self, session_sid):
+		#  This is to be explicit and have this defined in one and only one place.
+		return session_sid
 
 class Student(db.Model):
 	logged_in = db.BooleanProperty()
@@ -53,8 +60,23 @@ class Student(db.Model):
 		self.logged_in = False
 		self.session_sid = ""
 		self.put()
-	client_id = property(lambda self: Client.all().filter("student =", self).get().client_id )
-	client_ids = property(lambda self: (self.client_id,))  # for consistency with Teacher
+
+	def get_all_client_ids(self):
+		#  This is to be explicit and have this defined in one and only one place.
+		clients = tuple(Client.all().filter("student =", self).get())
+		client_ids = tuple(client.client_id for client in clients)
+
+		# Might end up with multiple copies of same client.  For now, bandage over it.  FIXME
+		client_ids = tuple(set(client_ids))
+
+		# Students are not allowed to be logged in at multiple computers.  Teachers are.
+		assert len(client_ids) in (0,1), "Got %d client_ids.  %s"%(len(client_ids), repr(client_ids))
+
+		return client_ids
+
+	def make_client_id(self, session_sid):
+		#  This is to be explicit and have this defined in one and only one place.
+		return session_sid
 
 
 class StudentActivity(db.Model):

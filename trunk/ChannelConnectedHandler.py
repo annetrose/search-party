@@ -9,6 +9,7 @@ from SearchPartyChannelHandler import SearchPartyChannelHandler
 
 class ChannelConnectedHandler(SearchPartyChannelHandler):
 	def post(self):
+		# FIXME:  This is getting called multiple times for one page load.
 		from helpers import send_log_msg
 		self.load_search_party_context()
 		if self.is_student:
