@@ -31,8 +31,18 @@ function updateHistory(data) {
 
 function onMessage(msg) {
     var state = JSON.parse(msg.data);
-    $("#log").append("message received: " + state.log + "<br>");
-    // if (state.change == "student_login") {
+    if ("log" in state) {
+		$("#log").append("message received: " + state.log + "<br>");
+	} else if ('status' in state) {
+		if (state.status=="on") {
+			$("#status_header").hide();
+		} else {
+			$("#status_header").show();
+			$("#status_header").html("Teacher is OFFLINE");
+		}
+    }
+	
+	// if (state.change == "student_login") {
     //  $.getJSON("/query", "qt=students", updateStudents);
     // } else if (state.change == "student_logout") {
     //  $.getJSON("/query", "qt=students", updateStudents);

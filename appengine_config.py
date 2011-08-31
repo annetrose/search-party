@@ -1,3 +1,10 @@
+# SearchParty - Learning to Search in a Web-Based Classroom
+# Authors: Ben Bederson - www.cs.umd.edu/~bederson
+#          Alex Quinn - www.cs.umd.edu/~aq
+#          University of Maryland, Human-Computer Interaction Lab - www.cs.umd.edu/hcil
+# Date: Originally created July 2011
+# License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
+
 from gaesessions import SessionMiddleware
 
 # suggestion: generate your own random key using os.urandom(64).encode('hex')
