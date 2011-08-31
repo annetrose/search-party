@@ -91,11 +91,12 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		client = Client()
 		if self.is_teacher:
 			client.user_type = "teacher"
+			client.client_id = self.teacher.make_client_id(session_sid=self.session.sid)
 		elif self.is_student:
 			client.user_type = "student"
+			client.client_id = self.student.make_client_id(session_sid=self.session.sid)
 		client.student = self.student
 		client.teacher = self.teacher
-		client.client_id = client_id
 		client.put()
 		token = channel.create_channel(client_id)
 		return token

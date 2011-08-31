@@ -34,15 +34,18 @@ def send_msg(person, msg_type, msg):
 	from django.utils import simplejson as json
 	from model import Student, Teacher
 	assert isinstance(person, Student) or isinstance(person, Teacher)
-	for client_id in person.client_ids:
+	for client_id in person.get_all_client_ids():
 		channel.send_message(client_id, json.dumps({msg_type:msg}))
 
 def send_update_msg(person, msg):
 	send_msg(person=person, msg_type="change", msg=msg)
 
 def send_log_msg(person, msg):
-	send_msg(person=person, msg_type="log", msg=msg)
+	import settings
+	if settings.ENABLE_UPDATE_LOGGING:
+		send_msg(person=person, msg_type="log", msg=msg)
 
 def log(s):
-	import logging
-	logging.getLogger().info(s)
+	import logging, settings
+	if settings.ENABLE_DEBUG_LOGGING:
+		logging.getLogger().info(s)
