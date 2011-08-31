@@ -97,7 +97,7 @@ function onMessage(msg) {
     	$.getJSON("/query", "qt=data&since=" + sinceStr, displayData);
     } else if ('log' in state) {
         $("#log").append(state.log + "<br>");
-    }
+    } 
 }
 
 function openChannel(token) {

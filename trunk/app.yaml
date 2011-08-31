@@ -1,5 +1,6 @@
-application: search-party
-version: 1
+#application: search-party
+application: schpty
+version: dev
 runtime: python
 api_version: 1
 
@@ -7,6 +8,10 @@ inbound_services:
 - channel_presence
 
 handlers:
+- url: /remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin
+
 - url: /css
   static_dir: css
 
