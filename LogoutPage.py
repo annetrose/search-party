@@ -25,9 +25,9 @@ class LogoutPage(SearchPartyRequestHandler):
 			else:
 				log("LOGOUT: teacher, inactive session, sid=%s"%(self.session.sid))
 			logout_url = users.create_logout_url('/')
-			msg = 'Teacher Logged out: Goodbye ' + self.user.nickname(), dst=logout_url
+			msg = 'Teacher Logged out: Goodbye ' + self.user.nickname()
 			self.set_person(None)
-			self.redirect_with_msg(msg)
+			self.redirect_with_msg(msg, dst=logout_url)
 		elif self.is_student:
 			# Student logout
 			log("LOGOUT: student, sid=%s"%(self.session.sid))
