@@ -102,81 +102,22 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		return token
 
 	def gen_header(self):
-		# TODO:  Move this to a template.
 		from google.appengine.api import users
-
-		html = ""
-		html += "<table class='header' width='100%'>"
-		html += "	<tr>"
-		html += "		<td width='30%'><a href='/'>SP Logo</a></td>"
-		html += "		<td align='middle' width='40%'>Search Party: Learn To Search</td>"
-		html += "		<td align='right' width='30%'>"
-		if self.is_teacher:
-			html += "				" + self.user.nickname()
-			html += "				<a href='/logout'>Logout</a>"
-		elif self.is_student:
-			html += "				" + self.student.nickname
-			html += "				<a href='/logout'>Logout</a>"
+		template_vals = {"nickname":None, "teacher_login_url":None}
+		if self.is_student:
+			template_vals["nickname"] = self.student.nickname
+		elif self.is_teacher:
+			template_vals["nickname"] = self.user.nickname()
 		else:
-			teacher_login_url = users.create_login_url("/teacher_login")
-			html += "				Login as"
-			html += "				<a href='" + teacher_login_url + "'>teacher</a> OR"
-			html += "				<a href='/student_login'>student</a>"
-		html += "		</td>"
-		html += "	</tr>"
-		html += "</table>"
+			template_vals["teacher_login_url"] = users.create_login_url("/teacher_login")
+		template_vals["is_logged_in"] = (template_vals["nickname"] is not None)
+		html = self.render_template("header.html", template_vals)
 		return html
 
 	def gen_teacher_info(self, teacher_id, password):
-		# TODO:  Move this to a template.
-		html = "<table>"
-		html += "  <tr valign='top'>"
-		html += "	 <td width='150px'>"
-		html += "		Teacher ID: " + str(teacher_id)
-		html += "	 </td>"
-		html += "	 <td>"
-		if password:
-			html += "	   Password: " + password
-		else:
-			html += "	   Enter password: <input id='password' type='text'></input><input id='password_submit' type='button' value='Ok'></input>"
-			html += "	   <br><span class='help'>Set a new password everytime you log in</span>"
-			html += "	   <script type='text/javascript'>"
-			html += "		 function passwordChanged() {"
-			html += "		   $.post('/teacher_login', {'password': $('#password').val() }, window.location.replace('/teacher'));"
-			html += "		 }"
-
-			html += "		 $('#password').focus();"
-			html += "		 $('#password').keyup(function(event) {"
-			html += "		   if (event.which == 13) {"  # Enter key
-			html += "			  passwordChanged();"
-			html += "		   }"
-			html += "		 });"
-			html += "		 $('#password_submit').click(function(event) {"
-			html += "		   passwordChanged();"
-			html += "		 });"
-			html += "	   </script>"
-			html += "	   <br><br>"
-		html += "	 </td>"
-		html += "  </tr>"
-		html += "</table>"
+		template_vals = {"teacher_id":teacher_id, "password":password}
+		html = self.render_template("teacher_info.html", template_vals)
 		return html
-
-	def is_logged_in(self):
-		# TODO:  Make sure this is really not needed.  For now, it is more or less a stub.
-		return self.is_student
-#		from model import Student
-#		logged_in = False
-#		if self.session.has_key('student'):
-#			# There could be an active session without matching sid in DB if student
-#			# got logged out automatically (by, say, window being closed)
-#			# So, check for this situation explicitly
-#			studentQuery = Student.all().filter('session_sid = ', self.session.sid)
-#			studentObj = studentQuery.get()
-#			if studentObj:
-#				logged_in = studentObj.logged_in
-#			if not logged_in:
-#				self.session.terminate()
-#		return logged_in
 
 	def get_search_party(self):
 		from model import SearchParty
@@ -188,8 +129,19 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		self.session['msg'] = msg
 		self.redirect(dst)
 
+	def write_response_with_template(self, file, template_vals):
+		html = self.render_template(file=file, template_vals=template_vals)
+		self.response.out.write(html)
+
 	def render_template(self, file, template_vals):
 		from google.appengine.ext.webapp import template
 		import os
 		path = os.path.join(os.path.dirname(__file__), 'templates', file)
-		self.response.out.write(template.render(path, template_vals))
+		html = template.render(path, template_vals)
+		return html
+#		self.response.out.write(template.render(path, template_vals))
+
+	@property
+	def fragment_id(self):
+		from urlparse import urlparse
+		return urlparse(self.request.url).fragment

@@ -30,7 +30,7 @@
   <body id="body">
 	<script type="text/javascript">
 		$(function() {
-			openChannel("{{ token }}");
+			openChannel("{{ token|safe }}");
 			onResize();
 
 			// Refresh dynamic data on page load
@@ -52,7 +52,7 @@
 		}
 	</script>
 	
-	{{ header }}
+	{{ header|safe }}
 	<div id="status_header"></div>
 	<p>
 	{% if msg %}<div style="color:red">{{ msg }}<p></div>{% endif %}
@@ -99,38 +99,36 @@
 		}		
 	</script>
 	
-	{% if logged_in %}
-		<table width="100%">
-			<tr id="browser_table_row" width="100%" height="600px">
-				<td width="100%" valign="top">
-				
-					<!-- CUSTOM SEARCH -->
-					<div id="cse" style="width: 100%;">Loading</div>
-					<script src="http://www.google.com/jsapi" type="text/javascript"></script>
-					<script type="text/javascript"> 
-					  google.load('search', '1', {language : 'en'});
-					  google.setOnLoadCallback(function() {
-					    var customSearchControl = new google.search.CustomSearchControl('011823409747730989012:4citusfmkhu');
-	   			    	customSearchControl.setResultSetSize(5);
-					    customSearchControl.draw('cse');
-						customSearchControl.setSearchCompleteCallback(null, searchCompleteCallback)
-						initEventHandlers();
-					  }, true);
-					</script>
-					<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
-					<link rel="stylesheet" href="css/custom-search.css" type="text/css" />
-				</td>
-			</tr>
-			<tr height="100%">
-				<td>
-					<hr>
-					Search History: 
-					<span id="history">
-					</span>
-				</td>
-			</tr>
-		</table>
-	{% endif %}
+	<table width="100%">
+		<tr id="browser_table_row" width="100%" height="600px">
+			<td width="100%" valign="top">
+			
+				<!-- CUSTOM SEARCH -->
+				<div id="cse" style="width: 100%;">Loading</div>
+				<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+				<script type="text/javascript"> 
+				  google.load('search', '1', {language : 'en'});
+				  google.setOnLoadCallback(function() {
+					var customSearchControl = new google.search.CustomSearchControl('011823409747730989012:4citusfmkhu');
+					customSearchControl.setResultSetSize(5);
+					customSearchControl.draw('cse');
+					customSearchControl.setSearchCompleteCallback(null, searchCompleteCallback)
+					initEventHandlers();
+				  }, true);
+				</script>
+				<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+				<link rel="stylesheet" href="css/custom-search.css" type="text/css" />
+			</td>
+		</tr>
+		<tr height="100%">
+			<td>
+				<hr>
+				Search History: 
+				<span id="history">
+				</span>
+			</td>
+		</tr>
+	</table>
 	
 	<hr>
 	Log:

@@ -9,49 +9,49 @@
 
 from model import Teacher, Student, StudentActivity, SearchParty, Client
 
+# Silence warnings about Django
+# http://code.google.com/appengine/docs/python/tools/libraries.html#Django
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'dummy_django_settings'
-
 from google.appengine.dist import use_library
-use_library('django', '0.96')
-# See http://code.google.com/appengine/docs/python/tools/libraries.html#Django
+use_library('django', '1.2')
 
 
 def main():
-	from ChannelConnectedHandler import ChannelConnectedHandler
+	from ChannelConnectedHandler    import ChannelConnectedHandler
 	from ChannelDisconnectedHandler import ChannelDisconnectedHandler
-	from LinkFollowedHandler import LinkFollowedHandler
-	from LogoutPage import LogoutPage
-	from MainPage import MainPage
-	from QueryHandler import QueryHandler
-	from SearchExecutedHandler import SearchExecutedHandler
-	from SearchPartyChannelHandler import SearchPartyChannelHandler
-	from SearchPartyRequestHandler import SearchPartyRequestHandler
-	from StudentListPage import StudentListPage
-	from StudentLoginHandler import StudentLoginHandler
-	from StudentLoginPage import StudentLoginPage
-	from StudentPage import StudentPage
-	from TeacherLoginHandler import TeacherLoginHandler
-	from TeacherPage import TeacherPage
+	from LinkFollowedHandler        import LinkFollowedHandler
+	from LogoutPage                 import LogoutPage
+	from MainPage                   import MainPage
+	from QueryHandler               import QueryHandler
+	from SearchExecutedHandler      import SearchExecutedHandler
+	from SearchPartyChannelHandler  import SearchPartyChannelHandler
+	from SearchPartyRequestHandler  import SearchPartyRequestHandler
+	from StudentListPage            import StudentListPage
+	from StudentLoginHandler        import StudentLoginHandler
+	from StudentLoginPage           import StudentLoginPage
+	from StudentPage                import StudentPage
+	from TeacherLoginHandler        import TeacherLoginHandler
+	from TeacherPage                import TeacherPage
 
-	from google.appengine.ext.webapp import util
 	from google.appengine.ext import webapp
+
 	application = webapp.WSGIApplication(
-			[ ('/', MainPage),
-			  ('/teacher_login', TeacherLoginHandler),
-			  ('/teacher', TeacherPage),
-			  ('/student_list', StudentListPage),
-			  ('/student_login', StudentLoginPage),
-			  ('/student_login_handler', StudentLoginHandler),
-			  ('/student', StudentPage),
-			  ('/logout', LogoutPage),
-			  ('/search_executed', SearchExecutedHandler),
-			  ('/link_followed', LinkFollowedHandler),
-			  ('/query', QueryHandler),
-			  ('/_ah/channel/connected/', ChannelConnectedHandler),
+			[ ('/',                          MainPage),
+			  ('/link_followed',             LinkFollowedHandler),
+			  ('/logout',                    LogoutPage),
+			  ('/query',                     QueryHandler),
+			  ('/search_executed',           SearchExecutedHandler),
+			  ('/student',                   StudentPage),
+			  ('/student_list',              StudentListPage),
+			  ('/student_login',             StudentLoginPage),
+			  ('/student_login_handler',     StudentLoginHandler),
+			  ('/teacher',                   TeacherPage),
+			  ('/teacher_login',             TeacherLoginHandler),
+			  ('/_ah/channel/connected/',    ChannelConnectedHandler),
 			  ('/_ah/channel/disconnected/', ChannelDisconnectedHandler),
 			 ], debug=True)
-	util.run_wsgi_app(application)
+	webapp.util.run_wsgi_app(application)
 
 
 if __name__ == '__main__':

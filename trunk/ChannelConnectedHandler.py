@@ -14,6 +14,6 @@ class ChannelConnectedHandler(SearchPartyChannelHandler):
 		self.load_search_party_context()
 		if self.is_student:
 			send_log_msg(self.student.teacher, "Student %s has logged on."%(self.student.nickname))
-			if not self.student.is_logged_in:
-				self.student.is_logged_in = True
+			if not self.student.logged_in:
+				self.student.logged_in = True
 				self.student.put()
