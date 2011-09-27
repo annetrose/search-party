@@ -20,4 +20,4 @@ class MainPage(SearchPartyRequestHandler):
 			template_values = { 'header': self.gen_header() }
 			if self.session.has_key('msg'):
 				template_values['msg'] = self.session.pop('msg')  # only show the message once
-			self.render_template("index.html", template_values)
+			self.write_response_with_template("index.html", template_values)

@@ -16,15 +16,18 @@ class TeacherPage(SearchPartyRequestHandler):
 		self.load_search_party_context()
 		log( "PAGE:  TeacherPage, session.sid=%s"%(self.session.sid) )
 		if self.is_teacher:
+
+			default_start_pane = "lesson"
+
 			template_values = {
 				'header': self.gen_header(),
 				'teacher_info': self.gen_teacher_info(self.teacher.teacher_id, self.teacher.password),
 				'password': self.teacher.password,
-				'token': self.create_channel(),
+				"token" : self.create_channel(),
+				"default_start_pane" : default_start_pane
 			}
 			if self.session.has_key('msg'):
 				template_values['msg'] = self.session.pop('msg')  # only show the message once
-
-			self.render_template("teacher.html", template_values)
+			self.write_response_with_template("teacher.html", template_values)
 		else:
 			self.redirect_to_teacher_login()

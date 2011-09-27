@@ -19,6 +19,6 @@ class StudentListPage(SearchPartyRequestHandler):
 			}
 			if self.session.has_key('msg'):
 				template_values['msg'] = self.session.pop('msg')  # only show the message once
-			self.render_template("student_list.html", template_values)
+			self.write_response_with_template("student_list.html", template_values)
 		else:
 			self.redirect_to_teacher_login()

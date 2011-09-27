@@ -8,29 +8,30 @@
 
 from google.appengine.ext import db
 
-def generic_repr(self):
-# Generic __repr__ function that can be glued onto any class.  Results in a string like...
-#    Car(maker_name="Toyota", model_name="Prius", num_wheels=4)
-	params = sorted(vars(self).items())
-	params_str = ", ".join("%s=%s"%(k,repr(v)) for k,v in params)
-	class_name = self.__class__.__name__
-	repr_str = class_name + "(" + params_str + ")"
-	return repr_str
+class SearchPartyModel(db.Model):
+	def __repr__(self):
+	# Generic __repr__ function that can be glued onto any class.  Results in a string like...
+	#    Car(maker_name="Toyota", model_name="Prius", num_wheels=4)
+		params = sorted(vars(self).items())
+		params_str = ", ".join("%s=%s"%(k,repr(v)) for k,v in params)
+		class_name = self.__class__.__name__
+		repr_str = class_name + "(" + params_str + ")"
+		return repr_str
 
-
-class SearchParty(db.Model):
+class SearchParty(SearchPartyModel):
+	# FIELDS
 	next_teacher_id = db.IntegerProperty(default=1)
-	__repr__ = generic_repr
 
 	
-class Teacher(db.Model):
+class Teacher(SearchPartyModel):
+	# FIELDS
 	user = db.UserProperty()
 	teacher_id = db.IntegerProperty()
 	password = db.StringProperty()
 	date = db.DateTimeProperty(auto_now_add=True)
 
+	# OTHER METHODS
 	students = property(lambda self: tuple(Student.all().filter("teacher =", self)))
-	__repr__ = generic_repr
 	nickname = property(lambda self: self.user.nickname())
 
 	def get_all_client_ids(self):
@@ -48,14 +49,15 @@ class Teacher(db.Model):
 		#  This is to be explicit and have this defined in one and only one place.
 		return session_sid
 
-class Student(db.Model):
+class Student(SearchPartyModel):
+	# FIELDS
 	logged_in = db.BooleanProperty()
 	teacher = db.ReferenceProperty(Teacher)
 	nickname = db.StringProperty()
 	date = db.DateTimeProperty(auto_now_add=True)
 	session_sid = db.StringProperty()
 
-	__repr__ = generic_repr
+	# OTHER METHODS
 	def log_out(self):
 		self.logged_in = False
 		self.session_sid = ""
@@ -78,8 +80,8 @@ class Student(db.Model):
 		#  This is to be explicit and have this defined in one and only one place.
 		return session_sid
 
-
-class StudentActivity(db.Model):
+class StudentActivity(SearchPartyModel):
+	# FIELDS
 	teacher = db.ReferenceProperty(Teacher)
 	student = db.ReferenceProperty(Student)
 	activity_type = db.StringProperty()
@@ -87,13 +89,27 @@ class StudentActivity(db.Model):
 	link = db.LinkProperty()
 	date = db.DateTimeProperty(auto_now_add=True)
 
-	__repr__ = generic_repr
-
-
-class Client(db.Model):
+class Client(SearchPartyModel):
+	# FIELDS
 	client_id = db.StringProperty()
 	teacher = db.ReferenceProperty(Teacher)
 	student = db.ReferenceProperty(Student)
 	user_type = db.StringProperty()  # either "teacher" or "student"
 
-	__repr__ = generic_repr
+class Lesson(SearchPartyModel):
+	# FIELDS
+	teacher = db.ReferenceProperty(Teacher)
+	title = db.StringProperty()
+	description = db.StringProperty()
+	class_name = db.StringProperty()
+	start_time = db.DateTimeProperty()
+	stop_time = db.DateTimeProperty()
+
+	# OTHER METHODS
+	is_active = property(lambda self: (self.start_time is not None) and (self.stop_time is None))
+
+class Task(SearchPartyModel):
+	# FIELDS
+	assignment = db.ReferenceProperty(Teacher)
+	title = db.StringProperty()
+	description = db.StringProperty()

@@ -27,7 +27,9 @@
 	</script>
   </head>
   <body>
-	{{ header }}
+	  <!-- before script -->
+	{{ header|safe }}
+	  <!-- after script -->
 	<p>
 	{% if msg %}<div style="color:red">{{ msg }}<p></div>{% endif %}
 
