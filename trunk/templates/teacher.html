@@ -1,208 +1,93 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
-	<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame. Remove this if you use the .htaccess -->
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-
-<!--
-# SearchParty - Learning to Search in a Web-Based Classroom
-# Author: Ben Bederson - www.cs.umd.edu/~bederson
-#         University of Maryland, Human-Computer Interaction Lab - www.cs.umd.edu/hcil
-# Date: Originally created July 2011
-# License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
--->
-	<script type="text/javascript" src="/_ah/channel/jsapi"></script>
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.js"></script>
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
-	<!--
-	<script type="text/javascript" src="js/jquery-ui-1.8.16.custom.min.js"></script>
-	<link type="text/css" rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.16.custom.css"></link>
-	-->
-	<script type="text/javascript" src="js/teacher.js"></script>
+{% extends "side_navigation_layout.html" %}
+{# vim: set sw=2 ts=2 noexpandtab: #}
 
 
-	<!-- for graph visualization -->
-    <script type="text/javascript" src="js/graph/raphael-min.js"></script>
-    <script type="text/javascript" src="js/graph/dracula_graffle.js"></script>
-    <script type="text/javascript" src="js/graph/dracula_graph.js"></script>
-	<!--
-    <script type="text/javascript" src="../js/jquery-1.4.2.min.js"></script>
-	-->
 
-	<link type="text/css" rel="stylesheet" href="/css/main.css"></link>
+{% block head %}
 	<title>Search Party - Teacher View</title>
-
-	<!-- Google Analytics -->
-	<script type="text/javascript">
-	  	var _gaq = _gaq || [];
-	  	_gaq.push(['_setAccount', 'UA-97669-8']);
-	  	_gaq.push(['_trackPageview']);
-	  	(function() {
-	    	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	    	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	    	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  	})();
-	</script>
+	<script type="text/javascript" src="/js/teacher.js"></script>
+	<!-- for graph visualization -->
+	<script type="text/javascript" src="/js/graph/raphael-min.js"></script>
+	<script type="text/javascript" src="/js/graph/dracula_graffle.js"></script>
+	<script type="text/javascript" src="/js/graph/dracula_graph.js"></script>
 	<style type="text/css">
-		body, button, input, textarea, select {
-			font-size: 12pt;
-		}
-		#outer_container {
-			width: 100%;
-			border: 0px;
-			margin: 0px;
-			padding: 0px;
-			border-spacing: 0px;
-			border-collapse: collapse;
-		}
-		#outer_container td:first-child {
-			width: 170px;
-			background-color: #DDDDDD;
-			vertical-align: top;
-		}
-		#outer_container td:first-child + td {
-			background-color: #EEEEEE;
-			vertical-align: top;
-		}
-		#side_button_bar {
-			border: 1px solid black;
-			border-radius: 15px;
-			background-color: #DDEEDD;
-			padding: 8px;
-			text-align: center;
-			margin-top: 12px;
-		}
-		#side_button_bar button {
-			margin: 4px;
-			width: 80%;
-		}
-		div.teacher_pane {
-			display: none;
-		}
-		div.teacher_pane.selected {
-			display: block;
-		}
-		button.load_btn
-			background-color: #00bfff;
-		}
-		button.load_btn.selected
-			background-color: #00bfff;
-		}
-		button.load_btn[disabled=true] {
-			color: ButtonShadow;
-			cursor: text;
-		}
+	{{teacher_css}}
 	</style>
-  </head>
+{% endblock %}
 
-  <body>
-  <script type="text/javascript">
-	  var token = "{{ token }}";
-	  var start_pane = window.location.hash.substr(1) || "{{ default_start_pane }}";
-	  $(initialize);  // set the initialize() function from teacher.js to load when the window loads.
-  </script>
+
+
+{% block top %}
+	<script type="text/javascript">
+		var token = "{{ token }}";
+		var start_pane = window.location.hash.substr(1) || "{{ default_start_pane }}";
+		$(initialize);	// set the initialize() function from teacher.js to load when the window loads.
+	</script>
 	{{ header|safe }}
 	{{ teacher_info|safe }}
 	{% if msg %}<div style="color:red">{{ msg }}</div>{% endif %}
-	<table id="outer_container">
-		<tr>
-			<td>
-				<select>
-					<option>1. aardvark nightware</option>
-					<option>2. asparagus and skiing</option>
-					<option>3. alder bark ale</option>
-				</select>
-				<p>What do aardarks do at night to keep warm in cold weather?</p>
-				<div id="side_button_bar">
-					<button class="load_btn" id="load_students_btn" onclick="loadPane('students')">Students</button><br/>
-					<button class="load_btn" id="load_queries_btn" onclick="loadPane('queries')">Queries</button><br/>
-					<button class="load_btn" id="load_words_btn" onclick="loadPane('words')">Words</button><br/>
-					<button class="load_btn" id="load_links_btn" onclick="loadPane('links')">Links</button><br/>
-					<button class="load_btn" id="load_common_btn" onclick="loadPane('common')">Students-Words</button><br/>
-					<button class="load_btn" id="load_answers_btn" onclick="loadPane('answers')">Answers</button><br/>
-					<button class="load_btn" id="load_lesson_btn" onclick="loadPane('lesson')">Lesson</button><br/>
-				</div>
-			</td>
-			<td>
-				<div id="pane_students" class="teacher_pane">
-					<div id="students"></div>
-				</div>
-				<div id="pane_queries" class="teacher_pane">
-					<h3>Search Terms:</h3>
-					<div id="searchTerms"></div>
-				</div>
-				<div id="pane_words" class="teacher_pane">
-					<h3>Words</h3>
-					<p>This section will contain a tag cloud based on the root words
-					from all searches for the currently selected task.</p>
-					<p>Example:<br/>
-					<img src="/imgs/mockup_tag_cloud.png" alt="tag cloud mockup"></img>
-					</p>
-				</div>
-				<div id="pane_common" class="teacher_pane">
-					<div id="graph_vis">
-						<div id="canvas"></div>
-						<button id="redraw" onclick="redraw();">redraw</button>
-					</div>
-				</div>
-				<div id="pane_links" class="teacher_pane">
-					<h3>Links followed</h3>
-					<div id="links"></div>
-				</div>
-				<div id="pane_answers" class="teacher_pane">
-					<h3>Answers</h3>
-					<p>This section will list answers entered by students.</p>
-				</div>
-				<div id="pane_lesson" class="teacher_pane">
-					<h3>Lesson</h3>
-					<p>This section will list answers entered by students.</p>
-					<p>
-						Example:<br/>
-						<br/>
-						Lesson password<br/>
-						<input type="text" size="10"></textarea><br/>
-						<br/>
-						Lesson name<br/>
-						<input type="text" size="40"></textarea><br/>
-						<br/>
-						Lesson description<br/>
-						<textarea cols="80" rows="2"></textarea><br/>
-						<br/>
-						Class name (optional)<br/>
-						<input type="text" size="40"></textarea><br/>
-						<br/>
-						Task #1 name<br/>
-						<input type="text" size="40"></textarea><br/>
-						<br/>
-						Task #1 description<br/>
-						<textarea cols="80" rows="2"></textarea><br/>
-						<br/>
-						Task #2 name<br/>
-						<input type="text" size="40"></textarea><br/>
-						<br/>
-						Task #2 description<br/>
-						<textarea cols="80" rows="2"></textarea><br/>
-						<br/>
-						Task #3 name<br/>
-						<input type="text" size="40"><br/>
-						<br/>
-						Task #3 description<br/>
-						<textarea cols="80" rows="2"></textarea><br/>
-						<br/>
-					</p>
-				</div>
-			</td>
-		</tr>
-	</table>
-		
-	
+{% endblock %}
 
 
+
+{% block side_panel %}
+	<select class="task_title">
+		{% for task in lesson.tasks %}
+		<option class="task_title" id="task_title_{{forloop.counter}}">{{forloop.counter}}. {{task.title}}</option>
+		{% endfor %}
+	</select>
+	{% for task in lesson.tasks %}
+	<p id="task_description_{{forloop.counter}}" class="task_description{% if forloop.first %} selected{% endif %}">{{task.description}}</p>
+	{% endfor %}
+	<div id="side_button_bar">
+		<button class="load_btn" id="load_students_btn" onclick="loadPane('students')">Students</button><br/>
+		<button class="load_btn" id="load_queries_btn" onclick="loadPane('queries')">Queries</button><br/>
+		<button class="load_btn" id="load_words_btn" onclick="loadPane('words')">Words</button><br/>
+		<button class="load_btn" id="load_links_btn" onclick="loadPane('links')">Links</button><br/>
+		<button class="load_btn" id="load_common_btn" onclick="loadPane('common')">Students-Words</button><br/>
+		<button class="load_btn" id="load_answers_btn" onclick="loadPane('answers')">Answers</button><br/>
+	</div>
+{% endblock %}
+
+
+
+{% block content_area %}
+	<div id="pane_students" class="teacher_pane">
+		<h3>Students</h3>
+		<div id="students"></div>
+	</div>
+	<div id="pane_queries" class="teacher_pane">
+		<h3>Queries</h3>
+		<div id="searchTerms"></div>
+	</div>
+	<div id="pane_words" class="teacher_pane">
+		<h3>Words</h3>
+		<p>This section will contain a tag cloud based on the root words
+		from all searches for the currently selected task.</p>
+		<p>Example:<br/>
+		<img src="/imgs/mockup_tag_cloud.png" alt="tag cloud mockup"></img>
+		</p>
+	</div>
+	<div id="pane_links" class="teacher_pane">
+		<h3>Links</h3>
+		<div id="links"></div>
+	</div>
+	<div id="pane_common" class="teacher_pane">
+		<h3>Students-Words</h3>
+		<div id="graph_vis">
+			<div id="canvas"></div>
+			<button id="redraw" onclick="redraw();">redraw</button>
+		</div>
+	</div>
+	<div id="pane_answers" class="teacher_pane">
+		<h3>Answers</h3>
+		<p>This section will list answers entered by students.</p>
+	</div>
+{% endblock %}
+
+
+
+{% block bottom %}
 	<div id="log"></div>
-	
 	<div id="searchers"></div>
-	
-  </body>
-</html>
+{% endblock %}
