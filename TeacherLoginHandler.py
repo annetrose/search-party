@@ -33,13 +33,13 @@ class TeacherLoginHandler(SearchPartyRequestHandler):
 			sp.next_teacher_id += 1
 			sp.put()
 			self.set_person(teacher)
-			log( ".....   Make new teacher and stored in DB" )
+#			log( ".....   Make new teacher and stored in DB" )
 
 #		self.session['teacher'] = teacher  # don't store teacher object in two places
 		self.session.regenerate_id()
 
-		log( ".....   redirect to /teacher")
-		self.redirect_with_msg('Teacher Logged in. Hello: ' + self.teacher.user.nickname(), dst='/teacher')
+#		log( ".....   redirect to /teacher")
+		self.redirect_with_msg('Teacher Logged in. Hello: ' + self.teacher.user.nickname(), dst='/teacher_lessons')
 
 	def post(self):
 		from helpers import log
@@ -55,4 +55,3 @@ class TeacherLoginHandler(SearchPartyRequestHandler):
 			if teacher:
 				teacher.password = password
 				teacher.put()
-

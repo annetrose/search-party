@@ -65,7 +65,8 @@ class Student(SearchPartyModel):
 
 	def get_all_client_ids(self):
 		#  This is to be explicit and have this defined in one and only one place.
-		clients = tuple(Client.all().filter("student =", self).get())
+		#clients = tuple(Client.all().filter("student =", self).get())
+		clients = tuple(Client.all().filter("student =", self))
 		client_ids = tuple(client.client_id for client in clients)
 
 		# Might end up with multiple copies of same client.  For now, bandage over it.  FIXME
@@ -101,15 +102,20 @@ class Lesson(SearchPartyModel):
 	teacher = db.ReferenceProperty(Teacher)
 	title = db.StringProperty()
 	description = db.StringProperty()
+	password = db.StringProperty()
 	class_name = db.StringProperty()
 	start_time = db.DateTimeProperty()
 	stop_time = db.DateTimeProperty()
 
 	# OTHER METHODS
 	is_active = property(lambda self: (self.start_time is not None) and (self.stop_time is None))
+	tasks = property(lambda self: tuple(Task.all().filter("lesson =", self)))
+
+	lesson_key = property(lambda self: self.key())
 
 class Task(SearchPartyModel):
 	# FIELDS
-	assignment = db.ReferenceProperty(Teacher)
+	lesson = db.ReferenceProperty(Lesson)
+	teacher = db.ReferenceProperty(Teacher)
 	title = db.StringProperty()
 	description = db.StringProperty()

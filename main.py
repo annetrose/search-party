@@ -25,12 +25,11 @@ def main():
 	from MainPage                   import MainPage
 	from QueryHandler               import QueryHandler
 	from SearchExecutedHandler      import SearchExecutedHandler
-	from SearchPartyChannelHandler  import SearchPartyChannelHandler
-	from SearchPartyRequestHandler  import SearchPartyRequestHandler
 	from StudentListPage            import StudentListPage
 	from StudentLoginHandler        import StudentLoginHandler
 	from StudentLoginPage           import StudentLoginPage
 	from StudentPage                import StudentPage
+	from TeacherLessons             import TeacherLessons
 	from TeacherLoginHandler        import TeacherLoginHandler
 	from TeacherPage                import TeacherPage
 
@@ -46,8 +45,9 @@ def main():
 			  ('/student_list',              StudentListPage),
 			  ('/student_login',             StudentLoginPage),
 			  ('/student_login_handler',     StudentLoginHandler),
-			  ('/teacher',                   TeacherPage),
+			  ('/teacher/([-_A-Za-z0-9]+)',  TeacherPage),
 			  ('/teacher_login',             TeacherLoginHandler),
+			  ('/teacher_lessons',           TeacherLessons),
 			  ('/_ah/channel/connected/',    ChannelConnectedHandler),
 			  ('/_ah/channel/disconnected/', ChannelDisconnectedHandler),
 			 ], debug=True)

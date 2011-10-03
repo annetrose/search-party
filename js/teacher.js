@@ -9,7 +9,7 @@
 
 function updateNumStudents(data) {
     var numStudents = data['num_students'];
-    if (numStudents == 0) {
+    if (numStudents === 0) {
         var html = "No students logged in";
     } else {
         // var html = "# <a href='/student_list'>students</a>: " + numStudents;
@@ -86,17 +86,18 @@ function displayData(data) {
 
 function onMessage(msg) {
     var state = JSON.parse(msg.data);
+	var sinceStr;
     if (state.change == "student_login") {
     	$.getJSON("/query", "qt=num_students", updateNumStudents);
     } else if (state.change == "student_logout") {
     	$.getJSON("/query", "qt=num_students", updateNumStudents);
     	$.getJSON("/query", "qt=students", updateStudents);  // for students list
     } else if (state.change == "student_search") {
-        var sinceStr = $("#activitySlider").slider("value");
+        sinceStr = $("#activitySlider").slider("value");
     	$.getJSON("/query", "qt=data&since=" + sinceStr, displayData);
     	$.getJSON("/query", "qt=students", updateStudents);  // for students list
     } else if (state.change == "student_link_followed") {
-        var sinceStr = $("#activitySlider").slider("value");
+        sinceStr = $("#activitySlider").slider("value");
     	$.getJSON("/query", "qt=data&since=" + sinceStr, displayData);
     	$.getJSON("/query", "qt=students", updateStudents);  // for students list
     } else if ('log' in state) {
@@ -111,23 +112,18 @@ function openChannel(token) {
 }
 
 var current_pane_name = null;
+
 function loadPane(pane_name) {
 	if(current_pane_name !== null) {
-		//document.getElementById("pane_"+current_pane_name).style.display = "none";
-		//document.getElementById("load_"+current_pane_name+"_btn").style.backgroundColor = "#dddddd";
-		//$(".pane_selected").removeClass("pane_selected");
-		$(pane_id(current_pane_name)).removeClass("selected");
-		$(load_btn_id(current_pane_name)).removeClass("selected");
-		//$("pane_"+current_pane_name).css("background-color", "#dddddd");
+		$("#"+get_pane_id(current_pane_name)).removeClass("selected");
+		$("#"+load_btn_id(current_pane_name)).removeClass("selected");
 	}
 	current_pane_name = pane_name;
-	$(pane_id(current_pane_name)).addClass("selected");
-	$(load_btn_id(current_pane_name)).addClass("selected");
-//	document.getElementById("pane_"+current_pane_name).style.display = "block";
-//	document.getElementById("load_"+current_pane_name+"_btn").style.backgroundColor = "#ffff88";
+	$("#"+get_pane_id(current_pane_name)).addClass("selected");
+	$("#"+load_btn_id(current_pane_name)).addClass("selected");
 	window.location.hash = current_pane_name;
 }
-function pane_id(pane_name) {
+function get_pane_id(pane_name) {
 	return "pane_" + pane_name;
 }
 function load_btn_id(pane_name) {
@@ -136,14 +132,15 @@ function load_btn_id(pane_name) {
 
 function updateStudents(data) {
 	var students = data;
+	var html;
 	if (students.length == 0) {
-	    var html = "No students logged in";
+	    html = "No students logged in";
 	} else {
-	    var html = "Currently logged in students:";
+	    html = "Currently logged in students:";
 	    html += "<ul>";
 	    for (var i in students) {
 	        var student = students[i];
-	        var name = student[0]
+	        var name = student[0];
 	        var activities = student[1];
 		    html += "<li>" + name + ": ";
 		    for (var j in activities) {
@@ -204,12 +201,17 @@ function initialize() {
 				$("#activityFromDate").html("this morning");
 				$("#todayButton").button("disable");
 				break;
+			default:
+				alert("ERROR #22103 (bad slider value)");
+				break;
 		}
 		$.getJSON("/query", "qt=data&since=" + ui.value, displayData);
 	});
 	$("#activitySlider").bind( "slidechange", function(event, ui) {
 		$.getJSON("/query", "qt=data&since=" + ui.value, displayData);
 	});
+
+	$("select.task_title").change(taskChanged);
 
 	// Refresh dynamic data on page load
 	$.getJSON("/query", "qt=num_students", updateNumStudents);
@@ -252,4 +254,13 @@ function initializeGraph() {
         layouter.layout();
         renderer.draw();
     };
+}
+
+function taskChanged(eventObject) {
+	var select = eventObject.target;
+	var option = select.options[select.selectedIndex];
+	var optionId = option.id;
+	var descriptionId = optionId.replace("task_title_", "task_description_");
+	$(".task_description.selected").removeClass("selected");
+	$("#"+descriptionId).addClass("selected");
 }

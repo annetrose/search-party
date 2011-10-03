@@ -42,9 +42,12 @@ h1 {
 }
 
 .header {
-    font-size: 1.4em;
     font-weight: bold;
     width: 100%;
+}
+
+#header_title {
+    font-size: 20px;
 }
 
 .title {
