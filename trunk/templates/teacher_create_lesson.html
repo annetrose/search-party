@@ -1,0 +1,47 @@
+{# vim: set sw=2 ts=2 noexpandtab:                                                       #}
+{% extends "base.html" %}
+
+<h3>Lesson</h3>
+<table class="lesson">
+	<tr>
+		<td class="lesson_name" name="lesson_name">
+			Lesson name<br/>
+			<input type="text" size="40"></input>
+		</td>
+		<td class="lesson_password" name="lesson_password">
+			Lesson password<br/>
+			<input type="text" size="10"></input>
+		</td>
+		<td class="class_name" name="class_name">
+			Class name (optional)<br/>
+			<input type="text" size="40"></input>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="3" class="lesson_description" name="lesson_description">
+			Lesson description<br/>
+			<textarea cols="69" rows="2"></textarea>
+		</td>
+	</tr>
+</table>
+
+<h3 class="task_label">Tasks</h3>
+
+{% for i in task_nums %}
+
+<table class="task">
+	<tr>
+		<td class="task_number">
+			<h4>{{ i }}</h4>
+		</td>
+		<td class="task_name">
+			Task #{{ i }} name<br/>
+			<input type="text" size="20" name="task_name_{{ i }}"></input>
+		</td>
+		<td class="task_description">
+			Task #{{ i }} description<br/>
+			<textarea cols="40" rows="4" name="task_description_{{ i }}"></textarea>
+		</td>
+	</tr>
+</table>
+{% endfor %}
