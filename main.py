@@ -25,7 +25,7 @@ def main():
 	from MainPage                   import MainPage
 	from QueryHandler               import QueryHandler
 	from SearchExecutedHandler      import SearchExecutedHandler
-	from StudentListPage            import StudentListPage
+#	from StudentListPage            import StudentListPage
 	from StudentLoginHandler        import StudentLoginHandler
 	from StudentLoginPage           import StudentLoginPage
 	from StudentPage                import StudentPage
@@ -42,7 +42,7 @@ def main():
 			  ('/query',                     QueryHandler),
 			  ('/search_executed',           SearchExecutedHandler),
 			  ('/student',                   StudentPage),
-			  ('/student_list',              StudentListPage),
+#			  ('/student_list',              StudentListPage),
 			  ('/student_login',             StudentLoginPage),
 			  ('/student_login_handler',     StudentLoginHandler),
 			  ('/teacher/([-_A-Za-z0-9]+)',  TeacherPage),

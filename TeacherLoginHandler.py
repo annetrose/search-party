@@ -41,17 +41,17 @@ class TeacherLoginHandler(SearchPartyRequestHandler):
 #		log( ".....   redirect to /teacher")
 		self.redirect_with_msg('Teacher Logged in. Hello: ' + self.teacher.user.nickname(), dst='/teacher_lessons')
 
-	def post(self):
-		from helpers import log
-		from model import Teacher
-		self.load_search_party_context()
-
-		log( "LOGIN:  teacher, post" )
-		password = self.request.get('password')
-		if password:
-			# TODO:  Make this use the base class.
-			teacherQuery = Teacher.all().filter('user =', self.user)
-			teacher = teacherQuery.get()
-			if teacher:
-				teacher.password = password
-				teacher.put()
+#	def post(self):
+#		from helpers import log
+#		from model import Teacher
+#		self.load_search_party_context()
+#
+#		log( "LOGIN:  teacher, post" )
+#		password = self.request.get('password')
+#		if password:
+#			# TODO:  Make this use the base class.
+#			teacherQuery = Teacher.all().filter('user =', self.user)
+#			teacher = teacherQuery.get()
+#			if teacher:
+#				teacher.password = password
+#				teacher.put()

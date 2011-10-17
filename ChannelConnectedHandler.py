@@ -10,10 +10,10 @@ from SearchPartyChannelHandler import SearchPartyChannelHandler
 class ChannelConnectedHandler(SearchPartyChannelHandler):
 	def post(self):
 		# FIXME:  This is getting called multiple times for one page load.
-		from helpers import send_log_msg
+#		from helpers import send_log_msg
 		self.load_search_party_context()
 		if self.is_student:
-			send_log_msg(self.student.teacher, "Student %s has logged on."%(self.student.nickname))
+#			send_log_msg(self.student.teacher, "Student %s has logged on."%(self.student.nickname))
 			if not self.student.logged_in:
 				self.student.logged_in = True
 				self.student.put()

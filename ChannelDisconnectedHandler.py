@@ -9,13 +9,15 @@ from SearchPartyChannelHandler import SearchPartyChannelHandler
 
 class ChannelDisconnectedHandler(SearchPartyChannelHandler):
 	def post(self):
-		from helpers import send_log_msg, send_update_msg, log
+#		from helpers import send_log_msg, send_update_msg
+		from helpers import log
 
 		self.load_search_party_context()
-		log("DISC:  client=%s"%repr(self.client))
+		log("DISC:  client.client_id=%r"%self.client.client_id)
 		if self.is_teacher:
-			for student in self.teacher.students:
-				send_log_msg(student, "Teacher disconnected")
+			pass
+#			for student in self.teacher.students:
+#				send_log_msg(student, "Teacher disconnected")
 		elif self.is_student:
-			send_update_msg(self.student.teacher, "Student %s logged out"%(self.student.nickname) )
+#			send_update_msg(self.student.teacher, "Student %s logged out"%(self.student.nickname) )
 			self.student.log_out()
