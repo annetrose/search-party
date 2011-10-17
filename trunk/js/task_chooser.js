@@ -16,3 +16,7 @@ $(function() {
 function selectedTaskIdx() {
 	return $("#task_chooser").get(0).selectedIndex;
 }
+
+function numberOfTasks() {
+	return $("#task_chooser").get(0).childNodes.length;
+}

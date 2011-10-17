@@ -23,17 +23,12 @@ class TeacherPage(SearchPartyRequestHandler):
 			self.redirect_to_teacher_login()
 		else:
 			lesson = Lesson.all().filter("lesson_code =", lesson_code).get()
-			lesson = Lesson.all().filter("title =", "LN:20111016-231003").get()
 			if lesson.teacher.key() != self.teacher.key():
 				log("lesson.teacher == %r"%lesson.teacher)
 				log("self.teacher   == %r"%self.teacher)
 				self.redirect_to_teacher_login()
 			else:
 				default_start_pane = "students"
-
-#				student_structure = self.make_student_structure(lesson)
-#				student_structure = json.dumps(student_structure, indent="    ")
-#				student_structure = "\n        ".join(student_structure.splitlines())
 
 				template_values = {
 					'header': self.gen_header("teacher"),
@@ -52,7 +47,7 @@ class TeacherPage(SearchPartyRequestHandler):
 	
 	def make_student_structure(self, lesson):
 		from model import Student, Task, StudentActivity
-		num_tasks = Task.all().count()
+		num_tasks = Task.all().filter("lesson =",lesson).count()
 		student_structure = {}
 		for student in Student.all().filter("lesson =", lesson):
 			tasks_info = [{"searches":[], "answer":None} for _ in range(num_tasks)]
