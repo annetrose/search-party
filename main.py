@@ -15,6 +15,9 @@ import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'dummy_django_settings'
 from google.appengine.dist import use_library
 use_library('django', '1.2')
+from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
+template.register_template_library("templatetags.linkify_filter")
 
 
 def main():
@@ -32,8 +35,6 @@ def main():
 	from TeacherLessons             import TeacherLessons
 	from TeacherLoginHandler        import TeacherLoginHandler
 	from TeacherPage                import TeacherPage
-
-	from google.appengine.ext import webapp
 
 	application = webapp.WSGIApplication(
 			[ ('/',                          MainPage),

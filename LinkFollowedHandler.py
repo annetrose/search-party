@@ -12,21 +12,29 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
 		from model import StudentActivity
 #		from helpers import send_update_msg
 		from helpers import log
+		from updates import send_update_link_followed
 
 		self.load_search_party_context()
 		if self.is_student:
 			student = self.student
-			lesson_code = self.student.lesson.lesson_code  # PERFORMANCE: may be doing too needless queries here
+			student_nickname = student.nickname
+			lesson = student.lesson
+			teacher = lesson.teacher
+			lesson_code = lesson.lesson_code  # PERFORMANCE: may be doing too needless queries here
+			query = self.request.get("query")
+			url = self.request.get('url')
+			title = self.request.get("title")
 			link = StudentActivity(
 				student = student,
-				student_nickname = student.nickname,
+				student_nickname = student_nickname,
 				lesson_code = lesson_code,
 				task_idx = int(self.request.get("task_idx")),
 				activity_type = 'link',
-				search = self.request.get("query"),
-				link = self.request.get('url'),
-				link_title = self.request.get("title"),
+				search = query,
+				link = url,
+				link_title = title,
 			)
 			link.put()
 			log( "LinkFollowedHandler:  activity=%r"%link )
 #			send_update_msg(self.student.teacher, "student_link_followed")
+			send_update_link_followed(teacher=teacher, student_nickname=student_nickname, query=query, url=url, title=title)

@@ -22,21 +22,22 @@ def calc_since_time(since_str):
 		since_time -= timedelta(days=1)
 	return since_time
 
-def send_msg(person, msg_type, msg):
-	from google.appengine.api import channel
-	from django.utils import simplejson as json
-	from model import Student, Teacher
-	assert isinstance(person, Student) or isinstance(person, Teacher), repr(person)
-	for client_id in person.get_all_client_ids():
-		channel.send_message(client_id, json.dumps({msg_type:msg}))
 
-def send_update_msg(person, msg):
-	send_msg(person=person, msg_type="change", msg=msg)
-
-def send_log_msg(person, msg):
-	import settings
-	if settings.ENABLE_UPDATE_LOGGING:
-		send_msg(person=person, msg_type="log", msg=msg)
+#def send_msg(person, msg_type, msg):
+#	from google.appengine.api import channel
+#	from django.utils import simplejson as json
+#	from model import Student, Teacher
+#	assert isinstance(person, Student) or isinstance(person, Teacher), repr(person)
+#	for client_id in person.get_all_client_ids():
+#		channel.send_message(client_id, json.dumps({msg_type:msg}))
+#
+#def send_update_msg(person, msg):
+#	send_msg(person=person, msg_type="change", msg=msg)
+#
+#def send_log_msg(person, msg):
+#	import settings
+#	if settings.ENABLE_UPDATE_LOGGING:
+#		send_msg(person=person, msg_type="log", msg=msg)
 
 def log(msg):
 	import logging, settings

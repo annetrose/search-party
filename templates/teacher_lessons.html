@@ -5,7 +5,6 @@
 
 {% block head %}
   <title>Search Party - Teacher Lessons</title>
-  <link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
 {% endblock %}
 
 
@@ -21,7 +20,7 @@
   <h3>Active lessons</h3>
   {% if active_lessons %}
     {% for lesson in active_lessons %}
-    <a href="/teacher/{{lesson.key}}">{{ lesson.title }}</a>
+    <a href="/teacher/{{lesson.lesson_code}}">{{ lesson.title }}</a>
     {% endfor %}
   {% else %}
     (None)
@@ -29,7 +28,7 @@
   <h3>Inactive lessons</h3>
   {% if inactive_lessons %}
     {% for lesson in inactive_lessons %}
-      {{ lesson.title }}
+    <a href="/teacher/{{lesson.lesson_code}}">{{ lesson.title }}</a>
     {% endfor %}
   {% else %}
     (None)

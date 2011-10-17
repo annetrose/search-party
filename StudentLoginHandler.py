@@ -9,13 +9,14 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 class StudentLoginException(Exception): pass
 
 class StudentLoginHandler(SearchPartyRequestHandler):
-	INITIAL_TASK_ID = 0
+	INITIAL_TASK_IDX = 0
 
 	def post(self):
 		from django.utils import simplejson as json
 #		from helpers import send_update_msg
-		from model import Student, Teacher, Lesson
-		import sys
+		from model import Student, Lesson
+		from updates import send_update_log_in
+#		import sys
 		self.load_search_party_context()
 
 		# Close any active session the user has since s/he is trying to login
@@ -40,15 +41,17 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 
 			teacher = lesson.teacher
 			student = Student.all().filter("nickname =", student_name).filter("lesson =", lesson).get()
-			if student:
+			if student and student.logged_in:
 				raise StudentLoginException("Another student named %s is already logged in. Please choose another name."%student_name)
 
 			# Successful student login
 			# Update session
 			self.session.regenerate_id()  # not really necessary.  only needed for security for real authentication.
-			self.session['msg'] = "Student logged in:  Hello " + student_name;
+			self.session['msg'] = "Student logged in:  Hello " + student_name
 
 #			send_update_msg(teacher, "student_login")
+
+			task_idx = self.INITIAL_TASK_IDX
 
 			# Put student in database
 			student = Student(
@@ -56,10 +59,15 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 				nickname=student_name,
 				session_sid=self.session.sid,
 				lesson=lesson,
-				task_idx=self.INITIAL_TASK_ID,
+				task_idx=task_idx,
 			)
 			student.put()
 			self.set_person(student)
+
+			send_update_log_in(teacher=teacher,
+							   student_nickname=student.nickname,
+							   task_idx=task_idx)
+
 			self.response.out.write(json.dumps({"status":"logged_in"}))
 		except StudentLoginException, e:
 			self.set_person(None)
