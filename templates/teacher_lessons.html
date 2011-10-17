@@ -1,0 +1,98 @@
+{% extends "side_navigation_layout.html" %}
+{# vim: set sw=2 ts=2 expandtab: #}
+
+
+
+{% block head %}
+  <title>Search Party - Teacher Lessons</title>
+  <link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
+{% endblock %}
+
+
+
+{% block top %}
+  {{ header|safe }}
+  {% if msg %}<div style="color:red">{{ msg }}</div>{% endif %}
+{% endblock %}
+
+
+
+{% block side_panel %}
+  <h3>Active lessons</h3>
+  {% if active_lessons %}
+    {% for lesson in active_lessons %}
+    <a href="/teacher/{{lesson.key}}">{{ lesson.title }}</a>
+    {% endfor %}
+  {% else %}
+    (None)
+  {% endif %}
+  <h3>Inactive lessons</h3>
+  {% if inactive_lessons %}
+    {% for lesson in inactive_lessons %}
+      {{ lesson.title }}
+    {% endfor %}
+  {% else %}
+    (None)
+  {% endif %}
+{% endblock %}
+
+
+{% block content_area %}
+  <div id="pane_lesson">
+    <form method="post" action="/teacher_lessons">
+      <h3>Create lesson</h3>
+      <table class="lesson">
+        <tr>
+          <td class="lesson_title">
+            Lesson name<br/>
+            <input type="text" size="40" name="lesson_title" value="{% if dbg_timestamp %}LN:{{ dbg_timestamp }}{% endif %}"></input>
+          </td>
+          <td class="lesson_password">
+            Lesson password<br/>
+            <input type="text" size="10" name="lesson_password" value="{% if dbg_timestamp %}LP:{{ dbg_timestamp }}{% endif %}"></input></td>
+          <td class="class_name">
+            Class name (optional)<br/>
+            <input type="text" size="40" name="class_name" value="{% if dbg_timestamp %}CN:{{ dbg_timestamp }}{% endif %}"></input>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="lesson_description">
+            Lesson description<br/>
+            <textarea cols="69" rows="2" name="lesson_description">{% if dbg_timestamp %}LD:{{ dbg_timestamp }}{% endif %}</textarea>
+          </td>
+        </tr>
+      </table>
+      
+      <h3 class="task_label">Tasks</h3>
+
+      {% for i in task_nums %}
+        <table class="task">
+          <tr>
+            <td class="task_number">
+              <h4>{{ i }}</h4>
+            </td>
+            <td class="task_title">
+              Task #{{ i }} name<br/>
+              <input type="text" size="20" name="task_title_{{ i }}" value="{% if dbg_timestamp %}TN:{{ dbg_timestamp }}#{{ i }}{% endif %}"></input>
+            </td>
+            <td class="task_description">
+              Task #{{ i }} description<br/>
+              <textarea cols="40" rows="2" name="task_description_{{ i }}">{% if dbg_timestamp %}TD:{{ dbg_timestamp }}#{{ i }}{% endif %}</textarea>
+            </td>
+          </tr>
+        </table>
+      {% endfor %}
+      <div style="text-align:center">
+      <input type="submit" value="Create Lesson" style="padding: 10px;"></input>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+
+
+{% block bottom %}
+  <div id="log"></div>
+  <div id="searchers"></div>
+{% endblock %}
+

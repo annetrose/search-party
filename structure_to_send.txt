@@ -1,0 +1,102 @@
+// This is just for documentation.  This code is not used.
+//
+// vim: set sw=4 ts=4 noexpandtab syntax=javascript:
+
+// _______________________________________________________________________________
+// CORE STRUCTURE
+//
+// We might have others that act as indexes or perhaps other methods/attributes
+// on this one for convenience.  In any case, this will be maintained at the
+// very least.  This will come included in the initial teacher page load and then
+// the server will send other updates by wy of the channel API.
+
+g_students = {
+	"Stuart" : {
+		"logged_in" : true,
+		"task_idx" : 2,
+		"tasks" : [
+			{
+				"queries" : [
+					{
+						"query" : "...",
+						"links" : [
+							"http://...",
+						]
+					},
+					...
+				],
+				"answer" : {
+					"text" : "...",
+					"explanation" : "...",
+				}
+			}
+		]
+	}
+}
+
+// g_students["Stuart"].tasks[2].queries[3].links[4] ==> <4th link Stuart tried in results for his 3rd query on the 2nd task>
+
+g_root_words = {
+	"aardvarks" : "aardvark",
+	"aardvark" : "aardvark",
+	"eats" : "eat",
+	"eat" : "eat",
+	"ate" : "eat",
+}
+
+// g_root_words["aardvarks"] ==> "aardvark"
+
+
+// _______________________________________________________________________________
+// UPDATES
+//
+// Server will send a list of updates.  Each is essentially a command which the
+// client (teacher's browser) will execute on the structures above.  In most
+// cases, there will updates to the UI, as well.  This (below) is a sampler of
+// examples of all supported messages.  This is structured as a list because
+// eventually, it would probably make sense to bundle these to be sent from
+// the server no more than once per second (or some sensible interval), especially
+// if you had a large class.
+
+[
+	{
+		"type" : "query",
+		"student_name" : "Stuart",
+		"query" : "..."
+	},
+
+	{
+		"type" : "link",
+		"student_name" : "Stuart",
+		"query" : "...",
+		"link" : "http://..."
+	},
+
+	{
+		"type" : "student_logged_in",
+		"student_name" : "Stuart"
+	},
+
+	{
+		"type" : "student_logged_out",
+		"task_idx" : 2
+		"student_name" : "Stuart",
+	},
+
+	{
+		"type" : "student_set_task",
+		"student_name" : "Stuart"
+	},
+
+	{
+		"type" : "student_entered_answer",
+		"student_name" : "Stuart",
+		"task_idx" : 2,
+		"answer" : {
+			"text" : "...",
+			"explanation" : "...",
+			"timestamp" : "..."
+		}
+	}
+]
+

@@ -1,0 +1,66 @@
+		body, button, input, textarea, select {
+			font-size: 12pt;
+		}
+		#outer_container {
+			width: 100%;
+			border: 0px;
+			margin: 0px;
+			padding: 0px;
+			border-spacing: 0px;
+			border-collapse: collapse;
+		}
+		td {
+			vertical-align: top;
+		}
+		table.lesson, table.task {
+			width: 650px;
+			margin-left: 12px;
+			margin-right: 12px;
+		}
+		div.teacher_pane {
+			display: none;
+		}
+		div.teacher_pane.selected {
+			display: block;
+		}
+		button.load_btn {
+			background-color: #f0f0f0;
+		}
+		button.load_btn.selected {
+			background-color: #ffff66;
+		}
+		button.load_btn[disabled=true] {
+			color: ButtonShadow;
+			cursor: text;
+		}
+		td.task_title, td.lesson_title {
+			width: 170px;
+			padding: 7px;
+		}
+		td.lesson_password {
+			width: 100px;
+			padding: 7px;
+		}
+		td.class_name {
+			width: 380px;
+			padding: 7px;
+		}
+		td.task_description {
+			width: 450px;
+			padding: 7px;
+		}
+		td.lesson_description {
+			width: 650px;
+			padding: 7px;
+		}
+		td.task_number {
+			width: 10px;
+		}
+		td.task_title input, td.lesson_title input, td.lesson_password input, td.task_description textarea,
+							td.lesson_description textarea, td.class_name input {
+			width: 100%;
+			text-align: left;
+		}
+		h3 {
+			margin-bottom: 0px;
+		}
