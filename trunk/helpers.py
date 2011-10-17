@@ -26,7 +26,7 @@ def send_msg(person, msg_type, msg):
 	from google.appengine.api import channel
 	from django.utils import simplejson as json
 	from model import Student, Teacher
-	assert isinstance(person, Student) or isinstance(person, Teacher)
+	assert isinstance(person, Student) or isinstance(person, Teacher), repr(person)
 	for client_id in person.get_all_client_ids():
 		channel.send_message(client_id, json.dumps({msg_type:msg}))
 
@@ -63,6 +63,43 @@ def read_file(filename, encoding="utf8"):
 def timestamp():
 	import time
 	return time.strftime("%Y%m%d-%H%M%S")
+
+def prettify_html(html):
+	from BeautifulSoup import BeautifulSoup
+	soup = BeautifulSoup(html)
+	pretty_html = soup.prettify()
+	return pretty_html
+
+def smush(s, to_length, num_dots=3):
+	if not isinstance(s, basestring):
+		s = str(s)
+	s_len = len(s)
+	if s_len > to_length:
+		front_len = int((to_length - num_dots) / 2)
+		back_len = to_length - num_dots - front_len
+		s = s[:front_len] + "."*num_dots + s[-back_len:]
+	return s
+
+def chop(s, to_length, num_dots=3):
+	if not isinstance(s, basestring):
+		s = str(s)
+	s_len = len(s)
+	if s_len > to_length:
+		front_len = to_length - num_dots
+		s = s[:front_len] + "."*num_dots
+	return s
+
+#print smush( "fish", 5 )
+#print smush( "fish fried with butter", 5 )
+#print smush( 1, 5 )
+#print smush( 1234567890, 5 )
+#print chop( "fish", 5 )
+#print chop( "fish fried with butter", 5 )
+#print chop( 1, 5 )
+#print chop( 1234567890, 5 )
+
+	
+
 
 
 

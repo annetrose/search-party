@@ -9,19 +9,25 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class SearchExecutedHandler(SearchPartyRequestHandler):
 	def post(self):		   
-		from helpers import send_update_msg, log
+#		from helpers import send_update_msg
+		from helpers import log
 		from model import StudentActivity
+		from datetime import datetime
+
 		self.load_search_party_context()
 
 		if self.is_student:
-			query = self.request.get("q")
-			activity = StudentActivity()
-			activity.activity_type = 'search'
-			activity.search  = query
-			activity.student = self.student
-			activity.teacher = self.student.teacher
+			lesson_code = self.student.lesson.lesson_code  # PERFORMANCE: may be doing too needless queries here
+			student = self.student
+			activity = StudentActivity(
+				student = student,
+				student_nickname = student.nickname,
+				lesson_code = lesson_code,
+				task_idx = int(self.request.get("task_idx")),
+				activity_type = 'search',
+				search = self.request.get("query"),
+			)
 			activity.put()
-			send_update_msg(self.student.teacher, "student_search")
-			log( "SearchExecutedHandler : %s"%query )
-		else:
-			log( "SearchExecutedHandler : not recognized as student" )
+#			send_update_msg(self.student.teacher, "student_search")
+#		else:
+#			log( "SearchExecutedHandler : not recognized as student" )

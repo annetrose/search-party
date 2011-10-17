@@ -12,7 +12,7 @@ function updateHistory(data) {
     
     for (var i in activities) {
         if (i > 0) {
-            html += " => ";
+            html += "<br/>";
         }
         var activity = activities[i];
         var activityType = activity[0];
@@ -57,4 +57,73 @@ function openChannel(token) {
   var channel = new goog.appengine.Channel(token);
   var socket = channel.open();
   socket.onmessage = onMessage;
+}
+
+
+//  below here were copied from HTML on 10-12-2011
+
+function initEventHandlers() {
+	$("#cse").contents().find("input[name='search']").focus();
+	$("#cse").contents().find("input[value='Search']").click(function(event) {
+		var searchTerms = $("input[name='search']").val();
+		searchExecuted(searchTerms);
+	});
+}
+
+function doSearch(searchStr) {
+	$("input[name='search']").focus();
+	$("input[name='search']").val(searchStr);
+	$("input[value='Search']").trigger('click');
+}
+
+function searchCompleteCallback() {  // called from js/student_custom_search.js
+	// TODO:  Send the search query and, if possible, the title of the link
+	$("#cse").contents().find("a[class='gs-title']").click(function(event) {
+		var href = $(this).attr("href");
+        var title = $(this).text();
+		linkFollowed(href, title)
+	});
+	
+	// Ads seem to show up a bit later, so we wait a bit and then remove them
+	setTimeout("hideAds()", 500);
+}
+
+function hideAds() {
+	$("#cse").contents().find(".gsc-adBlock").css("display", "none");
+	$("#cse").contents().find(".gsc-adBlockVertical").css("display", "none");
+	$("#cse").contents().find(".gsc-tabsArea").css("display", "none");			
+}
+
+function searchExecuted(query) {
+    window.g_lastQuery = query;
+	$.post("/search_executed", {"query" : query, "task_idx":selectedTaskIdx()});
+	getHistory();
+}
+
+function linkFollowed(url, title) {
+	$.post("/link_followed", {"url" : url,  "title":title, "query":g_lastQuery, "task_idx":selectedTaskIdx()});
+	getHistory();
+}
+
+function initialize() {
+	openChannel(TOKEN);
+//	onResize();
+
+	// Refresh dynamic data on page load
+//	getHistory();
+};
+
+//$(window).resize(function() {
+//	onResize();
+//});
+
+//function onResize() {
+//	var height = $("#body").height();
+//	$("#browser_table_row").css("height", height - 100);
+//	$("#browser_iframe").attr("src", "http://www.google.com");
+//}
+
+function getHistory() {
+	var task_idx = selectedTaskIdx();   // selectedTaskIdx is defined in js/task_chooser.js
+	$.getJSON("/query", "qt=student_activity&task_idx="+task_idx, updateHistory);			
 }

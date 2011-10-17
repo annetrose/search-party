@@ -33,9 +33,11 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		assert not ((self.is_student) ^ (self.student is not None))
 
 
-		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
-		log( "..............  user="+repr(self.user) )
-		log( "......session.keys()="+repr(tuple(self.session)) )
+#		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
+#		log( "..............  user="+repr(self.user) )
+#		log( "...........  student="+repr(self.student) )
+#		log( "...........  teacher="+repr(self.teacher) )
+#		log( "......session.keys()="+repr(tuple(self.session)) )
 		# TODO: Consider using this logic, which was previously used to get the teacher
 		# and/or figure out if a teacher is logged on rather than a student.
 #		user = users.get_current_user()
@@ -77,9 +79,6 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 			if self.session.has_key("person_type"):
 				del self.session["person_type"]
 
-
-	
-
 	def redirect_to_teacher_login(self):
 		from google.appengine.api import users
 		self.redirect(users.create_login_url('/teacher_login'))
@@ -101,9 +100,10 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		token = channel.create_channel(client_id)
 		return token
 
-	def gen_header(self):
+	def gen_header(self, role="unknown"):
 		from google.appengine.api import users
-		template_vals = {"nickname":None, "teacher_login_url":None}
+		assert role in ("teacher", "student", "unknown")
+		template_vals = {"nickname":None, "teacher_login_url":None, "role":role}
 		if self.is_student:
 			template_vals["nickname"] = self.student.nickname
 		elif self.is_teacher:
@@ -135,9 +135,11 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 
 	def render_template(self, file, template_vals):
 		from google.appengine.ext.webapp import template
+		from helpers import prettify_html
 		import os
 		path = os.path.join(os.path.dirname(__file__), 'templates', file)
 		html = template.render(path, template_vals)
+#		html = prettify_html(html)
 		return html
 #		self.response.out.write(template.render(path, template_vals))
 

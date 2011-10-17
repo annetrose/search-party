@@ -15,13 +15,11 @@ class StudentPage(SearchPartyRequestHandler):
 		if not self.is_student:
 			self.redirect_with_msg('')
 		else:
-			log("PAGE: student, session.sid=%s"%(self.session.sid))
 			template_values = {
-				'header':     self.gen_header(),
-				'teacher_id': self.student.teacher.teacher_id,
+				'header':     self.gen_header("student"),
 				'nickname':   self.student.nickname,
-				'token':      self.create_channel(),
-				'sid':        self.session.sid,
+				"token"    : self.create_channel(),
+				"lesson" : self.student.lesson,
 			}
 			if self.session.has_key('msg'):
 				template_values['msg'] = self.session.pop('msg')  # only show the message once

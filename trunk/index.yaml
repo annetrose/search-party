@@ -45,6 +45,23 @@ indexes:
 
 - kind: StudentActivity
   properties:
+  - name: lesson
+  - name: student
+  - name: date
+
+- kind: StudentActivity
+  properties:
+  - name: lesson
+  - name: student
+  - name: timestamp
+
+- kind: StudentActivity
+  properties:
+  - name: lesson_code
+  - name: timestamp
+
+- kind: StudentActivity
+  properties:
   - name: student
   - name: date
 

@@ -10,15 +10,23 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 class LinkFollowedHandler(SearchPartyRequestHandler):
 	def post(self):
 		from model import StudentActivity
-		from helpers import send_update_msg
+#		from helpers import send_update_msg
+		from helpers import log
 
 		self.load_search_party_context()
 		if self.is_student:
-			link = StudentActivity()
-			link.activity_type = 'link'
-			link.link = self.request.get('href')
-			link.student = self.student
-			link.teacher = self.student.teacher
+			student = self.student
+			lesson_code = self.student.lesson.lesson_code  # PERFORMANCE: may be doing too needless queries here
+			link = StudentActivity(
+				student = student,
+				student_nickname = student.nickname,
+				lesson_code = lesson_code,
+				task_idx = int(self.request.get("task_idx")),
+				activity_type = 'link',
+				search = self.request.get("query"),
+				link = self.request.get('url'),
+				link_title = self.request.get("title"),
+			)
 			link.put()
-
-			send_update_msg(self.student.teacher, "student_link_followed")
+			log( "LinkFollowedHandler:  activity=%r"%link )
+#			send_update_msg(self.student.teacher, "student_link_followed")

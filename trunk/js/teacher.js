@@ -1,4 +1,3 @@
-
 /*
 # SearchParty - Learning to Search in a Web-Based Classroom
 # Author: Ben Bederson - www.cs.umd.edu/~bederson
@@ -7,34 +6,45 @@
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 */
 
-function updateNumStudents(data) {
-    var numStudents = data['num_students'];
-    if (numStudents === 0) {
-        var html = "No students logged in";
-    } else {
-        // var html = "# <a href='/student_list'>students</a>: " + numStudents;
-        var html = "# students: " + numStudents;
-    }
-    $("#num_students").html(html);
+function updateNumStudents_Request() {
+	// LESSON_CODE is global, defined in the HTML file
+	// $.getJSON("/query", "qt=num_students", updateNumStudents_Callback);
+	//$.getJSON("/query", "qt=num_students&lesson_code="+LESSON_CODE, updateNumStudents_Callback);
 }
 
-function displaySearchers(terms) {
-    var html = "";
-    for (i in terms) {
-        var term = terms[i];
-        if (i > 0) {
-            html += ", ";
-        }
-        html += term;
-    }
+function updateNumStudents_Callback(data) {
+    //var numStudents = data['num_students'];
+    //if (numStudents === 0) {
+    //    var html = "No students logged in";
+    //} else {
+    //    // var html = "# <a href='/student_list'>students</a>: " + numStudents;
+    //    var html = "# students: " + numStudents;
+    //}
+    $("#num_students").html(data["num_students"]);
+}
+
+
+
+function displaySearchers_Request(searchTerms) {
+	//$.getJSON("/query", "qt=search&terms=" + searchTerms, displaySearchers_Callback);
+}
+
+function displaySearchers_Callback(terms) {
+    var html = terms.join(", ");
     var searchers = $("#searchers");
     searchers.show();
-    searchers.html(html);
+    searchers.html(html);  // TODO:  Escape html.
     searchers.css("left", $(this).position().left + searchers.width());
     searchers.css("top", $(this).position().top);
 }
 
-function displayData(data) {
+
+
+function updateStudentActivities_Request(data) {
+	//$.getJSON("/query", "qt=student_activity&lesson_code=" + LESSON_CODE, updateStudentActivities_Callback);
+}
+
+function updateStudentActivities_Callback(data) {
     // Search terms
 	var searchTerms = data['terms'];
 	var html = "";
@@ -73,7 +83,7 @@ function displayData(data) {
 	
 	$(".term").mouseenter(function() {
 	    var searchTerms = $(this).html();
-    	$.getJSON("/query", "qt=search&terms=" + searchTerms, displaySearchers);
+		displaySearchers_Request(searchTerms);
         var searchers = $("#searchers");
         searchers.css("height", "20px");
         searchers.css("left", $(this).position().left + $(this).width() + 30);
@@ -84,53 +94,12 @@ function displayData(data) {
     });
 }
 
-function onMessage(msg) {
-    var state = JSON.parse(msg.data);
-	var sinceStr;
-    if (state.change == "student_login") {
-    	$.getJSON("/query", "qt=num_students", updateNumStudents);
-    } else if (state.change == "student_logout") {
-    	$.getJSON("/query", "qt=num_students", updateNumStudents);
-    	$.getJSON("/query", "qt=students", updateStudents);  // for students list
-    } else if (state.change == "student_search") {
-        sinceStr = $("#activitySlider").slider("value");
-    	$.getJSON("/query", "qt=data&since=" + sinceStr, displayData);
-    	$.getJSON("/query", "qt=students", updateStudents);  // for students list
-    } else if (state.change == "student_link_followed") {
-        sinceStr = $("#activitySlider").slider("value");
-    	$.getJSON("/query", "qt=data&since=" + sinceStr, displayData);
-    	$.getJSON("/query", "qt=students", updateStudents);  // for students list
-    } else if ('log' in state) {
-        $("#log").append(state.log + "<br>");
-    } 
+
+function updateStudents_Request() {
+	//$.getJSON("/query", "qt=students&lesson_code"+LESSON_CODE, updateStudents_Callback);  // for students list
 }
 
-function openChannel(token) {
-  var channel = new goog.appengine.Channel(token);
-  var socket = channel.open();
-  socket.onmessage = onMessage;
-}
-
-var current_pane_name = null;
-
-function loadPane(pane_name) {
-	if(current_pane_name !== null) {
-		$("#"+get_pane_id(current_pane_name)).removeClass("selected");
-		$("#"+load_btn_id(current_pane_name)).removeClass("selected");
-	}
-	current_pane_name = pane_name;
-	$("#"+get_pane_id(current_pane_name)).addClass("selected");
-	$("#"+load_btn_id(current_pane_name)).addClass("selected");
-	window.location.hash = current_pane_name;
-}
-function get_pane_id(pane_name) {
-	return "pane_" + pane_name;
-}
-function load_btn_id(pane_name) {
-	return "load_" + pane_name + "_btn";
-}
-
-function updateStudents(data) {
+function updateStudents_Callback(data) {
 	var students = data;
 	var html;
 	if (students.length == 0) {
@@ -159,70 +128,78 @@ function updateStudents(data) {
 	    }
 	    html += "</ul>";
     }
-    
 	$("#students").html(html);
 }
 
+
+function onMessage(msg) {
+	// Note:  Messages are limited to 32K.  This is not an issue now, but it
+	// might come up in the future.
+	//
+	// http://code.google.com/appengine/docs/python/channel/overview.html
+
+    var state = JSON.parse(msg.data);
+	var sinceStr;
+	var shouldUpdateNumStudents=false;
+	var shouldUpdateTermsAndLinks=false;
+    if (state.change == "student_login") {
+		updateNumStudents_Request();
+    }
+	else if (state.change == "student_logout") {
+		updateNumStudents_Request();
+		updateStudents_Request();
+    }
+	else if (state.change == "student_search") {
+		updateStudentActivities_Request();
+		updateStudents_Request();
+    }
+	else if (state.change == "student_link_followed") {
+		updateStudentActivities_Request();
+		updateStudents_Request();
+    }
+	else if ('log' in state) {
+        $("#log").append(state.log + "<br>");
+    } 
+}
+
+var g_currentPaneName = null;
+
+function loadPane(paneName) {
+	if(g_currentPaneName !== null) {
+		$("#"+getPaneId(g_currentPaneName)).removeClass("selected");
+		$("#"+loadButtonId(g_currentPaneName)).removeClass("selected");
+	}
+	g_currentPaneName = paneName;
+	$("#"+getPaneId(g_currentPaneName)).addClass("selected");
+	$("#"+loadButtonId(g_currentPaneName)).addClass("selected");
+	window.location.hash = g_currentPaneName;
+}
+function getPaneId(paneName) {
+	return "pane_" + paneName;
+}
+function loadButtonId(paneName) {
+	return "load_" + paneName + "_btn";
+}
+
+
 function initialize() {
-	// The variables start_pane and token must be set globally before this code is called.
-	
-	openChannel(token);
-	$("#todayButton").button();
-	$("#todayButton").button("disable");
-	$("#todayButton").click(function() {
-		$("#activityFromDate").html("today");
-		$("#activitySlider").slider("value", 5);
-		$("#todayButton").button("disable");
-	});
-	$("#activitySlider").slider({
-		min: 1,
-		max: 5,
-		value: 5
-	});
-	$("#activitySlider").bind( "slide", function(event, ui) {
-		switch (ui.value) {
-			case 1:
-				$("#activityFromDate").html("the beginning");
-				$("#todayButton").button("enable");
-				break;
-			case 2:
-				$("#activityFromDate").html("last week");
-				$("#todayButton").button("enable");
-				break;
-			case 3:
-				$("#activityFromDate").html("this week");
-				$("#todayButton").button("enable");
-				break;
-			case 4:
-				$("#activityFromDate").html("yesterday");
-				$("#todayButton").button("enable");
-				break;
-			case 5:
-				$("#activityFromDate").html("this morning");
-				$("#todayButton").button("disable");
-				break;
-			default:
-				alert("ERROR #22103 (bad slider value)");
-				break;
-		}
-		$.getJSON("/query", "qt=data&since=" + ui.value, displayData);
-	});
-	$("#activitySlider").bind( "slidechange", function(event, ui) {
-		$.getJSON("/query", "qt=data&since=" + ui.value, displayData);
-	});
+	// Open Channel
+	var channel = new goog.appengine.Channel(TOKEN);
+	var socket = channel.open();
+	socket.onmessage = onMessage;
 
-	$("select.task_title").change(taskChanged);
-
+    // DON'T REFRESH ANYTHING, FOR NOW
+    //
+    // We're going to redo this so the data is slipped into the initial page.
+    //
 	// Refresh dynamic data on page load
-	$.getJSON("/query", "qt=num_students", updateNumStudents);
-	$.getJSON("/query", "qt=data&since=5", displayData);
-	
-	// For student list
-	// Refresh dynamic data on page load
-	$.getJSON("/query", "qt=students", updateStudents);
-	initializeGraph();
+	//updateNumStudents_Request();
+	//updateStudentActivities_Request();
+	//updateStudents_Request();
 
-	loadPane(start_pane);
+	//initializeGraph();
+
+	loadPane(START_PANE);
 }
 
 
@@ -256,11 +233,3 @@ function initializeGraph() {
     };
 }
 
-function taskChanged(eventObject) {
-	var select = eventObject.target;
-	var option = select.options[select.selectedIndex];
-	var optionId = option.id;
-	var descriptionId = optionId.replace("task_title_", "task_description_");
-	$(".task_description.selected").removeClass("selected");
-	$("#"+descriptionId).addClass("selected");
-}
