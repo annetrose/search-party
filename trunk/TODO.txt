@@ -1,0 +1,88 @@
+========================================
+10-13-2011
+
+Student
+	Finish UI
+	Submit answer
+Lessons
+	Start
+	Stop
+	Edit
+Reports
+	Fix existing reports
+	Tag cloud
+	Table interactive vis
+
+
+
+
+
+
+
+========================================
+9-11-2011
+
+DB
+	Assignment
+	Problem
+Teacher view
+	Lesson - create
+	Lesson - see all
+	Lesson - delete
+	Lesson - reuse
+	List students - with searches and answers
+	List searches
+	Tag cloud of root words
+Student view
+	Search - adapt to format
+	Answer box
+	Queries so far
+	Wait screen
+	Submit answer mechanism
+Common to both views
+	Task chooser, as jQuery-ui accordion
+	Task text
+
+
+
+
+
+
+___________________________________________________________
+see history of how students got to a link
+image search
+need to specify timecut off for teacher starting new class
+TODO: Clean up logging stuff
+TODO: Test student login before teacher has set password
+TODO: Test what happens when teachers log out when students still logged in
+TODO: Figure out time zones
+BUG:	Mouse over on search term with "+" in it doesn't work
+TODO: Add teacher content filtering
+TODO: Better aggregation
+  - Tag cloud
+  - Histogram
+TODO: general visual design
+TODO: Figure out what to put on home page when no one is logged in
+TODO: Roll over teacher link should show search terms that got student there
+DEPLOYMENT:
+  - Let teacher log out individual, or all students
+  - Let teacher remove student searches or links followed
+  - Consider efficiency - i.e., make counting more efficient (i.e., cache count)
+  - Consider security
+
+
+Alex questions:
+Q1.  It seems that teacher and student objects are stored twice, once in the DB
+     and once in the session.  Is this true?
+
+
+V2
+ - Let teacher change their label ("search leader")
+ - Let teacher time filter use range slider
+ - Push visual indicator to student's view to identify inappropriate behavior
+ - Add ability for teacher to see student's screens
+ - Push teacher tasks to student view (different tasks per student?)
+ - Replace search widget with custom search result display
+ - Generalize architecture so other activities can be supported
+ - Add polling/question activities with mobile web page/app support
+ - Export data to spreadsheet
