@@ -16,8 +16,10 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'dummy_django_settings'
 from google.appengine.dist import use_library
 use_library('django', '1.2')
 from google.appengine.ext import webapp
-from google.appengine.ext.webapp import template
-template.register_template_library("templatetags.linkify_filter")
+
+# This filter is no longer used
+#from google.appengine.ext.webapp import template
+#template.register_template_library("templatetags.linkify_filter")
 
 
 def main():
@@ -28,7 +30,6 @@ def main():
 	from MainPage                   import MainPage
 	from QueryHandler               import QueryHandler
 	from SearchExecutedHandler      import SearchExecutedHandler
-#	from StudentListPage            import StudentListPage
 	from StudentLoginHandler        import StudentLoginHandler
 	from StudentLoginPage           import StudentLoginPage
 	from StudentPage                import StudentPage
