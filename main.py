@@ -43,7 +43,6 @@ def main():
 			  ('/query',                     QueryHandler),
 			  ('/search_executed',           SearchExecutedHandler),
 			  ('/student',                   StudentPage),
-#			  ('/student_list',              StudentListPage),
 			  ('/student_login',             StudentLoginPage),
 			  ('/student_login_handler',     StudentLoginHandler),
 			  ('/teacher/([-_A-Za-z0-9]+)',  TeacherPage),
