@@ -127,3 +127,7 @@ function getHistory() {
 	var task_idx = selectedTaskIdx();   // selectedTaskIdx is defined in js/task_chooser.js
 	$.getJSON("/query", "qt=student_activity&task_idx="+task_idx, updateHistory);			
 }
+
+function onTaskChanged(taskIdx) { // called from js/task_chooser.js
+	$.post("/task_changed", {"task_idx":selectedTaskIdx()});
+}

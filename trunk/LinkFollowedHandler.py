@@ -18,6 +18,7 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
 		if self.is_student:
 			student = self.student
 			student_nickname = student.nickname
+			task_idx = int(self.request.get("task_idx"))
 			lesson = student.lesson
 			teacher = lesson.teacher
 			lesson_code = lesson.lesson_code  # PERFORMANCE: may be doing too needless queries here
@@ -27,8 +28,8 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
 			link = StudentActivity(
 				student = student,
 				student_nickname = student_nickname,
-				lesson_code = lesson_code,
-				task_idx = int(self.request.get("task_idx")),
+				lesson = lesson,
+				task_idx = task_idx,
 				activity_type = 'link',
 				search = query,
 				link = url,
@@ -37,4 +38,5 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
 			link.put()
 			log( "LinkFollowedHandler:  activity=%r"%link )
 #			send_update_msg(self.student.teacher, "student_link_followed")
-			send_update_link_followed(teacher=teacher, student_nickname=student_nickname, query=query, url=url, title=title)
+			send_update_link_followed(teacher=teacher, student_nickname=student_nickname,
+									task_idx=task_idx, query=query, url=url, title=title)

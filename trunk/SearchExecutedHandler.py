@@ -20,7 +20,6 @@ class SearchExecutedHandler(SearchPartyRequestHandler):
 
 		if self.is_student:
 			lesson = self.student.lesson
-			lesson_code = lesson.lesson_code
 			teacher = lesson.teacher
 			student = self.student
 			query = self.request.get("query")
@@ -29,13 +28,10 @@ class SearchExecutedHandler(SearchPartyRequestHandler):
 			activity = StudentActivity(
 				student = student,
 				student_nickname = student_nickname,
-				lesson_code = lesson_code,
+				lesson = lesson,
 				task_idx = task_idx,
 				activity_type = 'search',
 				search = query,
 			)
 			activity.put()
 			send_update_query(teacher=teacher, student_nickname=student_nickname, task_idx=task_idx, query=query)
-#			send_update_msg(self.student.teacher, "student_search")
-#		else:
-#			log( "SearchExecutedHandler : not recognized as student" )

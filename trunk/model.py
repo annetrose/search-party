@@ -63,7 +63,7 @@ class Lesson(SearchPartyModel):
 
 	# OTHER METHODS
 	is_active = property(lambda self: (self.start_time is not None) and (self.stop_time is None))
-	tasks = property(lambda self: tuple(Task.all().filter("lesson =", self)))
+	tasks = property(lambda self: tuple(Task.all().filter("lesson =", self).order("task_idx")))
 
 	lesson_key = property(lambda self: self.key())
 
@@ -116,7 +116,7 @@ class StudentActivity(SearchPartyModel):
 	# FIELDS
 	student = db.ReferenceProperty(Student)
 	student_nickname = db.StringProperty()
-	lesson_code = db.StringProperty()
+	lesson = db.ReferenceProperty(Lesson)
 	task_idx = db.IntegerProperty()
 	activity_type = db.StringProperty()
 	search = db.StringProperty()
@@ -130,7 +130,9 @@ class StudentActivity(SearchPartyModel):
 
 class StudentAnswer(SearchPartyModel):
 	student = db.ReferenceProperty(Student)
-	task = db.ReferenceProperty(Task)
+	student_nickname = db.StringProperty()
+	lesson = db.ReferenceProperty(Lesson)
+	task_idx = db.IntegerProperty()
 	text = db.StringProperty()
 	explanation = db.StringProperty()
 	timestamp = db.DateTimeProperty(auto_now_add=True)
