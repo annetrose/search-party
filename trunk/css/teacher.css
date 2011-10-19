@@ -1,3 +1,4 @@
+/*
 body, button, input, textarea, select {
 	font-size: 12pt;
 }
@@ -34,8 +35,8 @@ td.task_title, td.lesson_title {
 	width: 170px;
 	padding: 7px;
 }
-td.lesson_password {
-	width: 100px;
+td.task_title, td.lesson_title {
+	width: 284px;
 	padding: 7px;
 }
 td.class_name {
@@ -53,7 +54,7 @@ td.lesson_description {
 td.task_number {
 	width: 10px;
 }
-td.task_title input, td.lesson_title input, td.lesson_password input, td.task_description textarea,
+td.task_title input, td.lesson_title input, td.task_description textarea,
 					td.lesson_description textarea, td.class_name input {
 	width: 100%;
 	text-align: left;
@@ -61,3 +62,4 @@ td.task_title input, td.lesson_title input, td.lesson_password input, td.task_de
 h3 {
 	margin-bottom: 0px;
 }
+*/
