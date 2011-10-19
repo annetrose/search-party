@@ -6,7 +6,6 @@
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
 from SearchPartyRequestHandler import SearchPartyRequestHandler
-class StudentLoginException(Exception): pass
 
 class StudentLoginHandler(SearchPartyRequestHandler):
 	INITIAL_TASK_IDX = 0
@@ -16,6 +15,7 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 #		from helpers import send_update_msg
 		from model import Student, Lesson
 		from updates import send_update_log_in
+		class StudentLoginException(Exception): pass
 #		import sys
 		self.load_search_party_context()
 
@@ -23,31 +23,30 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 		if self.session and self.session.is_active():
 			self.session.terminate()
 
-		student_name = self.request.get('student_name')
-		student_name = " ".join(student_name.split())  # normalize whitespace
+		student_nickname = self.request.get('student_nickname')
+		student_nickname = " ".join(student_nickname.split())  # normalize whitespace
 		lesson_code = self.request.get("lesson_code")
 		try:
-			if not lesson_code and not student_name:
+			if not lesson_code and not student_nickname:
 				raise StudentLoginException("Please enter a lesson code and a student name.")
 			elif not lesson_code:
 				raise StudentLoginException("Please enter a lesson code.")
-			elif not student_name:
+			elif not student_nickname:
 				raise StudentLoginException("Please enter a student name.")
 
 			lesson = Lesson.all().filter("lesson_code =", lesson_code).get()
 
 			if lesson is None:
 				raise StudentLoginException("Please check the lesson code.")
+			elif self.student_already_logged_in(student_nickname=student_nickname, lesson=lesson):
+				raise StudentLoginException("A student named %s is already logged in. Please choose another name."%student_nickname)
 
 			teacher = lesson.teacher
-			student = Student.all().filter("nickname =", student_name).filter("lesson =", lesson).get()
-			if student and student.logged_in:
-				raise StudentLoginException("Another student named %s is already logged in. Please choose another name."%student_name)
 
 			# Successful student login
 			# Update session
 			self.session.regenerate_id()  # not really necessary.  only needed for security for real authentication.
-			self.session['msg'] = "Student logged in:  Hello " + student_name
+			self.session['msg'] = "Student logged in:  Hello " + student_nickname
 
 #			send_update_msg(teacher, "student_login")
 
@@ -56,7 +55,7 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 			# Put student in database
 			student = Student(
 				logged_in=True,
-				nickname=student_name,
+				nickname=student_nickname,
 				session_sid=self.session.sid,
 				lesson=lesson,
 				task_idx=task_idx,
@@ -73,6 +72,11 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 			self.set_person(None)
 			self.session['msg'] = e.args[0]
 			self.response.out.write(json.dumps({"status":"logged_out"}))
+
+	def student_already_logged_in(self, student_nickname, lesson):
+		from model import Student
+		student = Student.all().filter("nickname =", student_nickname).filter("lesson =", lesson).get()
+		return (student is not None) and (student.logged_in)
 
 
 

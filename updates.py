@@ -18,8 +18,8 @@ def send_update_query(teacher, student_nickname, task_idx, query):
 	update = {"type":"query", "student_nickname":student_nickname, "task_idx":task_idx, "query":query}
 	_send_update(teacher, update)
 
-def send_update_link_followed(teacher, student_nickname, query, url, title):
-	update = {"type":"link_followed", "student_nickname":student_nickname, "query":query, "url":url, "title":title}
+def send_update_link_followed(teacher, student_nickname, task_idx, query, url, title):
+	update = {"type":"link_followed", "student_nickname":student_nickname, "task_idx":task_idx, "query":query, "url":url, "title":title}
 	_send_update(teacher, update)
 
 def send_update_log_in(teacher, student_nickname, task_idx):
@@ -34,6 +34,6 @@ def send_update_task(teacher, student_nickname, task_idx):
 	update = {"type":"task", "student_nickname":student_nickname, "task_idx":task_idx}
 	_send_update(teacher, update)
 
-def send_update_answer(teacher, student_nickname, task_idx, text, explanation):
-	update = {"type":"answer", "student_nickname":student_nickname, "task_idx":task_idx, "text":text, "explanation":explanation}
+def send_update_answer(teacher, student_nickname, task_idx, answer_text, answer_explanation):
+	update = {"type":"answer", "student_nickname":student_nickname, "task_idx":task_idx, "text":answer_text, "explanation":answer_explanation}
 	_send_update(teacher, update)

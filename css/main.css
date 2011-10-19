@@ -143,7 +143,7 @@ h1 {
 
 
 /****************************************
- * TEACHER
+ * TEACHER / TEACHER_LESSON
  */
 
 body, button, input, textarea, select {
@@ -181,12 +181,8 @@ button.load_btn[disabled=true] {
 	color: ButtonShadow;
 	cursor: text;
 }
-td.task_title, td.lesson_title {
+td.task_title {
 	width: 170px;
-	padding: 7px;
-}
-td.lesson_password {
-	width: 100px;
 	padding: 7px;
 }
 td.class_name {

@@ -57,6 +57,11 @@ indexes:
 
 - kind: StudentActivity
   properties:
+  - name: lesson
+  - name: timestamp
+
+- kind: StudentActivity
+  properties:
   - name: lesson_code
   - name: timestamp
 
@@ -86,3 +91,8 @@ indexes:
   properties:
   - name: teacher
   - name: search
+
+- kind: Task
+  properties:
+  - name: lesson
+  - name: task_idx

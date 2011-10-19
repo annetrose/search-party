@@ -46,16 +46,13 @@
             Lesson name<br/>
             <input type="text" size="40" name="lesson_title" value="{% if dbg_timestamp %}LN:{{ dbg_timestamp }}{% endif %}"></input>
           </td>
-          <td class="lesson_password">
-            Lesson password<br/>
-            <input type="text" size="10" name="lesson_password" value="{% if dbg_timestamp %}LP:{{ dbg_timestamp }}{% endif %}"></input></td>
           <td class="class_name">
             Class name (optional)<br/>
             <input type="text" size="40" name="class_name" value="{% if dbg_timestamp %}CN:{{ dbg_timestamp }}{% endif %}"></input>
           </td>
         </tr>
         <tr>
-          <td colspan="3" class="lesson_description">
+          <td colspan="2" class="lesson_description">
             Lesson description<br/>
             <textarea cols="69" rows="2" name="lesson_description">{% if dbg_timestamp %}LD:{{ dbg_timestamp }}{% endif %}</textarea>
           </td>

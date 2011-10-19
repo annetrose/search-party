@@ -14,16 +14,17 @@ function onMessage(msg) {
 	//
 	// http://code.google.com/appengine/docs/python/channel/overview.html
 
+	window.status = msg.data;
 	updates = JSON.parse(msg.data);
 	var num_updates = updates.length;
 	for(var i=0; i<num_updates; i++) {
 		var update = updates[i];
 		switch(update.type) {
 			case "query":
-				handle_update_query(update.student_nickname, update.query);
+				handle_update_query(update.student_nickname, update.task_idx, update.query);
 				break;
 			case "link_followed":
-				handle_update_link_followed(update.student_nickname, update.query, update.task_idx, update.url, update.title);
+				handle_update_link_followed(update.student_nickname, update.task_idx, update.query, update.url, update.title);
 				break;
 			case "log_in":
 				handle_update_log_in(update.student_nickname, update.task_idx);
@@ -48,7 +49,7 @@ function handle_update_query(student_nickname, task_idx, query) {
 	updateUI();
 }
 
-function handle_update_link_followed(student_nickname, query, url, title) {
+function handle_update_link_followed(student_nickname, task_idx, query, url, title) {
 	var searches = g_students[student_nickname].tasks[task_idx].searches;
 	var num_searches = searches.length;
 	var search_info = null;
@@ -77,7 +78,7 @@ function handle_update_log_in(student_nickname, task_idx) {
 		student_info.tasks = tasks_list;
 		var numTasks = numberOfTasks();
 		for(var i=0; i<numTasks; i++) {
-			tasks_list.push({"searches":[], answer:null});
+			tasks_list.push({"searches":[], answer:{text:"", explanation:""}});
 		}
 		g_students[student_nickname] = student_info;
 	}
@@ -101,7 +102,9 @@ function handle_update_task(student_nickname, task_idx) {
 }
 
 function handle_update_answer(student_nickname, task_idx, text, explanation) {
-	g_students[student_nickname].tasks[task_idx].answer = {"text":text, "explanation":explanation};
+	var answer_info = g_students[student_nickname].tasks[task_idx].answer;
+	answer_info.text = text;
+	answer_info.explanation = explanation;
 	updateUI();
 }
 
@@ -145,6 +148,7 @@ function updateStudents() {
 	lines.push("<pre><tt>");
 	lines.push(JSON.stringify(g_students, null, 4));
 	lines.push("</tt></pre>");
+	lines.push("<p>Updated at " + (new Date()) + "</p>")
 	var html = lines.join("");
 	$("#students").html(html);
 }
@@ -186,6 +190,7 @@ function updateUI() {
 }
 
 function initialize() {
+	window.status = "Loading...";
 	// Open Channel
 	var channel = new goog.appengine.Channel(TOKEN);
 	var socket = channel.open();
@@ -195,6 +200,7 @@ function initialize() {
 	//initializeGraph();
 
 	loadPane(START_PANE);
+	window.status = "Loaded";
 }
 
 

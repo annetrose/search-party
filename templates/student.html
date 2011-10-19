@@ -8,6 +8,10 @@
 <link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
 <link rel="stylesheet" href="css/custom-search.css" type="text/css" />
 <link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
+<style type="text/css">
+	.task_description {
+	}
+</style>
 <script type="text/javascript" src="/js/student.js"></script>
 <script type="text/javascript" src="/js/task_chooser.js"></script>
 <script src="http://www.google.com/jsapi" type="text/javascript"></script>
@@ -16,6 +20,26 @@
 	var TOKEN = "{{ token }}";
 	var g_lastQuery = null;
 	$(initialize);
+	$(function () {
+		var checkContent = function() {
+			var answerText = document.getElementById("answer_text").value;
+			var answerTextIsEmpty = (answerText.trim().length==0);
+			var answerExplanation = document.getElementById("answer_explanation").value;
+			var answerExplanationIsEmpty = (answerExplanation.trim().length==0);
+			document.getElementById("answer_button").disabled = (answerTextIsEmpty || answerExplanationIsEmpty);
+		};
+		$("#answer_text").keyup(checkContent);
+		$("#answer_explanation").keyup(checkContent);
+		$("#answer_button").click(function() {
+				$.post("/answer", {
+					task_idx: selectedTaskIdx(),
+					answer_text: document.getElementById("answer_text").value,
+					answer_explanation: document.getElementById("answer_explanation").value
+				});
+				return false;
+		});
+	});
+
 // ]]>
 </script>
 {% endblock %}
@@ -31,6 +55,20 @@
 
 
 {% block side_panel_lower %}
+
+<form action="/task_changed" method="post" id="answer_form">
+<p>
+Answer
+<textarea rows="2" cols="19" name="answer_text" id="answer_text"></textarea>
+</p>
+
+<p>
+How did you find it?
+<textarea rows="4" cols="19" name="answer_explanation" id="answer_explanation"></textarea>
+</p>
+<div><input type="button" id="answer_button" value="Save" disabled="true"></input></div>
+</form>
+
 {% comment %}
 Search History: 
 <span id="history"></span>

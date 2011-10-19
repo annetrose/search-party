@@ -23,6 +23,7 @@ from google.appengine.ext import webapp
 
 
 def main():
+	from AnswerHandler              import AnswerHandler
 	from ChannelConnectedHandler    import ChannelConnectedHandler
 	from ChannelDisconnectedHandler import ChannelDisconnectedHandler
 	from LinkFollowedHandler        import LinkFollowedHandler
@@ -33,12 +34,14 @@ def main():
 	from StudentLoginHandler        import StudentLoginHandler
 	from StudentLoginPage           import StudentLoginPage
 	from StudentPage                import StudentPage
+	from TaskChangedHandler         import TaskChangedHandler
 	from TeacherLessons             import TeacherLessons
 	from TeacherLoginHandler        import TeacherLoginHandler
 	from TeacherPage                import TeacherPage
 
 	application = webapp.WSGIApplication(
 			[ ('/',                          MainPage),
+			  ('/answer',                    AnswerHandler),
 			  ('/link_followed',             LinkFollowedHandler),
 			  ('/logout',                    LogoutPage),
 			  ('/query',                     QueryHandler),
@@ -46,6 +49,7 @@ def main():
 			  ('/student',                   StudentPage),
 			  ('/student_login',             StudentLoginPage),
 			  ('/student_login_handler',     StudentLoginHandler),
+			  ('/task_changed',              TaskChangedHandler),
 			  ('/teacher/([-_A-Za-z0-9]+)',  TeacherPage),
 			  ('/teacher_login',             TeacherLoginHandler),
 			  ('/teacher_lessons',           TeacherLessons),

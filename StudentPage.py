@@ -13,7 +13,7 @@ class StudentPage(SearchPartyRequestHandler):
 		self.load_search_party_context()
 
 		if not self.is_student:
-			self.redirect_with_msg('')
+			self.redirect_with_msg('Not a student')
 		else:
 			template_values = {
 				'header':     self.gen_header("student"),

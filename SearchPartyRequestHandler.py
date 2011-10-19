@@ -14,6 +14,9 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		from gaesessions import get_current_session
 		from google.appengine.api import users
 		from helpers import log
+		log(self.request.url)
+		if self.request.body and self.request.body.strip():
+			log( self.request.body )
 
 		self.session = get_current_session()
 		self.user = users.get_current_user()

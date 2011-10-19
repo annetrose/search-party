@@ -23,7 +23,7 @@
   <table style="td">
     <tr>
       <td align="right">Student name:</td>
-      <td><input type="text" id="student_name" class="login_box" name="student_name"></td>
+      <td><input type="text" id="student_nickname" class="login_box" name="student_nickname"></td>
     </tr>
     <tr>
       <td align="right">Lesson code:</td>
@@ -48,7 +48,7 @@
       $.post("/student_login_handler", 
         {
          "lesson_code": $('#lesson_code').val(),
-         "student_name": $('#student_name').val()
+         "student_nickname": $('#student_nickname').val()
         }, 
         login_callback, 'json');
     }
