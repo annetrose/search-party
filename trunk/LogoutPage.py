@@ -34,9 +34,7 @@ class LogoutPage(SearchPartyRequestHandler):
 			# Student logout
 			log("LOGOUT: student, sid=%s, student=%r"%(self.session.sid, self.student))
 			student = self.student
-			student.logged_in = False
-			student.session_sid = ""
-			student.put()
+			student.log_out()
 			student_nickname = student.nickname
 			teacher = student.lesson.teacher
 #			send_update_msg(self.student.teacher, "Student %s logged out."%self.student.nickname)

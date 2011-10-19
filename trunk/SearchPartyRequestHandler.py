@@ -13,7 +13,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		from model import Teacher, Student
 		from gaesessions import get_current_session
 		from google.appengine.api import users
-		from helpers import log
+		from helpers import log, smush
 		log(self.request.url)
 		if self.request.body and self.request.body.strip():
 			log( self.request.body )
@@ -36,11 +36,12 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		assert not ((self.is_student) ^ (self.student is not None))
 
 
-#		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
-#		log( "..............  user="+repr(self.user) )
-#		log( "...........  student="+repr(self.student) )
-#		log( "...........  teacher="+repr(self.teacher) )
-#		log( "......session.keys()="+repr(tuple(self.session)) )
+		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
+		log( "..............  user="+repr(self.user) )
+		log( "...........  student="+repr(self.student) )
+		log( "...........  teacher="+repr(self.teacher) )
+		log( "......session.keys()="+repr(tuple(self.session)) )
+		log( ".........session.sid="+repr(smush(self.session.sid, 40)) )
 		# TODO: Consider using this logic, which was previously used to get the teacher
 		# and/or figure out if a teacher is logged on rather than a student.
 #		user = users.get_current_user()
@@ -48,6 +49,10 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 #		teacher = teacherQuery.get()
 #		if not user or not teacher:
 #			self.redirect_to_teacher_login()
+	
+	def clear_session(self):
+		self.session.clear()
+		self.session.regenerate_id()
 
 	def set_person(self, person):
 		from model import Student, Teacher
