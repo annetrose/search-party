@@ -81,12 +81,16 @@ class Student(SearchPartyModel):
 	session_sid = db.StringProperty()
 	lesson = db.ReferenceProperty(Lesson)
 	task_idx = db.IntegerProperty()
-	date = db.DateTimeProperty(auto_now_add=True)
+	first_login_timestamp = db.DateTimeProperty(auto_now_add=True)
+	latest_login_timestamp = db.DateTimeProperty()
+	latest_logout_timestamp = db.DateTimeProperty()
 
 	# OTHER METHODS
 	teacher = property(lambda self:self.lesson.teacher)
 
 	def log_out(self):
+		from datetime import datetime
+		self.latest_logout_timestamp = datetime.now()
 		self.logged_in = False
 		self.session_sid = ""
 		self.put()
