@@ -76,6 +76,17 @@ indexes:
   - name: teacher
   - name: date
 
+- kind: StudentAnswer
+  properties:
+  - name: lesson
+  - name: timestamp
+
+- kind: StudentAnswer
+  properties:
+  - name: lesson
+  - name: timestamp
+    direction: desc
+
 - kind: StudentLink
   properties:
   - name: teacher
