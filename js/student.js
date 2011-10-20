@@ -97,12 +97,12 @@ function hideAds() {
 function searchExecuted(query) {
     window.g_lastQuery = query;
 	$.post("/search_executed", {"query" : query, "task_idx":selectedTaskIdx()});
-	getHistory();
+//	getHistory();
 }
 
 function linkFollowed(url, title) {
 	$.post("/link_followed", {"url" : url,  "title":title, "query":g_lastQuery, "task_idx":selectedTaskIdx()});
-	getHistory();
+//	getHistory();
 }
 
 function initialize() {
@@ -124,8 +124,8 @@ function initialize() {
 //}
 
 function getHistory() {
-	var task_idx = selectedTaskIdx();   // selectedTaskIdx is defined in js/task_chooser.js
-	$.getJSON("/query", "qt=student_activity&task_idx="+task_idx, updateHistory);			
+//	var task_idx = selectedTaskIdx();   // selectedTaskIdx is defined in js/task_chooser.js
+//	$.getJSON("/query", "qt=student_activity&task_idx="+task_idx, updateHistory);			
 }
 
 function onTaskChanged(taskIdx) { // called from js/task_chooser.js

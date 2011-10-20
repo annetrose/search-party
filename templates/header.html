@@ -12,11 +12,13 @@
     <a class="header_link" href='/teacher_lessons' id="lessons_link">Lessons</a>
   {% endif %}
 {% else %}
-    Login as
-    <a class="header_link" href='{{ teacher_login_url }}' id="header_teacher_link">teacher</a> OR
-    <a class="header_link" href='/student_login' id="header_student_link">student</a>
+  <div class="login_text">
+  Login as
+  <a class="header_link" href='{{ teacher_login_url }}' id="header_teacher_link">teacher</a>
+  or
+  <a class="header_link" href='/student_login' id="header_student_link">student</a>
+  </div>
 {% endif %}
     </td>
   </tr>
 </table>
-

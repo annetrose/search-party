@@ -250,6 +250,9 @@ h3 {
 #logo_img {
 	border: 0px;
 }
+.logged_out {
+	color: #888888;
+}
 
 /****************************************
  * TEACHER / TEACHER_LESSON
@@ -271,5 +274,6 @@ select        { font-size: 14pt; }
 .st_student   { font-size: 14pt; }
 .st_query     { font-size: 14pt; }
 .st_link      { font-size: 12pt; }
+.login_text   { font-size: 12pt; }
 .nothing_done { font-size: 12pt; }
 .header_link  { font-size: 12pt; }

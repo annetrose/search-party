@@ -145,6 +145,25 @@ function updateStudents() {
 	var taskIdx = selectedTaskIdx();
 	var studentTds=[], taskTds=[], queryTds=[], linkTds=[], lines=[];
 	var studentNames = getStudentNames();
+	var studentsLoggedIn=[], studentsLoggedOut=[];
+
+	// Put logged in students ahead of logged out students, but display both..
+	for(var studentIdx in studentNames) {
+		var studentNickname = studentNames[studentIdx];
+		if(g_students[studentNickname].logged_in) {
+			studentsLoggedIn.push(studentNickname);
+		}
+		else {
+			studentsLoggedOut.push(studentNickname);
+		}
+	}
+	studentNames.length = 0;
+	for(var studentIdx in studentsLoggedIn) {
+		studentNames.push(studentsLoggedIn[studentIdx]);
+	}
+	for(var studentIdx in studentsLoggedOut) {
+		studentNames.push(studentsLoggedOut[studentIdx]);
+	}
 	lines.push('<table id="student_table" border="1">');
 	lines.push('<thead>')
 	lines.push('<th>Name</th>')
@@ -155,6 +174,8 @@ function updateStudents() {
 	for(var studentIdx in studentNames) {
 		var studentNickname = studentNames[studentIdx];
 		var studentInfo = g_students[studentNickname];
+		var loggedIn = studentInfo.logged_in;
+		var loggedInOrOutClass = (loggedIn ? "" : " logged_out");
 		var taskInfo = studentInfo.tasks[taskIdx];
 		var searches = taskInfo.searches;
 		var answer = taskInfo.answer;
@@ -172,7 +193,7 @@ function updateStudents() {
 				rowSpanStudent += (numLinksFollowed==0 ? 1 : numLinksFollowed);
 			}
 		}
-		lines.push('<td class="st_student" rowspan="' + rowSpanStudent + '">' + studentNickname + "</td>");
+		lines.push('<td class="st_student' + loggedInOrOutClass + '" rowspan="' + rowSpanStudent + '">' + studentNickname + "</td>");
 		if(searches.length==0) {
 			lines.push('<td class="st_query nothing_done" colspan="2">&empty;</td>')
 			lines.push("</tr>")
@@ -187,9 +208,9 @@ function updateStudents() {
 				if(searchIdx > 0) {
 					lines.push("<tr>")
 				}
-				lines.push('<td class="st_query" rowspan="' + rowSpanQuery + '">' + query + "</td>");
+				lines.push('<td class="st_query' + loggedInOrOutClass + '" rowspan="' + rowSpanQuery + '">' + query + "</td>");
 				if(linksFollowed.length==0) {
-					lines.push('<td class="st_link nothing_done">&empty;</td>')
+					lines.push('<td class="st_link nothing_done' + loggedInOrOutClass + '">&empty;</td>')
 					lines.push('</tr>')
 				}
 				else {
@@ -198,7 +219,7 @@ function updateStudents() {
 							lines.push("<tr>")
 						}
 						var link = linksFollowed[linkIdx];
-						lines.push('<td class="st_link">' + makeLinkHTML(link, null) + '</td>');
+						lines.push('<td class="st_link' + loggedInOrOutClass + '">' + makeLinkHTML(link, null) + '</td>');
 						lines.push("</tr>")
 					}
 				}

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <td align="right">Lesson code:</td>
-      <td><input type="text" id="lesson_code" value="" class="login_box" name="lesson_code"></td>
+      <td><input type="text" id="lesson_code_field" value="" class="login_box" name="lesson_code"></td>
     </tr>
     <tr>
       <td></td>
@@ -47,7 +47,7 @@
     function login(event) {
       $.post("/student_login_handler", 
         {
-         "lesson_code": $('#lesson_code').val(),
+         "lesson_code": $('#lesson_code_field').val(),
          "student_nickname": $('#student_nickname').val()
         }, 
         login_callback, 'json');
