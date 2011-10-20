@@ -7,6 +7,490 @@
 */
 
 
+///////////////////////////////////////////////////////////
+// UPDATING UI
+//
+
+function updateUI() {
+	updateSideBarInfo();
+	updateButtonTitles();
+	switch( g_currentPaneName ) {
+		case "students":
+			updateStudents();
+			break;
+		case "queries":
+			updateQueries();
+			break;
+		case "words":
+			updateWords();
+			break;
+		case "links":
+			updateLinks();
+			break;
+		case "answers":
+			updateAnswers();
+			break;
+//		case "common":
+//			break;
+		default:
+			break;
+	}
+}
+
+function onTaskChanged(taskIdx) {
+	updateUI();
+}
+
+function updateSideBarInfo() {
+	// Number of students
+	var numStudents = calculateNumStudents();
+	$("#num_students").html(numStudents);
+}
+
+function countUnique(list) {
+	var set={};
+	var listLength=list.length;
+	for(var i=0; i<listLength; i++) {
+		set[list[i]] = true;
+	}
+	var numUnique = 0;
+	for(var item in set) {
+		numUnique += 1;
+	}
+	return numUnique;
+}
+
+function updateButtonTitles() {
+	var taskIdx = selectedTaskIdx();
+	var numStudents=0, numQueries=0, numWords=0, numLinks=0, numAnswers=0;
+	var queries=[], words=[], links=[], answers=[];
+	for(var studentNickname in g_students) {
+		numStudents += 1;
+		var taskInfo = g_students[studentNickname].tasks[taskIdx];
+		var searches = taskInfo.searches;
+		for(var searchIdx in searches) {
+			var search = searches[searchIdx];
+			var query = search.query;
+			queries.push(query);
+			var wordsInQuery = query.trim().split(/\s+/);
+			for(var wordIdx in wordsInQuery) {
+				var word = wordsInQuery[wordIdx];
+				if(!isStopWord(word)) {
+					words.push(word);
+				}
+			}
+			var linksFollowed = search.links_followed;
+			for(var linkIdx in linksFollowed) {
+				links.push(linksFollowed[linkIdx].url);
+			}
+		}
+		var answerTrimmed = taskInfo.answer.text.trim();
+		if(answerTrimmed.length > 0) {
+			answers.push(answerTrimmed);
+		}
+	}
+	numQueries = countUnique(queries);
+	numWords = countUnique(words);
+	numLinks = countUnique(links);
+	numAnswers = countUnique(answers);
+
+	document.getElementById(loadButtonId("students")).innerHTML = "Students (" + numStudents + ")";
+	document.getElementById(loadButtonId("queries" )).innerHTML = "Queries ("  + numQueries + ")";
+	document.getElementById(loadButtonId("words"   )).innerHTML = "Words ("    + numWords + ")";
+	document.getElementById(loadButtonId("links"   )).innerHTML = "Links ("    + numLinks + ")";
+	document.getElementById(loadButtonId("answers" )).innerHTML = "Answers ("  + numAnswers + ")";
+}
+
+
+function updateStudents() {
+	var studentNames = getStudentNames();
+	var lines = [];
+	lines.push("<ol>");
+	$.each(g_students, function(studentNickname, studentInfo) {
+	});
+	var numStudents = studentNames.length;
+	for( var i=0; i<numStudents; i++ ) {
+		var student_nickname = studentNames[i];
+		var attribs = (g_students[student_nickname].logged_in ? '' : ' style="color:gray"');
+		var annotation = (g_students[student_nickname].logged_in ? '' : ' (logged out)');
+		lines.push("<li" + attribs + ">" + student_nickname + annotation + "</li>");
+	}
+	lines.push("</ol>");
+	var html = lines.join("");
+	$("#students").html(html);
+}
+
+
+function clipText(s, maxLength) {
+	var dots = "...";
+	var sLength = s.length;
+	if(sLength > maxLength) {
+		s = s.substr(0, maxLength - dots.length) + dots;
+	}
+	return s;
+}
+
+function makeLinkHTML(linkInfo, maxLength) {
+	var url = linkInfo.url;
+	var title = linkInfo.title;
+	url = escapeForHtml(url);
+	if(maxLength !== null && maxLength !== 0) {
+		title = escapeForHtml( clipText(title, maxLength) );
+	}
+	var linkHTML = '<a href="' + url + '">' + title + '</a>';
+	return linkHTML;
+}
+function updateStudents() {
+	var maxLinkTitleLength = 30;
+	var taskIdx = selectedTaskIdx();
+	var studentTds=[], taskTds=[], queryTds=[], linkTds=[], lines=[];
+	var studentNames = getStudentNames();
+	lines.push('<table id="student_table" border="1">');
+	lines.push('<thead>')
+	lines.push('<th>Name</th>')
+	lines.push('<th>Query</th>')
+	lines.push('<th>Link followed</th>')
+	lines.push('</thead>')
+	lines.push('<tbody>')
+	for(var studentIdx in studentNames) {
+		var studentNickname = studentNames[studentIdx];
+		var studentInfo = g_students[studentNickname];
+		var taskInfo = studentInfo.tasks[taskIdx];
+		var searches = taskInfo.searches;
+		var answer = taskInfo.answer;
+
+		// Find rowspan for student name cell.
+		var rowSpanStudent = 0;
+		if(searches.length==0) {
+			rowSpanStudent = 1;
+		}
+		else {
+			rowSpanStudent = 0;
+			for(var searchIdx in searches) {
+				var searchInfo = searches[searchIdx];
+				var numLinksFollowed = searchInfo.links_followed.length;
+				rowSpanStudent += (numLinksFollowed==0 ? 1 : numLinksFollowed);
+			}
+		}
+		lines.push('<td class="st_student" rowspan="' + rowSpanStudent + '">' + studentNickname + "</td>");
+		if(searches.length==0) {
+			lines.push('<td class="st_query nothing_done" colspan="2">&empty;</td>')
+			lines.push("</tr>")
+		}
+		else {
+			for(var searchIdx in searches) {
+				var searchInfo = searches[searchIdx];
+				var query = searchInfo.query;
+				var linksFollowed = searchInfo.links_followed;
+				var numLinksFollowed = linksFollowed.length;
+				var rowSpanQuery = (numLinksFollowed <= 1 ? 1 : numLinksFollowed);
+				if(searchIdx > 0) {
+					lines.push("<tr>")
+				}
+				lines.push('<td class="st_query" rowspan="' + rowSpanQuery + '">' + query + "</td>");
+				if(linksFollowed.length==0) {
+					lines.push('<td class="st_link nothing_done">&empty;</td>')
+					lines.push('</tr>')
+				}
+				else {
+					for(var linkIdx in linksFollowed) {
+						if(linkIdx > 0) {
+							lines.push("<tr>")
+						}
+						var link = linksFollowed[linkIdx];
+						lines.push('<td class="st_link">' + makeLinkHTML(link, null) + '</td>');
+						lines.push("</tr>")
+					}
+				}
+			}
+		}
+		lines.push('</tr>')
+	}
+	lines.push('</tbody>')
+	lines.push("</table>")
+	var html = lines.join("");
+	$("#students").html(html);
+}
+
+function updateQueries() {
+	// Include only queries for the currently selected task.
+	var taskIdx = selectedTaskIdx();
+
+	// Get a list of queries, sorted, deduped, with space normalized.
+	var queries = getQueriesSpaceNormalized(taskIdx);
+	sortAndDeDupeInPlace(queries);
+
+	// Make the HTML list
+	lines = [];
+	lines.push('<ol id="queries_list">');
+	var numQueries = queries.length;
+	for( var queryIdx=0; queryIdx<numQueries; queryIdx++ ) {
+		lines.push("<li>" + queries[queryIdx] + "</li>");
+	}
+	lines.push("</ol>");
+	var html = lines.join("");
+
+	// Put HTML list in the document.
+	$("#queries").html(html);
+}
+
+function log(s) {
+	if(typeof console != "undefined") {
+		console.log(s);
+	}
+}
+
+function isStopWord(word) {
+	var stopWordsSet = {
+		"a":true,
+		"the":true,
+		"by":true,
+		"am":true,
+		"an":true,
+		"in":true,
+		"and":true,
+		"or":true,
+		"is":true
+	}
+	return (stopWordsSet[word]!=undefined); // if it's undefined, then it's not a stop word.
+}
+function updateWords() {
+	var taskIdx = selectedTaskIdx();
+	var wordOccurrenceDict = {};
+	var queries = getQueriesSpaceNormalized(taskIdx);
+	var numQueries = queries.length;
+	for(var queryIdx=0; queryIdx<numQueries; queryIdx++) {
+		var query = queries[queryIdx];
+		var wordsInQuery = query.split(" ");
+		var numWordsInQuery = wordsInQuery.length;
+		for(var wordInQueryIdx=0; wordInQueryIdx<numWordsInQuery; wordInQueryIdx++) {
+			var wordInQuery = wordsInQuery[wordInQueryIdx];
+			if(!isStopWord(wordInQuery)) {
+				var currentOccurrenceCount = wordOccurrenceDict[wordInQuery];
+				if(currentOccurrenceCount==undefined) {
+					currentOccurrenceCount = 0;
+				}
+				wordOccurrenceDict[wordInQuery] = currentOccurrenceCount + 1;
+			}
+		}
+	}
+
+	var wordList = [];
+	for(var word in wordOccurrenceDict) {
+		wordList.push(word);
+	}
+	wordList.sort(function (a,b) {
+		// Sort in DESCENDING order of occurrences.
+		var aOccurrences = wordOccurrenceDict[a];
+		var bOccurrences = wordOccurrenceDict[b];
+		return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
+	});
+
+	var lines = [];
+	lines.push('<table class="occurrences_table">');
+	for(var wordIdx in wordList) {
+		var word = wordList[wordIdx];
+		var occurrences = wordOccurrenceDict[word];
+		row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + escapeForHtml(word) + '</td></tr>';
+		lines.push(row_html);
+	}
+	lines.push('</table>');
+
+	var html = lines.join("");
+	$("#words").html(html);
+}
+
+function updateLinks() {
+	var taskIdx = selectedTaskIdx();
+	var linksOccurrenceDict = {};
+	var titlesByUrl = {};
+	var maxLinkTitleLength = 80;
+	for(var studentNickname in g_students) {
+		var searches = g_students[studentNickname].tasks[taskIdx].searches;
+		for(var searchIdx in searches) {
+			var searchInfo = searches[searchIdx];
+			var linksFollowed = searchInfo.links_followed;
+			for(var linkIdx in linksFollowed) {
+				var linkInfo = linksFollowed[linkIdx];
+				var url = linkInfo.url;
+				var title = linkInfo.title;
+				var occurrences = linksOccurrenceDict[url];
+				occurrences = (occurrences==undefined ? 0 : occurrences);
+				linksOccurrenceDict[url] = occurrences + 1;
+				titlesByUrl[url] = title;
+			}
+		}
+	}
+
+	var urlsOrderedByOccurrences = [];
+	for(var url in linksOccurrenceDict) {
+		urlsOrderedByOccurrences.push(url);
+	}
+	urlsOrderedByOccurrences.sort(function (a,b) {
+		// Sort in DESCENDING order of occurrences.
+		aOccurrences = urlsOrderedByOccurrences[a];
+		bOccurrences = urlsOrderedByOccurrences[b];
+		return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
+	});
+
+	var lines = [];
+	lines.push('<table id="link_occurrences_table" class="occurrences_table">');
+	for(var urlIdx in urlsOrderedByOccurrences) {
+		var url = urlsOrderedByOccurrences[urlIdx];
+		var occurrences = linksOccurrenceDict[url];
+		var linkInfo = {
+			url : url,
+			title : titlesByUrl[url]
+		};
+		var linkHTML = makeLinkHTML(linkInfo, null);
+		lines.push('<tr>');
+		lines.push('<td class="occurences_num">' + occurrences + '</td>');
+		lines.push('<td class="occurrences_times_symbol">&times;</td>');
+		lines.push('<td class="occurrences_item">'+linkHTML+'</td>');
+		lines.push('</tr>');
+	}
+	lines.push('</table>');
+
+	var html = lines.join("");
+	$("#links").html(html);
+
+	return queries;
+}
+
+function updateAnswers() {
+	var taskIdx = selectedTaskIdx();
+	var answers = [];
+	var lines = [];
+	for(var studentNickname in g_students) {
+		var answer = g_students[studentNickname].tasks[taskIdx].answer.text.trim();
+		if(answer.length > 0) {
+			answers.push(answer);
+		}
+	}
+	if(answers.length==0) {
+		lines.push('<div class="nothing_done">No answers have been submitted.</div>');
+	}
+	else {
+		var answerOccurrenceDict = {};
+		var numAnswers = answers.length;
+		for(var answerIdx=0; answerIdx<numAnswers; answerIdx++) {
+			var answer = answers[answerIdx];
+			var currentOccurrenceCount = answerOccurrenceDict[answer];
+			if(currentOccurrenceCount==undefined) {
+				currentOccurrenceCount = 0;
+			}
+			answerOccurrenceDict[answer] = currentOccurrenceCount + 1;
+		}
+
+		var answerList = [];
+		for(var answer in answerOccurrenceDict) {
+			answerList.push(answer);
+		}
+		answerList.sort(function (a,b) {
+			// Sort in DESCENDING order of occurrences.
+			var aOccurrences = answerOccurrenceDict[a];
+			var bOccurrences = answerOccurrenceDict[b];
+			return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
+		});
+
+		lines.push('<table class="occurrences_table">');
+		for(var answerIdx in answerList) {
+			var answer = answerList[answerIdx];
+			var occurrences = answerOccurrenceDict[answer];
+			var answerRepresentation = (answer.length==0 ? "&empty;" : escapeForHtml(answer));
+			row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + answerRepresentation + '</td></tr>';
+			lines.push(row_html);
+		}
+		lines.push('</table>');
+	}
+
+	var html = lines.join("");
+	$("#answers").html(html);
+}
+
+function getQueriesSpaceNormalized(taskIdx) {
+	var queries = [];
+	for(var studentNickname in g_students) {
+		var searches = g_students[studentNickname].tasks[taskIdx].searches;
+		for(var searchIdx in searches) {
+			var query = searches[searchIdx].query;
+			query = normalizeSpacing(query);
+			queries.push(query);
+		}
+	}
+	return queries;
+}
+
+function sortAndDeDupeAsCopy(list) {
+	return _sortAndDeDupe(list, false);
+}
+function sortAndDeDupeInPlace(list) {
+	_sortAndDeDupe(list, true);
+}
+function _sortAndDeDupe(list, inPlace) {
+	var sortedList = [];
+	var numItems = list.length;
+
+	// Copy
+	for(var i=0; i<numItems; i++) {
+		sortedList.push(list[i]);
+	}
+
+	// Sort
+	sortedList.sort();
+
+	// Decide where to put the results
+	var sortedAndDeDupedList;
+	if(inPlace==true) {
+		list.length = 0;  // This will clear the array.  See section 15:4 in ECMAScript 5 standard.
+		                  // Thanks Matthew Crumley, http://stackoverflow.com/questions/1232040/how-to-empty-an-array-in-javascript
+		sortedAndDeDupedList = list;
+	}
+	else {
+		sortedAndDeDupedList = [];
+	}
+
+	// Dedupe
+	var lastItem = null;
+	for(var i=0; i<numItems; i++) {
+		var item = sortedList[i];
+		if(i==0 || item!=lastItem) {
+			sortedAndDeDupedList.push(item);
+		}
+		lastItem = item;
+	}
+
+	return sortedAndDeDupedList;
+}
+
+function normalizeSpacing(s) {
+	return s.replace(/\s+/g, " ").trim();
+}
+
+function sortCaseInsensitiveInPlace(list) {
+	function sortFn(a,b) {
+		var aLower = a.toLowerCase();
+		var bLower = b.toLowerCase();
+		if(a > b) {
+			return 1;
+		}
+		else if(a < b) {
+			return -1;
+		}
+		else {
+			return 0;
+		}
+	}
+	list.sort(sortFn);
+}
+
+function escapeForHtml(s) {
+	return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;");
+}
+
+///////////////////////////////////////////////////////////
+// RECEIVING UPDATES
+//
 
 function onMessage(msg) {
 	// Note:  Messages are limited to 32K.  This is not an issue now, but it
@@ -108,7 +592,12 @@ function handle_update_answer(student_nickname, task_idx, text, explanation) {
 	updateUI();
 }
 
+///////////////////////////////////////////////////////////
+// BUTTON PANEL
+//
+
 var g_currentPaneName = null;
+// g_currentPaneName should be one of "students", "queries", "words", "links", "common", "answers"
 
 function loadPane(paneName) {
 	if(g_currentPaneName !== null) {
@@ -118,6 +607,7 @@ function loadPane(paneName) {
 	g_currentPaneName = paneName;
 	$("#"+getPaneId(g_currentPaneName)).addClass("selected");
 	$("#"+loadButtonId(g_currentPaneName)).addClass("selected");
+	onPaneChanged(g_currentPaneName);
 	window.location.hash = g_currentPaneName;
 }
 function getPaneId(paneName) {
@@ -127,67 +617,13 @@ function loadButtonId(paneName) {
 	return "load_" + paneName + "_btn";
 }
 
-function updateNumStudents() {
-	var numStudents = calculateNumStudents();
-	$("#num_students").html(numStudents);
+function onPaneChanged(newPane) {
+	updateUI();
 }
 
-function updateStudents() {
-	var studentNames = getStudentNames();
-	var lines = [];
-	lines.push("<ol>");
-	var numStudents = studentNames.length;
-	for( var i=0; i<numStudents; i++ ) {
-		var student_nickname = studentNames[i];
-		var attribs = (g_students[student_nickname].logged_in ? '' : ' style="color:gray"');
-		var annotation = (g_students[student_nickname].logged_in ? '' : ' (logged out)');
-		lines.push("<li" + attribs + ">" + student_nickname + annotation + "</li>");
-	}
-	lines.push("</ol>");
-	lines.push("<hr/>");
-	lines.push("<pre><tt>");
-	lines.push(JSON.stringify(g_students, null, 4));
-	lines.push("</tt></pre>");
-	lines.push("<p>Updated at " + (new Date()) + "</p>")
-	var html = lines.join("");
-	$("#students").html(html);
-}
-
-function asList(items, listType) {
-	// listType should be either "ul" or "ol"
-	lines = [];
-	lines.push("<" + listType + ">");
-	var numItems = items.length;
-	for( var i=0; i<numItems; i++ ) {
-		lines.push("<li>" + items[i] + "</li>");
-	}
-	lines.push("</" + listType + ">");
-	return lines.join("");
-}
-
-function calculateNumStudents() {
-	var numStudents = 0;
-	for( var student_nickname in g_students ) {
-		if( g_students[student_nickname].logged_in ) {
-			numStudents++;
-		}
-	}
-	return numStudents;
-}
-
-function getStudentNames() {
-	var studentNames = [];
-	for( var student_nickname in g_students ) {
-		studentNames.push(student_nickname);
-	}
-	studentNames.sort();
-	return studentNames;
-}
-
-function updateUI() {
-	updateNumStudents();
-	updateStudents();
-}
+///////////////////////////////////////////////////////////
+// INITIALIZATION
+//
 
 function initialize() {
 	window.status = "Loading...";
@@ -236,7 +672,55 @@ function initializeGraph() {
 
 
 
+///////////////////////////////////////////////////////////
+// HELPERS
+//
 
+function calculateNumStudents() {
+	var numStudents = 0;
+	for( var student_nickname in g_students ) {
+		if( g_students[student_nickname].logged_in ) {
+			numStudents++;
+		}
+	}
+	return numStudents;
+}
+
+function getStudentNames() {
+	var studentNames = [];
+	for( var student_nickname in g_students ) {
+		studentNames.push(student_nickname);
+	}
+	studentNames.sort();
+	return studentNames;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function asList(items, listType, shouldEscapeAsHTML) {
+	// listType should be either "ul" or "ol"
+	lines = [];
+	lines.push("<" + listType + ">");
+	var numItems = items.length;
+	for( var i=0; i<numItems; i++ ) {
+		var item = items[i];
+		if(shouldEscapeAsHTML) {
+			item = escapeForHtml(item);
+		}
+		lines.push("<li>" + item + "</li>");
+	}
+	lines.push("</" + listType + ">");
+	return lines.join("");
+}
 
 
 

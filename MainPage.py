@@ -9,7 +9,6 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class MainPage(SearchPartyRequestHandler):
 	def get(self):
-		from helpers import log
 		self.load_search_party_context()
 		if self.is_teacher:   # Teacher logged in
 			self.redirect_with_msg(msg="", dst="/teacher_lessons")

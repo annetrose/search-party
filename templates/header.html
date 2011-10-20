@@ -1,20 +1,20 @@
 {# vim: set sw=2 ts=2 expandtab: #}
 <table class='header' width='100%'>
   <tr>
-    <td style="width:30%" id="header_logo"><a href='/'>SP Logo</a></td>
-    <td align='center' id="header_title" style="width:40%">Search Party: Learn To Search</td>
-    <td align='right' id="header_user_info" style="width:30%">
+    <td id="header_logo"><a href='/'><img src="/imgs/search_party_logo_250x46.png" height="46" width="250" alt="Search Party Logo" id="logo_img" /></a></td>
+    <td align='center' id="header_title">Search Party: Learn To Search</td>
+    <td align='right' id="header_user_info">
 {% if is_logged_in %}
     {{ nickname }}<br/>
-    <a href='/logout' id="header_logout_link">Logout</a>
+    <a class="header_link" href='/logout' id="logout_link">Logout</a>
   {% if role == "teacher" %}
     &nbsp; 
-    <a href='/teacher_lessons' id="header_lessons_link">Lessons</a>
+    <a class="header_link" href='/teacher_lessons' id="lessons_link">Lessons</a>
   {% endif %}
 {% else %}
     Login as
-    <a href='{{ teacher_login_url }}' id="header_teacher_link">teacher</a> OR
-    <a href='/student_login' id="header_student_link">student</a>
+    <a class="header_link" href='{{ teacher_login_url }}' id="header_teacher_link">teacher</a> OR
+    <a class="header_link" href='/student_login' id="header_student_link">student</a>
 {% endif %}
     </td>
   </tr>

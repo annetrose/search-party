@@ -6,9 +6,8 @@
     {% for task in lesson.tasks %}
       <option class="task_title" id="task_title_{{forloop.counter}}">{{forloop.counter}}. {{task.title}}</option>{% endfor %}
   </select>
-  <div>Question</div>
+  <p style="margin-bottom: 0px;">Question:</p>
   {% for task in lesson.tasks %}
-    <p id="task_description_{{forloop.counter}}" class="task_description{% if forloop.first %} selected{% endif %}">{{task.description|urlize}}</p>{% endfor %}
-
+    <div style="margin-left:8px" id="task_description_{{forloop.counter}}" class="task_description{% if forloop.first %} selected{% endif %}">{{task.description|urlize}}</div>{% endfor %}
   {% block side_panel_lower %}{% endblock %}
 {% endblock %}

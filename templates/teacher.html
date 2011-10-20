@@ -43,12 +43,13 @@
     {# <button class="load_btn" id="load_common_btn" onclick="loadPane('common')">Students-Words</button><br/> #}
     <button class="load_btn" id="load_answers_btn" onclick="loadPane('answers')">Answers</button><br/>
   </div>
-  <div>
-  Lesson code: {{ lesson_code }}
-  </div>
-  <div>
+  <p>
+    <div id="lesson_cd_lbl">Lesson code:</div>
+    <div id="lesson_code">{{ lesson_code }}</div>
+  </p>
+  <p>
     # students logged in: <span id="num_students">__</span>
-  </div>
+  </p>
 {% endblock %}
 
 
@@ -60,15 +61,11 @@
   </div>
   <div id="pane_queries" class="teacher_pane">
     <h3>Queries</h3>
-    <div id="searchTerms"></div>
+    <div id="queries"></div>
   </div>
   <div id="pane_words" class="teacher_pane">
     <h3>Words</h3>
-    <p>This section will contain a tag cloud based on the root words
-    from all searches for the currently selected task.</p>
-    <p>Example:<br/>
-    <img src="/imgs/mockup_tag_cloud.png" alt="tag cloud mockup"></img>
-    </p>
+    <div id="words"></div>
   </div>
   <div id="pane_links" class="teacher_pane">
     <h3>Links</h3>
@@ -83,7 +80,7 @@
   </div>
   <div id="pane_answers" class="teacher_pane">
     <h3>Answers</h3>
-    <p>This section will list answers entered by students.</p>
+    <div id="answers"></div>
   </div>
 {% endblock %}
 

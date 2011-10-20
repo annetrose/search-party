@@ -45,12 +45,11 @@ class TeacherPage(SearchPartyRequestHandler):
 				self.write_response_with_template("teacher.html", template_values)
 	
 	def make_student_structure(self, lesson):
-		from model import Student, Task, StudentActivity
+		from model import Student, Task, StudentActivity, StudentAnswer
 		num_tasks = Task.all().filter("lesson =",lesson).count()
 		student_structure = {}
 		for student in Student.all().filter("lesson =", lesson):
-			answer_info = {"text":"", "explanation":""}
-			tasks_info = [{"searches":[], "answer":answer_info} for _ in range(num_tasks)]
+			tasks_info = [{"searches":[], "answer":{"text":"", "explanation":""}} for _ in range(num_tasks)]
 			student_structure[student.nickname] = {
 				"task_idx"  : student.task_idx,
 				"logged_in"	: student.logged_in,
@@ -76,6 +75,15 @@ class TeacherPage(SearchPartyRequestHandler):
 				link_title = activity.link_title
 				search_info["links_followed"].append({"url":link_url, "title":link_title})
 		
+		# This will take the most recent answer because it is in ascending time order, so
+		# later answers will overwrite the older ones.
+
+		for student_answer in StudentAnswer.all().filter("lesson =", lesson).order("timestamp"):
+			student_nickname = student_answer.student_nickname
+			task_idx = student_answer.task_idx
+			answer_info = student_structure[student_nickname]["tasks"][task_idx]["answer"]
+			answer_info["text"] = student_answer.text
+			answer_info["explanation"] = student_answer.explanation
 
 		return student_structure
 
