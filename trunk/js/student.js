@@ -95,39 +95,115 @@ function hideAds() {
 }
 
 function searchExecuted(query) {
-    window.g_lastQuery = query;
+    g_lastQuery = query;
 	$.post("/search_executed", {"query" : query, "task_idx":selectedTaskIdx()});
-//	getHistory();
+
+	// Add this search to the list.
+	var taskIdx = selectedTaskIdx();
+	var taskInfo = g_student_info.tasks[taskIdx];
+	var searches = taskInfo.searches;
+	var searchInfo = {query:query, links_followed:[]};
+	searches.push(searchInfo);
+
+	// Update the rendering of the history list.
+	updateQueryHistory();
 }
 
 function linkFollowed(url, title) {
-	$.post("/link_followed", {"url" : url,  "title":title, "query":g_lastQuery, "task_idx":selectedTaskIdx()});
-//	getHistory();
+	var query = g_lastQuery;
+	$.post("/link_followed", {"url" : url,  "title":title, "query":query, "task_idx":selectedTaskIdx()});
+
+	// Add this followed link to the list.
+	var taskIdx = selectedTaskIdx();
+	var taskInfo = g_student_info.tasks[taskIdx];
+	var searches = taskInfo.searches;
+	var searchInfo = searches[searches.length - 1];
+	var linksFollowed = searchInfo.links_followed;
+	var linkInfo = {url:url, title:title};
+	linksFollowed.push(linkInfo);
+
+	// Update the rendering of the history list.
+	updateQueryHistory();
+}
+
+function answerSubmitted(text, explanation) {
+	// Add this followed link to the list.
+	var taskIdx = selectedTaskIdx();
+	var taskInfo = g_student_info.tasks[taskIdx];
+	var answerInfo = {text:text, explanation:explanation};
+	taskInfo.answerInfo = answerInfo;
 }
 
 function initialize() {
 	openChannel(TOKEN);
-//	onResize();
+	updateQueryHistory();
 
-	// Refresh dynamic data on page load
-//	getHistory();
+	var checkContent = function() {
+		var answerText = document.getElementById("answer_text").value;
+		var answerTextIsEmpty = (answerText.trim().length==0);
+		var answerExplanation = document.getElementById("answer_explanation").value;
+		var answerExplanationIsEmpty = (answerExplanation.trim().length==0);
+		document.getElementById("answer_button").disabled = (answerTextIsEmpty || answerExplanationIsEmpty);
+	};
+	$("#answer_text").keyup(checkContent);
+	$("#answer_explanation").keyup(checkContent);
+	$("#answer_button").click(function() {
+			var answerText = document.getElementById("answer_text").value;
+			var answerExplanation = document.getElementById("answer_explanation").value;
+			$.post("/answer", {
+				task_idx: selectedTaskIdx(),
+				answer_text: answerText,
+				answer_explanation: answerExplanation
+			});
+			document.getElementById("answer_msg").innerHTML = "Saved (" + ((new Date()).toLocaleTimeString()) + ")";
+			answerSubmitted(answerText, answerExplanation);
+			return false;
+	});
 };
 
-//$(window).resize(function() {
-//	onResize();
-//});
-
-//function onResize() {
-//	var height = $("#body").height();
-//	$("#browser_table_row").css("height", height - 100);
-//	$("#browser_iframe").attr("src", "http://www.google.com");
-//}
-
-function getHistory() {
-//	var task_idx = selectedTaskIdx();   // selectedTaskIdx is defined in js/task_chooser.js
-//	$.getJSON("/query", "qt=student_activity&task_idx="+task_idx, updateHistory);			
+function updateQueryHistory() {
+	var taskIdx = selectedTaskIdx();
+	var taskInfo = g_student_info.tasks[taskIdx];
+	var searches = taskInfo.searches;
+	var numSearches = searches.length;
+	var queryHistory = $("#query_history");
+	if(numSearches==0) {
+		queryHistory.replaceWith('<div id="query_history">No searches, yet</div>')
+	}
+	else {
+		var parts = [];
+		parts.push('<ol id="query_history">');
+		for(var i=0; i<numSearches; i++) {
+			var search = searches[i];
+			var query = search.query;
+			parts.push('<li>');
+			parts.push(escapeForHtml(query));
+			var linksFollowed = search.links_followed;
+			var numLinksFollowed = linksFollowed.length;
+			if( numLinksFollowed > 0 ) {
+				parts.push('<ol type="a" class="query_history_links">');
+				for(var j=0; j<numLinksFollowed; j++) {
+					var linkInfo = linksFollowed[j];
+					parts.push('<li>');
+					var linkHtml = makeLinkHTML(linkInfo, 16);
+					parts.push(linkHtml);
+					parts.push('</li>');
+				}
+				parts.push('</ol>');
+			}
+			parts.push();
+			parts.push('</li>');
+		}
+		parts.push('</ol>');
+		var listHtml = parts.join("\n");
+		queryHistory.replaceWith(listHtml);
+	}
 }
 
 function onTaskChanged(taskIdx) { // called from js/task_chooser.js
 	$.post("/task_changed", {"task_idx":selectedTaskIdx()});
+	document.getElementById("answer_text").value = "";
+	document.getElementById("answer_msg").innerHTML = "";
+	document.getElementById("answer_explanation").value = "";
+	document.getElementById("answer_button").disabled = true;
 }

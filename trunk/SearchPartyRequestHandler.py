@@ -9,7 +9,7 @@
 from google.appengine.ext import webapp
 
 class SearchPartyRequestHandler(webapp.RequestHandler):
-	def load_search_party_context(self):
+	def load_search_party_context(self, user_type=None):
 		from model import Teacher, Student
 		from gaesessions import get_current_session
 		from google.appengine.api import users
@@ -21,14 +21,20 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		self.session = get_current_session()
 		self.user = users.get_current_user()
 
-		user_type = self.session.get("person_type", None)
+		#user_type = self.session.get("person_type", None)
+		if user_type is None:
+			user_type = self.user_type
 		assert user_type in ("student", "teacher", None)
 
 		person = None
 		if user_type=="student":
 			person = Student.all().filter("session_sid =", self.session.sid).get()
-		elif user_type=="teacher" and self.user is not None:
-			person = Teacher.all().filter("user =", self.user).get()
+		elif self.user is not None:
+			assert user_type in ("teacher", None)
+			teachers = tuple(Teacher.all().filter("user =", self.user))
+			assert len(teachers) in (0,1), "Detected %d teachers for the same Google user."%(len(teachers))
+			if len(teachers)==1:
+				person = teachers[0]
 		
 		self.set_person(person)
 
@@ -41,7 +47,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		log( "...........  student="+repr(self.student) )
 		log( "...........  teacher="+repr(self.teacher) )
 		log( "......session.keys()="+repr(tuple(self.session)) )
-		log( ".........session.sid="+repr(smush(self.session.sid, 40)) )
+		log( ".........session.sid="+smush(self.session.sid, 40))
 		# TODO: Consider using this logic, which was previously used to get the teacher
 		# and/or figure out if a teacher is logged on rather than a student.
 #		user = users.get_current_user()
@@ -49,6 +55,17 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 #		teacher = teacherQuery.get()
 #		if not user or not teacher:
 #			self.redirect_to_teacher_login()
+
+	def _get_user_type(self):
+		user_type = self.session.get("person_type", None)
+		assert user_type in ("teacher", "student", None)
+		return user_type
+
+	def _set_user_type(self, user_type):
+		assert user_type in ("teacher", "student")
+		self.session["person_type"] = user_type
+	
+	user_type = property(_get_user_type, _set_user_type)
 	
 	def clear_session(self):
 		self.session.clear()

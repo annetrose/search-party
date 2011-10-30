@@ -121,25 +121,6 @@ function updateStudents() {
 }
 
 
-function clipText(s, maxLength) {
-	var dots = "...";
-	var sLength = s.length;
-	if(sLength > maxLength) {
-		s = s.substr(0, maxLength - dots.length) + dots;
-	}
-	return s;
-}
-
-function makeLinkHTML(linkInfo, maxLength) {
-	var url = linkInfo.url;
-	var title = linkInfo.title;
-	url = escapeForHtml(url);
-	if(maxLength !== null && maxLength !== 0) {
-		title = escapeForHtml( clipText(title, maxLength) );
-	}
-	var linkHTML = '<a href="' + url + '">' + title + '</a>';
-	return linkHTML;
-}
 function updateStudents() {
 	var maxLinkTitleLength = 30;
 	var taskIdx = selectedTaskIdx();
@@ -255,11 +236,6 @@ function updateQueries() {
 	$("#queries").html(html);
 }
 
-function log(s) {
-	if(typeof console != "undefined") {
-		console.log(s);
-	}
-}
 
 function isStopWord(word) {
 	var stopWordsSet = {
@@ -505,10 +481,6 @@ function sortCaseInsensitiveInPlace(list) {
 	list.sort(sortFn);
 }
 
-function escapeForHtml(s) {
-	return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;");
-}
-
 ///////////////////////////////////////////////////////////
 // RECEIVING UPDATES
 //
@@ -715,17 +687,6 @@ function getStudentNames() {
 	studentNames.sort();
 	return studentNames;
 }
-
-
-
-
-
-
-
-
-
-
-
 
 function asList(items, listType, shouldEscapeAsHTML) {
 	// listType should be either "ul" or "ol"

@@ -1,6 +1,5 @@
 {% extends "task_side_panel_layout.html" %}
-{# vim: set sw=2 ts=2 noexpandtab: #}
-
+{# vim: set sw=2 ts=2 expandtab: #}
 
 
 {% block head %}
@@ -12,38 +11,19 @@
 	.task_description {
 	}
 </style>
+<script type="text/javascript" src="/js/common.js"></script>
 <script type="text/javascript" src="/js/student.js"></script>
 <script type="text/javascript" src="/js/task_chooser.js"></script>
 <script src="http://www.google.com/jsapi" type="text/javascript"></script>
 <script type="text/javascript">
 // <![CDATA[
-	var TOKEN = "{{ token }}";
-	var g_lastQuery = null;
-	$(initialize);
-	$(function () {
-		var checkContent = function() {
-			var answerText = document.getElementById("answer_text").value;
-			var answerTextIsEmpty = (answerText.trim().length==0);
-			var answerExplanation = document.getElementById("answer_explanation").value;
-			var answerExplanationIsEmpty = (answerExplanation.trim().length==0);
-			document.getElementById("answer_button").disabled = (answerTextIsEmpty || answerExplanationIsEmpty);
-		};
-		$("#answer_text").keyup(checkContent);
-		$("#answer_explanation").keyup(checkContent);
-		$("#answer_button").click(function() {
-				$.post("/answer", {
-					task_idx: selectedTaskIdx(),
-					answer_text: document.getElementById("answer_text").value,
-					answer_explanation: document.getElementById("answer_explanation").value
-				});
-				return false;
-		});
-	});
-
+  var TOKEN = "{{ token }}";
+  var g_lastQuery = null;
+  {{student_js|safe}}{# defines g_students, g_studentNickname, g_queryHistory #}
+  $(initialize);
 // ]]>
 </script>
 {% endblock %}
-
 
 
 {% block top %}
@@ -51,40 +31,41 @@
 {% if msg %}<div style="color:red">{{ msg }}</div>{% endif %}
 <div id="status_header"></div>
 {% endblock %}
-	
 
 
 {% block side_panel_lower %}
 
 <form action="/task_changed" method="post" id="answer_form">
-<p>
-Answer
-<textarea rows="2" cols="19" name="answer_text" id="answer_text"></textarea>
-</p>
+  <p>
+    Response:
+    <textarea rows="2" cols="19" name="answer_text" id="answer_text"></textarea>
+  </p>
 
-<p>
-How did you find it?
-<textarea rows="4" cols="19" name="answer_explanation" id="answer_explanation"></textarea>
-</p>
-<div><input type="button" id="answer_button" value="Save" disabled="true"></input></div>
+  <p>
+    Note:
+    <textarea rows="2" cols="19" name="answer_explanation" id="answer_explanation"></textarea>
+  </p>
+  <div>
+    <input type="button" id="answer_button" value="Save" disabled="true"></input>
+  </div>
+  <div id="answer_msg"></div>
 </form>
 
+
+<h3>Search History</h3>
+<div id="query_history">....</div>
 {% comment %}
-Search History: 
-<span id="history"></span>
-<hr/>
 Log:
 <div id="log"></div>
 {% endcomment %}
 {% endblock %}
 
 
-
 {% block content_area %}
 <div>
-			<!-- CUSTOM SEARCH -->
-			<!-- "cse" is referred to from js/student_custom_search.js -->
-			<div id="cse" style="width: 100%; height:600px;">Loading</div>
-			<script type="text/javascript" src="/js/student_custom_search.js"></script>
+  <!-- CUSTOM SEARCH -->
+  <!-- "cse" is referred to from js/student_custom_search.js -->
+  <div id="cse" style="width: 100%; height:600px;">Loading</div>
+  <script type="text/javascript" src="/js/student_custom_search.js"></script>
 </div>
 {% endblock %}
