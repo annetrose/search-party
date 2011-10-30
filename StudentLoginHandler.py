@@ -18,8 +18,7 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 		from helpers import log
 		class StudentLoginException(Exception): pass
 
-		self.load_search_party_context()
-		self.clear_session()
+		self.load_search_party_context(user_type="student")
 
 		student_nickname = self.request.get('student_nickname')
 		student_nickname = " ".join(student_nickname.split())  # normalize whitespace
@@ -61,9 +60,9 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 				)
 
 			student.put()
+			self.set_person(student)
 
 			self.session['msg'] = "Student logged in:  Hello " + student_nickname
-			self.set_person(student)
 
 			send_update_log_in(teacher=lesson.teacher,
 							   student_nickname=student.nickname,

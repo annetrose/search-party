@@ -22,7 +22,7 @@ class TeacherLessons(SearchPartyRequestHandler):
 		active_lessons = []
 		inactive_lessons = []
 
-		for lesson in Lesson.all():
+		for lesson in Lesson.all().filter("teacher =", self.teacher):
 			if lesson.is_active:
 				active_lessons.append(lesson)
 			else:
@@ -48,7 +48,7 @@ class TeacherLessons(SearchPartyRequestHandler):
 		from datetime import datetime
 		from model import Lesson, Task
 		assert method in ("get", "post")
-		self.load_search_party_context()
+		self.load_search_party_context(user_type="teacher")
 		log( "PAGE:  %s, is_teacher==%s, method==%s, session.sid==%s"%
 				(self.__class__.__name__, self.is_teacher, method, chop(self.session.sid, 20)) )
 

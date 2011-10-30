@@ -92,7 +92,7 @@ class Student(SearchPartyModel):
 		from datetime import datetime
 		self.latest_logout_timestamp = datetime.now()
 		self.logged_in = False
-		self.session_sid = ""
+		#self.session_sid = ""
 		self.put()
 
 	def get_all_client_ids(self):

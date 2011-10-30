@@ -15,7 +15,7 @@ class SearchExecutedHandler(SearchPartyRequestHandler):
 #		from datetime import datetime
 		from updates import send_update_query
 
-		self.load_search_party_context()
+		self.load_search_party_context(user_type="student")
 
 
 		if self.is_student:

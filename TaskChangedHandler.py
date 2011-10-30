@@ -12,7 +12,7 @@ class TaskChangedHandler(SearchPartyRequestHandler):
 		from helpers import log
 		from updates import send_update_task
 
-		self.load_search_party_context()
+		self.load_search_party_context(user_type="student")
 		if self.is_student:
 			student = self.student
 			student_nickname = student.nickname
