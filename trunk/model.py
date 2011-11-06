@@ -33,7 +33,7 @@ class Teacher(SearchPartyModel):
 	date = db.DateTimeProperty(auto_now_add=True)
 
 	# OTHER METHODS
-	students = property(lambda self: tuple(Student.all().filter("teacher =", self)))
+#	students = property(lambda self: tuple(Student.all().filter("teacher =", self)))
 	nickname = property(lambda self: self.user.nickname())
 
 	def get_all_client_ids(self):

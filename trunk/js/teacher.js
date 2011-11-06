@@ -251,9 +251,87 @@ function isStopWord(word) {
 	}
 	return (stopWordsSet[word]!=undefined); // if it's undefined, then it's not a stop word.
 }
+
+function getWordStem(word) {
+	var stemCache = getWordStem.stemCache;
+	var stem = stemCache[stem];
+	if( stem==undefined ) {
+		var snowballStemmer = getWordStem.snowballStemmer;
+		snowballStemmer.setCurrent(word);
+		snowballStemmer.stem();
+		stem = snowballStemmer.getCurrent();
+		stemCache[word] = stem;
+	}
+	return stem;
+}
+getWordStem.stemCache = {};
+getWordStem.snowballStemmer = new Snowball("english");
+
+function aggregateWords(words) {
+	var numWords = words.length;
+
+	// Make a copy of the list of words, sorted case-insensitive
+	var wordsSorted = [];
+	for(var i=0; i<numWords; i++) {
+		wordsSorted.push(words[i]);
+	}
+	wordsSorted.sort(function (a,b) {
+		var aLower = a.toLowerCase();
+		var bLower = b.toLowerCase();
+		return (aLower < bLower ? -1 : (aLower > bLower ? 1 : 0)); // ASCENDING
+	});
+
+	var wordsByStem = {};
+	var stemInfos = [];
+	for(var i=0; i<numWords; i++) {
+		var word = wordsSorted[i];
+		var stem = getWordStem(word).toLowerCase();
+		var stemInfo = wordsByStem[stem];
+		if( stemInfo==undefined ) {
+			stemInfo = {
+				stem : stem,
+				totalWords : 0,
+				wordCounts : {},
+				words : []
+			};
+			wordsByStem[stem] = stemInfo;
+			stemInfos.push(stemInfo);
+		}
+		stemInfo.totalWords += 1;
+		var wordCount = stemInfo.wordCounts[word];
+		if( wordCount==undefined ) {
+			wordCount = 0;
+			stemInfo.words.push(word);
+		}
+		wordCount += 1;
+		stemInfo.wordCounts[word] = wordCount;
+	}
+	
+	stemInfos.sort( function (a,b) {
+		var aTotalWords = a.totalWords;
+		var bTotalWords = b.totalWords;
+		return (aTotalWords < bTotalWords ? 1 : (aTotalWords > bTotalWords ? -1 : 0)); // DESCENDING
+	});
+
+	var numStemInfos = stemInfos.length;
+	for(var i=0; i<numStemInfos; i++) {
+		var stemInfo = stemInfos[i];
+		var words = stemInfo.words;
+		var wordCounts = stemInfo.wordCounts;
+		words.sort( function (a,b) {
+			var aWordCount = wordCounts[a];
+			var bWordCount = wordCounts[b];
+			return (aWordCount < bWordCount ? 1 : (aWordCount > bWordCount ? -1 : 0));  // DESCENDING
+		});
+		stemInfo.mostFrequentWord = words[0];
+	}
+
+	return stemInfos;
+}
+
 function updateWords() {
 	var taskIdx = selectedTaskIdx();
-	var wordOccurrenceDict = {};
+	var words = []
 	var queries = getQueriesSpaceNormalized(taskIdx);
 	var numQueries = queries.length;
 	for(var queryIdx=0; queryIdx<numQueries; queryIdx++) {
@@ -263,32 +341,21 @@ function updateWords() {
 		for(var wordInQueryIdx=0; wordInQueryIdx<numWordsInQuery; wordInQueryIdx++) {
 			var wordInQuery = wordsInQuery[wordInQueryIdx];
 			if(!isStopWord(wordInQuery)) {
-				var currentOccurrenceCount = wordOccurrenceDict[wordInQuery];
-				if(currentOccurrenceCount==undefined) {
-					currentOccurrenceCount = 0;
-				}
-				wordOccurrenceDict[wordInQuery] = currentOccurrenceCount + 1;
+				words.push(wordInQuery);
 			}
 		}
 	}
 
-	var wordList = [];
-	for(var word in wordOccurrenceDict) {
-		wordList.push(word);
-	}
-	wordList.sort(function (a,b) {
-		// Sort in DESCENDING order of occurrences.
-		var aOccurrences = wordOccurrenceDict[a];
-		var bOccurrences = wordOccurrenceDict[b];
-		return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
-	});
+	var stemInfos = aggregateWords(words);
+	var numStemInfos = stemInfos.length;
 
 	var lines = [];
 	lines.push('<table class="occurrences_table">');
-	for(var wordIdx in wordList) {
-		var word = wordList[wordIdx];
-		var occurrences = wordOccurrenceDict[word];
-		row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + escapeForHtml(word) + '</td></tr>';
+	for(var i=0; i<numStemInfos; i++) {
+		var stemInfo = stemInfos[i];
+		var occurrences = stemInfo.totalWords;
+		var wordsStr = stemInfo.words.join(", ");
+		row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + escapeForHtml(wordsStr) + '</td></tr>';
 		lines.push(row_html);
 	}
 	lines.push('</table>');
@@ -325,8 +392,8 @@ function updateLinks() {
 	}
 	urlsOrderedByOccurrences.sort(function (a,b) {
 		// Sort in DESCENDING order of occurrences.
-		aOccurrences = urlsOrderedByOccurrences[a];
-		bOccurrences = urlsOrderedByOccurrences[b];
+		aOccurrences = linksOccurrenceDict[a];
+		bOccurrences = linksOccurrenceDict[b];
 		return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
 	});
 
@@ -395,7 +462,7 @@ function updateAnswers() {
 			var answer = answerList[answerIdx];
 			var occurrences = answerOccurrenceDict[answer];
 			var answerRepresentation = (answer.length==0 ? "&empty;" : escapeForHtml(answer));
-			row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + answerRepresentation + '</td></tr>';
+			var row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + answerRepresentation + '</td></tr>';
 			lines.push(row_html);
 		}
 		lines.push('</table>');
@@ -860,4 +927,50 @@ function asList(items, listType, shouldEscapeAsHTML) {
 //	else if ('log' in state) {
 //        $("#log").append(state.log + "<br>");
 //    } 
+//}
+//
+//function updateWords() {
+//	var taskIdx = selectedTaskIdx();
+//	var wordOccurrenceDict = {};
+//	var queries = getQueriesSpaceNormalized(taskIdx);
+//	var numQueries = queries.length;
+//	for(var queryIdx=0; queryIdx<numQueries; queryIdx++) {
+//		var query = queries[queryIdx];
+//		var wordsInQuery = query.split(" ");
+//		var numWordsInQuery = wordsInQuery.length;
+//		for(var wordInQueryIdx=0; wordInQueryIdx<numWordsInQuery; wordInQueryIdx++) {
+//			var wordInQuery = wordsInQuery[wordInQueryIdx];
+//			if(!isStopWord(wordInQuery)) {
+//				var currentOccurrenceCount = wordOccurrenceDict[wordInQuery];
+//				if(currentOccurrenceCount==undefined) {
+//					currentOccurrenceCount = 0;
+//				}
+//				wordOccurrenceDict[wordInQuery] = currentOccurrenceCount + 1;
+//			}
+//		}
+//	}
+//
+//	var wordList = [];
+//	for(var word in wordOccurrenceDict) {
+//		wordList.push(word);
+//	}
+//	wordList.sort(function (a,b) {
+//		// Sort in DESCENDING order of occurrences.
+//		var aOccurrences = wordOccurrenceDict[a];
+//		var bOccurrences = wordOccurrenceDict[b];
+//		return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
+//	});
+//
+//	var lines = [];
+//	lines.push('<table class="occurrences_table">');
+//	for(var wordIdx in wordList) {
+//		var word = wordList[wordIdx];
+//		var occurrences = wordOccurrenceDict[word];
+//		row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + escapeForHtml(word) + '</td></tr>';
+//		lines.push(row_html);
+//	}
+//	lines.push('</table>');
+//
+//	var html = lines.join("");
+//	$("#words").html(html);
 //}

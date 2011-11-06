@@ -12,69 +12,13 @@ indexes:
 
 - kind: StudentActivity
   properties:
-  - name: activity_type
-  - name: search
-  - name: teacher
-  - name: student
-
-- kind: StudentActivity
-  properties:
-  - name: activity_type
-  - name: teacher
-  - name: date
-  - name: link
-
-- kind: StudentActivity
-  properties:
-  - name: activity_type
-  - name: teacher
-  - name: date
-  - name: search
-
-- kind: StudentActivity
-  properties:
-  - name: activity_type
-  - name: teacher
-  - name: link
-
-- kind: StudentActivity
-  properties:
-  - name: activity_type
-  - name: teacher
-  - name: search
-
-- kind: StudentActivity
-  properties:
-  - name: lesson
-  - name: student
-  - name: date
-
-- kind: StudentActivity
-  properties:
-  - name: lesson
-  - name: student
-  - name: timestamp
-
-- kind: StudentActivity
-  properties:
   - name: lesson
   - name: timestamp
 
 - kind: StudentActivity
   properties:
-  - name: lesson_code
+  - name: student
   - name: timestamp
-
-- kind: StudentActivity
-  properties:
-  - name: student
-  - name: date
-
-- kind: StudentActivity
-  properties:
-  - name: student
-  - name: teacher
-  - name: date
 
 - kind: StudentAnswer
   properties:
@@ -83,25 +27,8 @@ indexes:
 
 - kind: StudentAnswer
   properties:
-  - name: lesson
-  - name: timestamp
-    direction: desc
-
-- kind: StudentLink
-  properties:
-  - name: teacher
-  - name: link
-
-- kind: StudentSearch
-  properties:
-  - name: search
-  - name: teacher
   - name: student
-
-- kind: StudentSearch
-  properties:
-  - name: teacher
-  - name: search
+  - name: timestamp
 
 - kind: Task
   properties:

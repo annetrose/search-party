@@ -66,7 +66,7 @@ function initEventHandlers() {
 	$("#cse").contents().find("input[name='search']").focus();
 	$("#cse").contents().find("input[value='Search']").click(function(event) {
 		var searchTerms = $("input[name='search']").val();
-		searchExecuted(searchTerms);
+		onSearchExecuted(searchTerms);
 	});
 }
 
@@ -81,7 +81,7 @@ function searchCompleteCallback() {  // called from js/student_custom_search.js
 	$("#cse").contents().find("a[class='gs-title']").click(function(event) {
 		var href = $(this).attr("href");
         var title = $(this).text();
-		linkFollowed(href, title)
+		onLinkFollowed(href, title)
 	});
 	
 	// Ads seem to show up a bit later, so we wait a bit and then remove them
@@ -94,7 +94,7 @@ function hideAds() {
 	$("#cse").contents().find(".gsc-tabsArea").css("display", "none");			
 }
 
-function searchExecuted(query) {
+function onSearchExecuted(query) {
     g_lastQuery = query;
 	$.post("/search_executed", {"query" : query, "task_idx":selectedTaskIdx()});
 
@@ -109,7 +109,7 @@ function searchExecuted(query) {
 	updateQueryHistory();
 }
 
-function linkFollowed(url, title) {
+function onLinkFollowed(url, title) {
 	var query = g_lastQuery;
 	$.post("/link_followed", {"url" : url,  "title":title, "query":query, "task_idx":selectedTaskIdx()});
 
@@ -126,7 +126,7 @@ function linkFollowed(url, title) {
 	updateQueryHistory();
 }
 
-function answerSubmitted(text, explanation) {
+function onAnswerSubmitted(text, explanation) {
 	// Add this followed link to the list.
 	var taskIdx = selectedTaskIdx();
 	var taskInfo = g_student_info.tasks[taskIdx];
@@ -156,7 +156,7 @@ function initialize() {
 				answer_explanation: answerExplanation
 			});
 			document.getElementById("answer_msg").innerHTML = "Saved (" + ((new Date()).toLocaleTimeString()) + ")";
-			answerSubmitted(answerText, answerExplanation);
+			onAnswerSubmitted(answerText, answerExplanation);
 			return false;
 	});
 };
@@ -206,4 +206,10 @@ function onTaskChanged(taskIdx) { // called from js/task_chooser.js
 	document.getElementById("answer_msg").innerHTML = "";
 	document.getElementById("answer_explanation").value = "";
 	document.getElementById("answer_button").disabled = true;
+
+	// Fill in previously submitted answer text and explanation.
+	var taskIdx = selectedTaskIdx();
+	var taskInfo = g_student_info.tasks[taskIdx];
+	var answerInfo = {text:text, explanation:explanation};
+	taskInfo.answerInfo = taskInfo.answer;
 }
