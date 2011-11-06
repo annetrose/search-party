@@ -8,13 +8,6 @@
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
 from model import Teacher, Student, StudentActivity, SearchParty, Client
-
-# Silence warnings about Django
-# http://code.google.com/appengine/docs/python/tools/libraries.html#Django
-import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'dummy_django_settings'
-from google.appengine.dist import use_library
-use_library('django', '1.2')
 from google.appengine.ext import webapp
 
 # This filter is no longer used
@@ -29,7 +22,6 @@ def main():
 	from LinkFollowedHandler        import LinkFollowedHandler
 	from LogoutPage                 import LogoutPage
 	from MainPage                   import MainPage
-	from QueryHandler               import QueryHandler
 	from SearchExecutedHandler      import SearchExecutedHandler
 	from StudentLoginHandler        import StudentLoginHandler
 	from StudentLoginPage           import StudentLoginPage
@@ -44,7 +36,6 @@ def main():
 			  ('/answer',                    AnswerHandler),
 			  ('/link_followed',             LinkFollowedHandler),
 			  ('/logout',                    LogoutPage),
-			  ('/query',                     QueryHandler),
 			  ('/search_executed',           SearchExecutedHandler),
 			  ('/student',                   StudentPage),
 			  ('/student_login',             StudentLoginPage),
