@@ -7,7 +7,7 @@
 # Date: Originally created July 2011
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
-from model import Teacher, Student, StudentActivity, SearchParty, Client
+from model import Teacher, Student, StudentActivity, Client
 from google.appengine.ext import webapp
 
 # This filter is no longer used
@@ -20,6 +20,7 @@ def main():
 	from ChannelConnectedHandler    import ChannelConnectedHandler
 	from ChannelDisconnectedHandler import ChannelDisconnectedHandler
 	from LinkFollowedHandler        import LinkFollowedHandler
+	from LinkRatedHandler           import LinkRatedHandler
 	from LogoutPage                 import LogoutPage
 	from MainPage                   import MainPage
 	from SearchExecutedHandler      import SearchExecutedHandler
@@ -29,12 +30,14 @@ def main():
 	from TaskChangedHandler         import TaskChangedHandler
 	from TeacherLessons             import TeacherLessons
 	from TeacherLoginHandler        import TeacherLoginHandler
+	from UpdateDB                   import UpdateDB
 	from TeacherPage                import TeacherPage
 
 	application = webapp.WSGIApplication(
 			[ ('/',                          MainPage),
 			  ('/answer',                    AnswerHandler),
 			  ('/link_followed',             LinkFollowedHandler),
+			  ('/link_rated',                LinkRatedHandler),
 			  ('/logout',                    LogoutPage),
 			  ('/search_executed',           SearchExecutedHandler),
 			  ('/student',                   StudentPage),
@@ -44,6 +47,7 @@ def main():
 			  ('/teacher/([-_A-Za-z0-9]+)',  TeacherPage),
 			  ('/teacher_login',             TeacherLoginHandler),
 			  ('/teacher_lessons',           TeacherLessons),
+			  ('/update_db',                 UpdateDB),
 			  ('/_ah/channel/connected/',    ChannelConnectedHandler),
 			  ('/_ah/channel/disconnected/', ChannelDisconnectedHandler),
 			 ], debug=True)

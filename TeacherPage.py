@@ -29,7 +29,7 @@ class TeacherPage(PersonPage):
 
 				template_values = {
 					'header': self.gen_header("teacher"),
-					"teacher_id" : self.teacher.teacher_id,
+#					"teacher_id" : self.teacher.teacher_id,
 					'lesson_code': lesson.lesson_code,
 					"lesson"     : lesson,  # needed for task chooser
 					"token"      : self.create_channel(),

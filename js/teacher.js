@@ -570,6 +570,9 @@ function onMessage(msg) {
 			case "link_followed":
 				handle_update_link_followed(update.student_nickname, update.task_idx, update.query, update.url, update.title);
 				break;
+			case "link_rated":
+				handle_update_link_rated(update.student_nickname, update.task_idx, update.url, update.is_helpful);
+				break;
 			case "log_in":
 				handle_update_log_in(update.student_nickname, update.task_idx);
 				break;
@@ -590,6 +593,23 @@ function onMessage(msg) {
 
 function handle_update_query(student_nickname, task_idx, query) {
 	g_students[student_nickname].tasks[task_idx].searches.push({"query":query, "links_followed":[]});
+	updateUI();
+}
+function handle_update_link_rated(student_nickname, task_idx, url, is_helpful) {
+	var searches = g_students[student_nickname].tasks[task_idx].searches;
+	var num_searches = searches.length;
+	for(var i=0; i<num_searches; i++) {
+		var search_info = searches[i];
+		var links_followed = search_info.links_followed;
+		var num_links = links_followed.length;
+		for(var j=0; j<num_links; j++) {
+			var link_info = links_followed[j];
+			var link_url = link_info.url;
+			if(link_url==url) {
+				link_url.is_helpful = is_helpful;
+			}
+		}
+	}
 	updateUI();
 }
 

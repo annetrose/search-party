@@ -62,10 +62,24 @@ Log:
 
 
 {% block content_area %}
-<div>
+<div id="search_container">
   <!-- CUSTOM SEARCH -->
   <!-- "cse" is referred to from js/student_custom_search.js -->
   <div id="cse" style="width: 100%; height:600px;">Loading</div>
   <script type="text/javascript" src="/js/student_custom_search.js"></script>
+</div>
+<div id="result_page_container">
+  <table border="0" width="100%">
+    <tr>
+      <td style="height:33px; vertical-align:middle;">
+        <h3 style="margin:0px;"><span id="result_page_title">...</span></h3>
+      </td>
+      <td style="height:33px; width:200px; vertical-align:middle;">
+        <input id="helpful_button" type="button" value="Helpful" style="background-color: #FF5781"></input>
+        <input id="not_helpful_button" type="button" value="Not helpful" style="background-color: #78FF81"></input>
+      </td>
+    </tr>
+  </table>
+  <iframe id="result_frame" style="width:100%; height:10000px"><iframe>
 </div>
 {% endblock %}
