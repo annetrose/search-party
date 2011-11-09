@@ -6,29 +6,6 @@
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 */
 
-function updateHistory(data) {
-    var activities = data
-    var html = "";
-    
-    for (var i in activities) {
-        if (i > 0) {
-            html += "<br/>";
-        }
-        var activity = activities[i];
-        var activityType = activity[0];
-        var action = activity[1];
-        if (activityType == 'search') {
-            var searchCall = "doSearch(\"" + action + "\")";
-            html += "<a class='term' onclick='" + searchCall + "'>" + action + "</a>";
-        } else if (activityType == 'link') {
-            var linkFollowed = "linkFollowed(\"" + action + "\")";
-            html += "<a target='_blank' onclick='" + linkFollowed + "' href = '" + action + "'>" + action + "</a>";
-        }
-    }
-    
-    $("#history").html(html);
-}
-
 function onMessage(msg) {
     var state = JSON.parse(msg.data);
     if ("log" in state) {
@@ -41,16 +18,6 @@ function onMessage(msg) {
 			$("#status_header").html("Teacher is OFFLINE");
 		}
     }
-	
-	// if (state.change == "student_login") {
-    //  $.getJSON("/query", "qt=students", updateStudents);
-    // } else if (state.change == "student_logout") {
-    //  $.getJSON("/query", "qt=students", updateStudents);
-    // } else if (state.change == "student_search") {
-    //  $.getJSON("/query", "qt=students", updateStudents);
-    // } else if (state.change == "student_link_followed") {
-    //  $.getJSON("/query", "qt=students", updateStudents);
-    // }
 }
 
 function openChannel(token) {
@@ -58,9 +25,6 @@ function openChannel(token) {
   var socket = channel.open();
   socket.onmessage = onMessage;
 }
-
-
-//  below here were copied from HTML on 10-12-2011
 
 function initEventHandlers() {
 	$("#cse").contents().find("input[name='search']").focus();
@@ -77,7 +41,7 @@ function doSearch(searchStr) {
 }
 
 function searchCompleteCallback() {  // called from js/student_custom_search.js
-	// TODO:  Send the search query and, if possible, the title of the link
+	// Find result links and register click handler.
 	$("#cse").contents().find("a[class='gs-title']").click(function(event) {
 		var href = $(this).attr("href");
         var title = $(this).text();
@@ -109,6 +73,15 @@ function onSearchExecuted(query) {
 	updateQueryHistory();
 }
 
+function switchToResultPage() {
+	$("#result_page_container").show();
+	$("#search_container").hide();
+}
+function switchToSearch() {
+	$("#result_page_container").hide();
+	$("#search_container").show();
+}
+
 function onLinkFollowed(url, title) {
 	var query = g_lastQuery;
 	$.post("/link_followed", {"url" : url,  "title":title, "query":query, "task_idx":selectedTaskIdx()});
@@ -124,6 +97,11 @@ function onLinkFollowed(url, title) {
 
 	// Update the rendering of the history list.
 	updateQueryHistory();
+//	var onclick = "g_current_result_url = decodeURIComponent('" + encodeURIComponent(url) + "'); alert(g_current_result_url); return true;";
+//	var linkHTML = '<a href="' + url + '" title="' + title + '" target="_blank" onclick="' + onclick + '">' + displayTitle + '</a>';
+	g_current_result_url = url;
+	switchToResultPage();
+	$("#result_page_title").html(escapeForHtml(title))
 }
 
 function onAnswerSubmitted(text, explanation) {
@@ -135,6 +113,8 @@ function onAnswerSubmitted(text, explanation) {
 }
 
 function initialize() {
+	switchToSearch();
+
 	openChannel(TOKEN);
 	updateQueryHistory();
 
@@ -159,7 +139,52 @@ function initialize() {
 			onAnswerSubmitted(answerText, answerExplanation);
 			return false;
 	});
+
+	$("#helpful_button").click(onLinkRated);
+
+	$("#not_helpful_button").click(onLinkRated);
+
 };
+
+function onLinkRated() {
+	switchToSearch();
+
+	var is_helpful_str;
+	var is_helpful;
+	if(this.id=="helpful_button") {
+		is_helpful_str = "1";
+		is_helpful = true;
+	}
+	else if(this.id=="not_helpful_button") {
+		is_helpful_str = "0";
+		is_helpful = false;
+	}
+	else {
+		alert("ERROR 1108");
+		return;
+	}
+
+	var taskIdx = selectedTaskIdx();
+	var taskInfo = g_student_info.tasks[taskIdx];
+	var searches = taskInfo.searches;
+	var numSearches = searches.length;
+	for(var i=0; i<numSearches; i++) {
+		var search = searches[i];
+		var query = search.query;
+		var linksFollowed = search.links_followed;
+		var numLinksFollowed = linksFollowed.length;
+		for(var j=0; j<numLinksFollowed; j++) {
+			var linkInfo = linksFollowed[j];
+			if(linkInfo.url==g_current_result_url) {
+				linkInfo.is_helpful = is_helpful;
+			}
+		}
+	}
+
+	updateQueryHistory();
+
+	$.post("/link_rated", {"url":g_current_result_url, "task_idx":selectedTaskIdx(), "is_helpful":is_helpful_str});
+}
 
 function updateQueryHistory() {
 	var taskIdx = selectedTaskIdx();
@@ -185,7 +210,9 @@ function updateQueryHistory() {
 				for(var j=0; j<numLinksFollowed; j++) {
 					var linkInfo = linksFollowed[j];
 					parts.push('<li>');
-					var linkHtml = makeLinkHTML(linkInfo, 16);
+					var className = (linkInfo.is_helpful ? "helpful" : "not_helpful");
+					var linkHtml = makeLinkHTML(linkInfo, 16, className);
+					//var linkHtml = makeLinkHTML(linkInfo, 0);
 					parts.push(linkHtml);
 					parts.push('</li>');
 				}

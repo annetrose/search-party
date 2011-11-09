@@ -1,4 +1,14 @@
 ========================================
+11-8-2011
+
+Performance
+	Key Student by session ID
+	Key Teacher by user ID
+
+
+
+
+========================================
 10-13-2011
 
 Student

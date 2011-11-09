@@ -12,28 +12,25 @@ class SearchPartyModel(db.Model):
 	def __repr__(self):
 	# Generic __repr__ function that can be glued onto any class.  Results in a string like...
 	#    Car(maker_name="Toyota", model_name="Prius", num_wheels=4)
-		params = sorted((k,v) for (k,v) in self._entity.items() if not k.startswith("_"))
-		params_str = ", ".join("%s=%s"%(k,repr(v)) for k,v in params)
 		class_name = self.__class__.__name__
+		if self._entity is not None:
+			params = sorted((k,v) for (k,v) in self._entity.items() if not k.startswith("_"))
+			params_str = ", ".join("%s=%s"%(k,repr(v)) for k,v in params)
+		else:
+			params_str = "..."
 		repr_str = class_name + "(" + params_str + ")"
 		return repr_str
 	
 	__str__ = __repr__
 
-class SearchParty(SearchPartyModel):
-	# FIELDS
-	next_teacher_id = db.IntegerProperty(default=1)
-
 	
 class Teacher(SearchPartyModel):
 	# FIELDS
 	user = db.UserProperty()
-	teacher_id = db.IntegerProperty()
-#	password = db.StringProperty()
+#	teacher_id = db.IntegerProperty()
 	date = db.DateTimeProperty(auto_now_add=True)
 
 	# OTHER METHODS
-#	students = property(lambda self: tuple(Student.all().filter("teacher =", self)))
 	nickname = property(lambda self: self.user.nickname())
 
 	def get_all_client_ids(self):
@@ -55,15 +52,21 @@ class Lesson(SearchPartyModel):
 	# FIELDS
 	teacher = db.ReferenceProperty(Teacher)
 	title = db.StringProperty()
-	description = db.StringProperty()
+	description = db.StringProperty(multiline=True)
 	lesson_code = db.StringProperty()
 	class_name = db.StringProperty()
 	start_time = db.DateTimeProperty()
 	stop_time = db.DateTimeProperty()
+	tasks_repr = db.TextProperty()
 
 	# OTHER METHODS
 	is_active = property(lambda self: (self.start_time is not None) and (self.stop_time is None))
-	tasks = property(lambda self: tuple(Task.all().filter("lesson =", self).order("task_idx")))
+	task_entities = property(lambda self: tuple(Task.all().filter("lesson =", self).order("task_idx")))
+
+	@property
+	def tasks(self):
+		from helpers import literal_eval
+		return literal_eval(self.tasks_repr)
 
 	lesson_key = property(lambda self: self.key())
 
@@ -71,7 +74,7 @@ class Task(SearchPartyModel):
 	# FIELDS
 	lesson = db.ReferenceProperty(Lesson)
 	title = db.StringProperty()
-	description = db.StringProperty()
+	description = db.StringProperty(multiline=True)
 	task_idx = db.IntegerProperty()
 
 class Student(SearchPartyModel):
@@ -80,13 +83,15 @@ class Student(SearchPartyModel):
 	nickname = db.StringProperty()
 	session_sid = db.StringProperty()
 	lesson = db.ReferenceProperty(Lesson)
+	teacher = db.ReferenceProperty(Teacher)
 	task_idx = db.IntegerProperty()
 	first_login_timestamp = db.DateTimeProperty(auto_now_add=True)
 	latest_login_timestamp = db.DateTimeProperty()
 	latest_logout_timestamp = db.DateTimeProperty()
 
 	# OTHER METHODS
-	teacher = property(lambda self:self.lesson.teacher)
+#	@property
+#	teacher = property(lambda self:self.lesson.teacher)
 
 	def log_out(self):
 		from datetime import datetime
@@ -116,6 +121,8 @@ class Student(SearchPartyModel):
 class StudentActivity(SearchPartyModel):
 	ACTIVITY_TYPE_LINK = "link"
 	ACTIVITY_TYPE_SEARCH = "search"
+	ACTIVITY_TYPE_LINK_RATING = "link_rating"
+	ACTIVITY_TYPE_ANSWER = "answer"
 
 	# FIELDS
 	student = db.ReferenceProperty(Student)
@@ -126,11 +133,10 @@ class StudentActivity(SearchPartyModel):
 	search = db.StringProperty()
 	link = db.LinkProperty()
 	link_title = db.StringProperty()
+	is_helpful = db.BooleanProperty()
+	answer_text = db.StringProperty()
+	answer_explanation = db.StringProperty()
 	timestamp = db.DateTimeProperty(auto_now_add=True)
-#	teacher = db.ReferenceProperty(Teacher)
-#	task = db.ReferenceProperty(Task)
-#	answer_text = db.StringProperty()
-#	answer_explanation = db.StringProperty()
 
 class StudentAnswer(SearchPartyModel):
 	student = db.ReferenceProperty(Student)
@@ -148,3 +154,10 @@ class Client(SearchPartyModel):
 	teacher = db.ReferenceProperty(Teacher)
 	student = db.ReferenceProperty(Student)
 	user_type = db.StringProperty()  # either "teacher" or "student"
+
+
+
+#class SearchParty(SearchPartyModel):
+#	# FIELDS
+#	next_teacher_id = db.IntegerProperty(default=1)
+

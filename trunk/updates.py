@@ -37,3 +37,7 @@ def send_update_task(teacher, student_nickname, task_idx):
 def send_update_answer(teacher, student_nickname, task_idx, answer_text, answer_explanation):
 	update = {"type":"answer", "student_nickname":student_nickname, "task_idx":task_idx, "text":answer_text, "explanation":answer_explanation}
 	_send_update(teacher, update)
+
+def send_update_link_rated(teacher, student_nickname, task_idx, url, is_helpful):
+	update = {"type":"link_rated", "student_nickname":student_nickname, "task_idx":task_idx, "url":url, "is_helpful":is_helpful}
+	_send_update(teacher, update)

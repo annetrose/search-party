@@ -253,6 +253,46 @@ h3 {
 .logged_out {
 	color: #888888;
 }
+#result_page_container table {
+	width: 100%;
+	border-width: 0px;
+	/* table-layout: fixed; */
+}
+#result_page_container table td {
+	vertical-align: middle;
+	height: 33px;
+}
+#result_page_container table td:first-child > td {
+	vertical-align: middle;
+	height: 33px;
+	width: 200px;
+}
+#result_page_container table td:first-child h3 {
+	margin: 0px;
+}
+ol.query_history_links .not_helpful {
+	text-decoration: line-through;
+	color: #999999;
+}
+ol.query_history_links a.not_helpful:visited,
+ol.query_history_links a.not_helpful:active,
+ol.query_history_links a.not_helpful:link,
+ol.query_history_links a.not_helpful:hover,
+{
+	text-decoration: line-through;
+	color: #999999;
+}
+/*
+ol.query_history_links {
+	width: 200px;
+	list-style-type: lower-alpha;
+}
+ol.query_history_links li {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+*/
 
 /****************************************
  * TEACHER / TEACHER_LESSON

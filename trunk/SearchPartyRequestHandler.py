@@ -28,10 +28,10 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 
 		person = None
 		if user_type=="student":
-			person = Student.all().filter("session_sid =", self.session.sid).get()
+			person = Student.all().filter("session_sid =", self.session.sid).get()  # PERFORMANCE: Key by session ID
 		elif self.user is not None:
 			assert user_type in ("teacher", None)
-			teachers = tuple(Teacher.all().filter("user =", self.user))
+			teachers = tuple(Teacher.all().filter("user =", self.user))  # PERFORMANCE: Use get(..) keyed by user ID
 			assert len(teachers) in (0,1), "Detected %d teachers for the same Google user."%(len(teachers))
 			if len(teachers)==1:
 				person = teachers[0]
@@ -109,6 +109,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		self.redirect(users.create_login_url('/teacher_login'))
 	
 	def create_channel(self):
+		# PERFORMANCE:  These client IDs could probably be stored more efficiently as a StringListProperty of Teacher.
 		from model import Client
 		from google.appengine.api import channel
 		client_id = self.session.sid  # same for teacher or student, for now.  may change later.
@@ -139,10 +140,10 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		html = self.render_template("header.html", template_vals)
 		return html
 
-	def gen_teacher_info(self, teacher_id, password):
-		template_vals = {"teacher_id":teacher_id, "password":password}
-		html = self.render_template("teacher_info.html", template_vals)
-		return html
+#	def gen_teacher_info(self, teacher_id, password):
+#		template_vals = {"teacher_id":teacher_id, "password":password}
+#		html = self.render_template("teacher_info.html", template_vals)
+#		return html
 
 	def get_search_party(self):
 		from model import SearchParty
@@ -157,6 +158,12 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 	def write_response_with_template(self, file, template_vals):
 		html = self.render_template(file=file, template_vals=template_vals)
 		self.response.out.write(html)
+	
+	def write_response_plain_text(self, s):
+		if not isinstance(s, basestring):
+			s = unicode(s)
+		self.response.headers["Content-Type"] = "text/plain"
+		self.response.out.write(s)
 
 	def render_template(self, file, template_vals):
 		from google.appengine.ext.webapp import template

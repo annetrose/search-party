@@ -9,8 +9,7 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class LinkFollowedHandler(SearchPartyRequestHandler):
 	def post(self):
-		from model import StudentActivity
-#		from helpers import send_update_msg
+		from model import StudentActivity, Student
 		from helpers import log
 		from updates import send_update_link_followed
 
@@ -19,18 +18,17 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
 			student = self.student
 			student_nickname = student.nickname
 			task_idx = int(self.request.get("task_idx"))
-			lesson = student.lesson
-			teacher = lesson.teacher
-			lesson_code = lesson.lesson_code  # PERFORMANCE: may be doing too needless queries here
+			teacher = student.teacher
 			query = self.request.get("query")
 			url = self.request.get('url')
+			lesson_key = Student.lesson.get_value_for_datastore(student)
 			title = self.request.get("title")
 			link = StudentActivity(
 				student = student,
 				student_nickname = student_nickname,
-				lesson = lesson,
+				lesson = lesson_key,
 				task_idx = task_idx,
-				activity_type = 'link',
+				activity_type = StudentActivity.ACTIVITY_TYPE_LINK,
 				search = query,
 				link = url,
 				link_title = title,
