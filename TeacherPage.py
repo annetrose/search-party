@@ -20,7 +20,8 @@ class TeacherPage(PersonPage):
 			self.redirect_to_teacher_login()
 		else:
 			lesson = Lesson.all().filter("lesson_code =", lesson_code).get()
-			if lesson.teacher.key() != self.teacher.key():
+#			if lesson.teacher.key() != self.teacher.key():
+			if lesson.teacher_key != self.teacher_key:
 				log("lesson.teacher == %r"%lesson.teacher)
 				log("self.teacher   == %r"%self.teacher)
 				self.redirect_to_teacher_login()

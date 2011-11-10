@@ -19,18 +19,3 @@ indexes:
   properties:
   - name: student
   - name: timestamp
-
-- kind: StudentAnswer
-  properties:
-  - name: lesson
-  - name: timestamp
-
-- kind: StudentAnswer
-  properties:
-  - name: student
-  - name: timestamp
-
-- kind: Task
-  properties:
-  - name: lesson
-  - name: task_idx

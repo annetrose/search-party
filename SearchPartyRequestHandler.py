@@ -27,6 +27,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		assert user_type in ("student", "teacher", None)
 
 		person = None
+		# PERFORMANCE:  Instead of fetching the Student or Teacher, you could just get the key and then fetch the real thing lazily in a property.
 		if user_type=="student":
 			person = Student.all().filter("session_sid =", self.session.sid).get()  # PERFORMANCE: Key by session ID
 		elif self.user is not None:
@@ -44,6 +45,9 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 
 		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
 		log( "..............  user="+repr(self.user) )
+		if self.user is not None:
+			log( "......  user.user_id="+repr(self.user.user_id()) )
+			log( "........  vars(user)="+repr(vars(self.user)) )
 		log( "...........  student="+repr(self.student) )
 		log( "...........  teacher="+repr(self.teacher) )
 		log( "......session.keys()="+repr(tuple(self.session)) )
@@ -55,6 +59,20 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 #		teacher = teacherQuery.get()
 #		if not user or not teacher:
 #			self.redirect_to_teacher_login()
+
+	@property
+	def student_key(self):
+		if self.student is None:
+			return None
+		else:
+			return self.student.key()
+
+	@property
+	def teacher_key(self):
+		if self.teacher is None:
+			return None
+		else:
+			return self.teacher.key()
 
 	def _get_user_type(self):
 		user_type = self.session.get("person_type", None)

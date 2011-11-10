@@ -13,7 +13,7 @@ class PersonPage(SearchPartyRequestHandler):
 		# If student is None, then this will return info for all students who
 		# worked on this lesson.
 
-		from model import Student, Task, StudentActivity, StudentAnswer
+		from model import Student, StudentActivity
 		from helpers import log
 
 		if student is not None:
@@ -28,7 +28,6 @@ class PersonPage(SearchPartyRequestHandler):
 		student_structure = {}
 
 		if len(students) > 0:
-#			num_tasks = Task.all().filter("lesson =",lesson).count()  # datastore GET
 			num_tasks = len(lesson.tasks)
 
 			for student in students:
@@ -43,7 +42,8 @@ class PersonPage(SearchPartyRequestHandler):
 
 			link_infos_and_ratings = {}  # (student_nickname,task_idx,link_url) -> ([link_info,...], is_helpful)
 
-			activities = list(StudentActivity.all().filter(filter_key, filter_value)) # PERFORMANCE: Generator might be inefficient
+			activities = StudentActivity.all().filter(filter_key, filter_value).fetch(10000) # PERFORMANCE: Generator might be inefficient
+			assert len(activities) < 10000, "Upper bound is apparently not big enough."
 			activities.sort(key=lambda sa:sa.timestamp)
 
 			for activity in activities:
@@ -81,21 +81,8 @@ class PersonPage(SearchPartyRequestHandler):
 			for k,v in link_infos_and_ratings.items():
 				(student_nickname,task_idx,link_url) = k
 				link_infos, is_helpful = v
-				log("--------")
-				log(k)
-				log("---")
-				log(v)
-				log("........")
 				for link_info in link_infos:
 					link_info["is_helpful"] = is_helpful
-			
-
-#			for student_answer in StudentAnswer.all().filter(filter_key, filter_value).order("timestamp"):  # datastore GET  # TODO: don't use iteration
-#				student_nickname = student_answer.student_nickname
-#				task_idx = student_answer.task_idx
-#				answer_info = student_structure[student_nickname]["tasks"][task_idx]["answer"]
-#				answer_info["text"] = student_answer.text
-#				answer_info["explanation"] = student_answer.explanation
 
 		return student_structure
 

@@ -50,7 +50,7 @@ function updateSideBarInfo() {
 function countUnique(list) {
 	var set={};
 	var listLength=list.length;
-	for(var i=0; i<listLength; i++) {
+	for(var i=0; i < listLength; i++) {
 		set[list[i]] = true;
 	}
 	var numUnique = 0;
@@ -58,6 +58,35 @@ function countUnique(list) {
 		numUnique += 1;
 	}
 	return numUnique;
+}
+
+function renderDataList(targetElementId, dataItems) {
+	var parts = [];
+	function w(s) { parts.push(s); }
+	
+	w('<div class="data_list_container">');
+	w('<ol>');
+	$.each(dataItems, function(idx,dataItem) {
+		w('<li>');
+		w(escapeForHtml(dataItem.displayText));
+		w('</li>');
+	});
+	w('</ol>');
+	w('</div>');
+	var html = parts.join("");
+	$("#" + targetElementId).html(html);
+	$("#" + targetElementId + " .data_list_container li").each( function(idx) {
+		$(this).mouseover({
+			type:type,
+			dataItem:dataItems[idx]
+		}, onHoverOverDataListItem);
+	});
+}
+
+function onHoverOverDataListItem(eventObject) {
+	var target = eventObject.target;
+	var data = eventObject.data;
+	var type = data.type;
 }
 
 function updateButtonTitles() {
@@ -102,7 +131,34 @@ function updateButtonTitles() {
 }
 
 
-function updateStudents() {
+function DataItem(type, displayText, count, className) {
+// For info on JavaScript OOP, see:
+//   http://www.javascriptkit.com/javatutors/oopjs.shtml
+//   http://www.javascriptkit.com/javatutors/oopjs2.shtml
+
+	this.displayText = displayText;
+	this.count = count;
+	this.className = className;
+}
+
+function StudentDataItem(studentNickname) {
+	DataItem("student", studentNickname, null, null);
+	this.getSupplementalInfo = function() {
+		var queries = [];
+		var linksFollowed = [];
+		var answer = taskInfo.answer;
+
+		var taskIdx = selectedTaskIdx();
+		var taskInfo = g_students[studentNickname].tasks[taskIdx];
+		var searchInfos = taskInfo.searches;
+		var numSearches = searchInfos.length;
+		for(var i=0; i<numSearches; i++) {
+		}
+	}
+	this.getQ
+}
+
+function updateStudents_OLD() {
 	var studentNames = getStudentNames();
 	var lines = [];
 	lines.push("<ol>");
@@ -120,11 +176,30 @@ function updateStudents() {
 	$("#students").html(html);
 }
 
-
 function updateStudents() {
+	var studentNames = getStudentNames();
+	var dataItems = [];
+
+	// Put logged in students ahead of logged out students, but display both..
+	studentNames.sort();
+	for(var i=0; i<2; i++) {
+		for(var studentIdx in studentNames) {
+			var studentNickname = studentNames[studentIdx];
+			var studentInfo = g_students[studentNickname];
+			var logged_in = studentInfo.logged_in;
+			if((logged_in==true && i==0) || (logged_in==false && i==1)) {
+				dataItems.push(new StudentDataItem(studentNickname));
+			}
+		}
+	}
+	renderDataList("students", dataItems);
+}
+
+
+function updateStudents_MESSY_TABLE() {
 	var maxLinkTitleLength = 30;
 	var taskIdx = selectedTaskIdx();
-	var studentTds=[], taskTds=[], queryTds=[], linkTds=[], lines=[];
+	var lines=[];
 	var studentNames = getStudentNames();
 	var studentsLoggedIn=[], studentsLoggedOut=[];
 
