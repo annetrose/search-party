@@ -46,7 +46,7 @@ class TeacherLessons(SearchPartyRequestHandler):
 
 		from helpers import log, chop
 		from datetime import datetime
-		from model import Lesson, Task
+		from model import Lesson
 		assert method in ("get", "post")
 		self.load_search_party_context(user_type="teacher")
 		log( "PAGE:  %s, is_teacher==%s, method==%s, session.sid==%s"%
@@ -65,16 +65,16 @@ class TeacherLessons(SearchPartyRequestHandler):
 				task_description = form_item("task_description_%d"%task_num)
 				if task_title != "":
 					task_infos.append((task_title, task_description))
+
+			tasks_repr = repr(tuple(task_infos))
+
 			if (len(lesson_title) > 0) and (len(lesson_code) > 0) and (len(task_infos) > 0):
 				now = datetime.now()
-				lesson = Lesson(teacher=self.teacher, title=lesson_title, lesson_code=lesson_code,
+				lesson = Lesson(#key_name=lesson_code,
+								teacher=self.teacher, title=lesson_title, lesson_code=lesson_code,
 						        description=lesson_description, class_name=class_name,
-								start_time=now, stop_time=None)
+								start_time=now, stop_time=None, tasks_repr=tasks_repr)
 				lesson.put()
-				for task_idx,task_info in enumerate(task_infos):
-					task_title,task_description = task_info
-					task = Task(lesson=lesson, title=task_title, description=task_description, task_idx=task_idx)
-					task.put()
 
 		if self.is_teacher:
 			self.serve_create_lesson_form()

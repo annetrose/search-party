@@ -35,7 +35,7 @@ class Teacher(SearchPartyModel):
 
 	def get_all_client_ids(self):
 		client_ids = []
-		for client in Client.all().filter("teacher =", self):
+		for client in Client.all().filter("teacher =", self):  # PERFORMANCE:  Attach client IDs to Teacher.
 			client_ids.append( client.client_id )
 
 		# Might end up with multiple copies of same client.  For now, bandage over it.  FIXME
@@ -61,7 +61,6 @@ class Lesson(SearchPartyModel):
 
 	# OTHER METHODS
 	is_active = property(lambda self: (self.start_time is not None) and (self.stop_time is None))
-	task_entities = property(lambda self: tuple(Task.all().filter("lesson =", self).order("task_idx")))
 
 	@property
 	def tasks(self):
@@ -69,13 +68,7 @@ class Lesson(SearchPartyModel):
 		return literal_eval(self.tasks_repr)
 
 	lesson_key = property(lambda self: self.key())
-
-class Task(SearchPartyModel):
-	# FIELDS
-	lesson = db.ReferenceProperty(Lesson)
-	title = db.StringProperty()
-	description = db.StringProperty(multiline=True)
-	task_idx = db.IntegerProperty()
+	teacher_key = property(lambda self: Lesson.teacher.get_value_for_datastore(self))
 
 class Student(SearchPartyModel):
 	# FIELDS
@@ -103,7 +96,7 @@ class Student(SearchPartyModel):
 	def get_all_client_ids(self):
 		#  This is to be explicit and have this defined in one and only one place.
 		#clients = tuple(Client.all().filter("student =", self).get())
-		clients = tuple(Client.all().filter("student =", self))
+		clients = tuple(Client.all().filter("student =", self))  # PERFORMANCE:  client_id should be attached to Student.
 		client_ids = tuple(client.client_id for client in clients)
 
 		# Might end up with multiple copies of same client.  For now, bandage over it.  FIXME
@@ -118,6 +111,8 @@ class Student(SearchPartyModel):
 		#  This is to be explicit and have this defined in one and only one place.
 		return session_sid
 
+	teacher_key = property(lambda self: Student.teacher.get_value_for_datastore(self))
+
 class StudentActivity(SearchPartyModel):
 	ACTIVITY_TYPE_LINK = "link"
 	ACTIVITY_TYPE_SEARCH = "search"
@@ -125,28 +120,21 @@ class StudentActivity(SearchPartyModel):
 	ACTIVITY_TYPE_ANSWER = "answer"
 
 	# FIELDS
-	student = db.ReferenceProperty(Student)
-	student_nickname = db.StringProperty()
-	lesson = db.ReferenceProperty(Lesson)
-	task_idx = db.IntegerProperty()
-	activity_type = db.StringProperty()
-	search = db.StringProperty()
-	link = db.LinkProperty()
-	link_title = db.StringProperty()
-	is_helpful = db.BooleanProperty()
-	answer_text = db.StringProperty()
-	answer_explanation = db.StringProperty()
-	timestamp = db.DateTimeProperty(auto_now_add=True)
+	student = db.ReferenceProperty(Student)  # all
+	student_nickname = db.StringProperty()   # all
+	lesson = db.ReferenceProperty(Lesson)    # all
+	task_idx = db.IntegerProperty()          # all
+	activity_type = db.StringProperty()      # all
+	search = db.StringProperty()             # search or link only
+	link = db.LinkProperty()                 # link or link_rating only
+	link_title = db.StringProperty()         # link only
+	is_helpful = db.BooleanProperty()        # link_rating only
+	answer_text = db.StringProperty()        # answer only
+	answer_explanation = db.StringProperty() # answer only
+	timestamp = db.DateTimeProperty(auto_now_add=True) # all
 
-class StudentAnswer(SearchPartyModel):
-	student = db.ReferenceProperty(Student)
-	student_nickname = db.StringProperty()
-	lesson = db.ReferenceProperty(Lesson)
-	task_idx = db.IntegerProperty()
-	text = db.StringProperty()
-	explanation = db.StringProperty()
-	timestamp = db.DateTimeProperty(auto_now_add=True)
-
+	lesson_key = property(lambda self: StudentActivity.lesson.get_value_for_datastore(self))
+	student_key = property(lambda self: StudentActivity.student.get_value_for_datastore(self))
 
 class Client(SearchPartyModel):
 	# FIELDS
@@ -154,8 +142,25 @@ class Client(SearchPartyModel):
 	teacher = db.ReferenceProperty(Teacher)
 	student = db.ReferenceProperty(Student)
 	user_type = db.StringProperty()  # either "teacher" or "student"
+	teacher_key = property(lambda self: Client.teacher.get_value_for_datastore(self))
+	student_key = property(lambda self: Client.student.get_value_for_datastore(self))
 
 
+#class Task(SearchPartyModel):  # NO LONGER USED, only left to aid in updating old databases.
+#	# FIELDS
+#	lesson = db.ReferenceProperty(Lesson)
+#	title = db.StringProperty()
+#	description = db.StringProperty(multiline=True)
+#	task_idx = db.IntegerProperty()
+
+#class StudentAnswer(SearchPartyModel):  # NO LONGER USED, only left to aid in updating old databases.
+#	student = db.ReferenceProperty(Student)
+#	student_nickname = db.StringProperty()
+#	lesson = db.ReferenceProperty(Lesson)
+#	task_idx = db.IntegerProperty()
+#	text = db.StringProperty()
+#	explanation = db.StringProperty()
+#	timestamp = db.DateTimeProperty(auto_now_add=True)
 
 #class SearchParty(SearchPartyModel):
 #	# FIELDS

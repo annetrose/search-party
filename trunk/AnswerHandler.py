@@ -11,7 +11,6 @@ class AnswerHandler(SearchPartyRequestHandler):
 	def post(self):
 		from helpers import log
 		from updates import send_update_answer
-		from model import StudentAnswer
 
 		self.load_search_party_context(user_type="student")
 		if self.is_student:
@@ -22,15 +21,16 @@ class AnswerHandler(SearchPartyRequestHandler):
 			answer_explanation = self.request.get("answer_explanation")
 			lesson = student.lesson
 			teacher = lesson.teacher
-			student_answer = StudentAnswer(
+			activity = StudentActivity(
 					student=student,
 					student_nickname=student.nickname,
 					lesson=lesson,
 					task_idx=task_idx,
-					text=answer_text,
-					explanation=answer_explanation
+					activity_type=StudentActivity.ACTIVITY_TYPE_ANSWER,
+					answer_text=answer_text,
+					answer_explanation=answer_explanation
 			)
-			student_answer.put()
+			activity.put()
 			log( "AnswerHandler:  task_idx=%r,  answer=%r, explanation=%r"%(task_idx, answer_text, answer_explanation) )
 			send_update_answer(teacher=teacher, student_nickname=student_nickname, task_idx=task_idx,
 										answer_text=answer_text, answer_explanation=answer_explanation)

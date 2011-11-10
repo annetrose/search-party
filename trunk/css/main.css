@@ -277,11 +277,25 @@ ol.query_history_links .not_helpful {
 ol.query_history_links a.not_helpful:visited,
 ol.query_history_links a.not_helpful:active,
 ol.query_history_links a.not_helpful:link,
-ol.query_history_links a.not_helpful:hover,
+ol.query_history_links a.not_helpful:hover
 {
 	text-decoration: line-through;
 	color: #999999;
 }
+
+div.data_list_container {
+	width: 400px;
+	background-color: yellow;
+}
+div.data_list_handle {
+	width: 30px;
+	background-color: green;
+}
+div.supplemental_data_container {
+	background-color: gray;
+	width: 400px;
+}
+
 /*
 ol.query_history_links {
 	width: 200px;

@@ -1,16 +1,12 @@
 from SearchPartyRequestHandler import SearchPartyRequestHandler
 
-from model import StudentActivity, StudentAnswer, Student, Lesson
-from helpers import log, smush
-from google.appengine.ext import db
-from pprint import *
-
 class UpdateDB(SearchPartyRequestHandler):
 	def get(self):
-#		self.convert_students()
 		pass
 	
 	def convert_students(self):
+		from model import Student
+		from google.appengine.ext import db
 		out = []
 		students = []
 		for student in Student.all():
@@ -21,6 +17,10 @@ class UpdateDB(SearchPartyRequestHandler):
 		self.write_response_plain_text("\n\n".join(out))
 
 	def put_tasks_in_lesson(self):
+		from model import Lesson
+		from helpers import log
+		from google.appengine.ext import db
+		from pprint import pformat
 		lessons = []
 		out = []
 		all_task_entities = []
@@ -41,6 +41,9 @@ class UpdateDB(SearchPartyRequestHandler):
 		self.write_response_plain_text("\n".join(out))
 	
 	def convert_answers_to_activities(self):
+		from model import StudentActivity, StudentAnswer
+		from helpers import log
+		from google.appengine.ext import db
 		new_activities = []
 		old_answers = []
 		student_names = {}
