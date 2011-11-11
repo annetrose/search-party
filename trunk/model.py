@@ -12,22 +12,27 @@ class SearchPartyModel(db.Model):
 	def __repr__(self):
 	# Generic __repr__ function that can be glued onto any class.  Results in a string like...
 	#    Car(maker_name="Toyota", model_name="Prius", num_wheels=4)
+		from helpers import to_str_if_ascii
 		class_name = self.__class__.__name__
-		if self._entity is not None:
+		key = self.key()
+		key_name = key.name() if key is not None else None
+
+		if key_name is not None:
+			params_str = repr(to_str_if_ascii(key_name))
+		elif self._entity is not None:
 			params = sorted((k,v) for (k,v) in self._entity.items() if not k.startswith("_"))
-			params_str = ", ".join("%s=%s"%(k,repr(v)) for k,v in params)
+			params_str = ", ".join("%s=%s"%(k,repr(to_str_if_ascii(v))) for k,v in params)
 		else:
 			params_str = "..."
 		repr_str = class_name + "(" + params_str + ")"
 		return repr_str
-	
+
 	__str__ = __repr__
 
 	
 class Teacher(SearchPartyModel):
 	# FIELDS
 	user = db.UserProperty()
-#	teacher_id = db.IntegerProperty()
 	date = db.DateTimeProperty(auto_now_add=True)
 
 	# OTHER METHODS
@@ -47,6 +52,10 @@ class Teacher(SearchPartyModel):
 	def make_client_id(self, session_sid):
 		#  This is to be explicit and have this defined in one and only one place.
 		return session_sid
+
+	def __repr__(self):
+		from helpers import to_str_if_ascii
+		return "Teacher(%r)"%to_str_if_ascii(self.user.email())
 
 class Lesson(SearchPartyModel):
 	# FIELDS
@@ -82,10 +91,6 @@ class Student(SearchPartyModel):
 	latest_login_timestamp = db.DateTimeProperty()
 	latest_logout_timestamp = db.DateTimeProperty()
 
-	# OTHER METHODS
-#	@property
-#	teacher = property(lambda self:self.lesson.teacher)
-
 	def log_out(self):
 		from datetime import datetime
 		self.latest_logout_timestamp = datetime.now()
@@ -95,8 +100,7 @@ class Student(SearchPartyModel):
 
 	def get_all_client_ids(self):
 		#  This is to be explicit and have this defined in one and only one place.
-		#clients = tuple(Client.all().filter("student =", self).get())
-		clients = tuple(Client.all().filter("student =", self))  # PERFORMANCE:  client_id should be attached to Student.
+		clients = tuple(Client.all().filter("student =", self))
 		client_ids = tuple(client.client_id for client in clients)
 
 		# Might end up with multiple copies of same client.  For now, bandage over it.  FIXME
@@ -110,6 +114,11 @@ class Student(SearchPartyModel):
 	def make_client_id(self, session_sid):
 		#  This is to be explicit and have this defined in one and only one place.
 		return session_sid
+	
+	@classmethod
+	def make_key_name(cls, student_nickname, lesson_code):
+		assert "::" not in lesson_code
+		return "::".join((student_nickname, lesson_code))
 
 	teacher_key = property(lambda self: Student.teacher.get_value_for_datastore(self))
 

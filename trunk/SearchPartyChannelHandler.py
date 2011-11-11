@@ -12,12 +12,18 @@ class SearchPartyChannelHandler(webapp.RequestHandler):
 		from model import Client
 		from helpers import log
 
+		log( "" )
+		log( "" )
+		log( "" )
+		log( "...................................................................." )
+		log( self.request.url )
+		log( "" )
 		self.client_id = self.request.get('from', None)
 		self.is_student = False
 		self.is_teacher = False
 		self.teacher = None
 		self.student = None
-		self.client = Client.all().filter('client_id = ', self.client_id).get()
+		self.client = Client.get_by_key_name(self.client_id)
 		if self.client is not None:
 			user_type = self.client.user_type
 			assert user_type in ("student", "teacher")

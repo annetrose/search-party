@@ -18,8 +18,10 @@
 <script type="text/javascript">
 // <![CDATA[
   var TOKEN = "{{ token }}";
+  var g_lessonCode = "{{ lesson.lesson_code }}";
   var g_lastQuery = null;
-  {{student_js|safe}}{# defines g_students, g_studentNickname, g_queryHistory #}
+  var g_studentNickname = "{{ nickname }}";
+  {{student_js|safe}}{# defines g_students, g_queryHistory #}
   $(initialize);
 // ]]>
 </script>

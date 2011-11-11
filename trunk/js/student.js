@@ -60,7 +60,12 @@ function hideAds() {
 
 function onSearchExecuted(query) {
     g_lastQuery = query;
-	$.post("/search_executed", {"query" : query, "task_idx":selectedTaskIdx()});
+	$.post("/search_executed", {
+		query : query,
+		student_nickname : g_studentNickname,
+		lesson_code : g_lessonCode,
+		task_idx : selectedTaskIdx()}
+	);
 
 	// Add this search to the list.
 	var taskIdx = selectedTaskIdx();
@@ -84,7 +89,14 @@ function switchToSearch() {
 
 function onLinkFollowed(url, title) {
 	var query = g_lastQuery;
-	$.post("/link_followed", {"url" : url,  "title":title, "query":query, "task_idx":selectedTaskIdx()});
+	$.post("/link_followed", {
+		url : url,
+		title : title,
+		query : query,
+		student_nickname : g_studentNickname,
+		lesson_code : g_lessonCode,
+		task_idx : selectedTaskIdx()
+	});
 
 	// Add this followed link to the list.
 	var taskIdx = selectedTaskIdx();
@@ -132,6 +144,8 @@ function initialize() {
 			var answerExplanation = document.getElementById("answer_explanation").value;
 			$.post("/answer", {
 				task_idx: selectedTaskIdx(),
+				student_nickname : g_studentNickname,
+				lesson_code : g_lessonCode,
 				answer_text: answerText,
 				answer_explanation: answerExplanation
 			});
@@ -183,7 +197,12 @@ function onLinkRated() {
 
 	updateQueryHistory();
 
-	$.post("/link_rated", {"url":g_current_result_url, "task_idx":selectedTaskIdx(), "is_helpful":is_helpful_str});
+	$.post("/link_rated", {
+		url : g_current_result_url,task_idx : selectedTaskIdx(),
+		is_helpful : is_helpful_str,
+		student_nickname : g_studentNickname,
+		lesson_code : g_lessonCode,
+	});
 }
 
 function updateQueryHistory() {
@@ -228,7 +247,11 @@ function updateQueryHistory() {
 }
 
 function onTaskChanged(taskIdx) { // called from js/task_chooser.js
-	$.post("/task_changed", {"task_idx":selectedTaskIdx()});
+	$.post("/task_changed", {
+		task_idx : selectedTaskIdx(),
+		student_nickname : g_studentNickname,
+		lesson_code : g_lessonCode,
+	});
 	document.getElementById("answer_text").value = "";
 	document.getElementById("answer_msg").innerHTML = "";
 	document.getElementById("answer_explanation").value = "";

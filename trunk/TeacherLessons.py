@@ -70,7 +70,7 @@ class TeacherLessons(SearchPartyRequestHandler):
 
 			if (len(lesson_title) > 0) and (len(lesson_code) > 0) and (len(task_infos) > 0):
 				now = datetime.now()
-				lesson = Lesson(#key_name=lesson_code,
+				lesson = Lesson(key_name=lesson_code,
 								teacher=self.teacher, title=lesson_title, lesson_code=lesson_code,
 						        description=lesson_description, class_name=class_name,
 								start_time=now, stop_time=None, tasks_repr=tasks_repr)
@@ -93,8 +93,7 @@ class TeacherLessons(SearchPartyRequestHandler):
 			assert i < 1000 - 1, "Looks like infinite loop."
 			n = random.randint(0,10**digits - 1)
 			lesson_code = "%05d"%n
-			lesson = Lesson.all().filter("lesson_code =", lesson_code).get()
+			lesson = Lesson.get_by_key_name(lesson_code)
 			if lesson is None:
 				break
 		return lesson_code
-

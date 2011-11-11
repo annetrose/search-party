@@ -9,56 +9,59 @@
 from google.appengine.ext import webapp
 
 class SearchPartyRequestHandler(webapp.RequestHandler):
-	def load_search_party_context(self, user_type=None):
+	def load_search_party_context(self, user_type=None, lesson_code=None, student_nickname=None):
 		from model import Teacher, Student
 		from gaesessions import get_current_session
 		from google.appengine.api import users
 		from helpers import log, smush
-		log(self.request.url)
-		if self.request.body and self.request.body.strip():
-			log( self.request.body )
 
+		log( "" )
+		log( "" )
+		log( "" )
+		log( "____________________________________________________________________" )
+		log( self.request.url )
+		log( "" )
 		self.session = get_current_session()
 		self.user = users.get_current_user()
 
-		#user_type = self.session.get("person_type", None)
-		if user_type is None:
-			user_type = self.user_type
 		assert user_type in ("student", "teacher", None)
 
-		person = None
 		# PERFORMANCE:  Instead of fetching the Student or Teacher, you could just get the key and then fetch the real thing lazily in a property.
+		person = None
 		if user_type=="student":
-			person = Student.all().filter("session_sid =", self.session.sid).get()  # PERFORMANCE: Key by session ID
+			lesson_code = self.request.get("lesson_code", None)
+			student_nickname = self.request.get("student_nickname", None)
+			if lesson_code is not None and student_nickname is not None:
+				log( "Found by data" )
+				key_name = Student.make_key_name(student_nickname=student_nickname, lesson_code=lesson_code)
+				person = Student.get_by_key_name(key_name)
+				if person is not None and person.session_sid != self.session.sid:
+					self.redirect_with_msg('Please log in again.', dst="/student_login")
+			else:
+				log( "Found by session" )
+				person = Student.all().filter("session_sid =", self.session.sid).get()
 		elif self.user is not None:
 			assert user_type in ("teacher", None)
-			teachers = tuple(Teacher.all().filter("user =", self.user))  # PERFORMANCE: Use get(..) keyed by user ID
-			assert len(teachers) in (0,1), "Detected %d teachers for the same Google user."%(len(teachers))
-			if len(teachers)==1:
-				person = teachers[0]
-		
+			person = Teacher.get_by_key_name(self.user.user_id())
+
 		self.set_person(person)
 
 		assert not ((self.is_teacher) ^ (self.teacher is not None))
 		assert not ((self.is_student) ^ (self.student is not None))
 
 
-		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
-		log( "..............  user="+repr(self.user) )
-		if self.user is not None:
-			log( "......  user.user_id="+repr(self.user.user_id()) )
-			log( "........  vars(user)="+repr(vars(self.user)) )
-		log( "...........  student="+repr(self.student) )
-		log( "...........  teacher="+repr(self.teacher) )
-		log( "......session.keys()="+repr(tuple(self.session)) )
-		log( ".........session.sid="+smush(self.session.sid, 40))
-		# TODO: Consider using this logic, which was previously used to get the teacher
-		# and/or figure out if a teacher is logged on rather than a student.
-#		user = users.get_current_user()
-#		teacherQuery = Teacher.all().filter('user =', user)
-#		teacher = teacherQuery.get()
-#		if not user or not teacher:
-#			self.redirect_to_teacher_login()
+#		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
+#		log( "..............  user="+repr(self.user) )
+#		if self.user is not None:
+#			log( "......  user.user_id="+repr(self.user.user_id()) )
+#			log( "........  vars(user)="+repr(vars(self.user)) )
+#		log( "...........  student="+repr(self.student) )
+#		if self.student is not None:
+#			log( "...  student.teacher="+repr(self.student.teacher) )
+#		log( "...........  teacher="+repr(self.teacher) )
+#		log( "......session.keys()="+repr(tuple(self.session)) )
+#		log( ".........session.sid="+smush(self.session.sid, 40))
+
 
 	@property
 	def student_key(self):
@@ -131,7 +134,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		from model import Client
 		from google.appengine.api import channel
 		client_id = self.session.sid  # same for teacher or student, for now.  may change later.
-		client = Client()
+		client = Client(key_name=client_id)
 		if self.is_teacher:
 			client.user_type = "teacher"
 			client.client_id = self.teacher.make_client_id(session_sid=self.session.sid)
@@ -157,17 +160,6 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		template_vals["is_logged_in"] = (template_vals["nickname"] is not None)
 		html = self.render_template("header.html", template_vals)
 		return html
-
-#	def gen_teacher_info(self, teacher_id, password):
-#		template_vals = {"teacher_id":teacher_id, "password":password}
-#		html = self.render_template("teacher_info.html", template_vals)
-#		return html
-
-	def get_search_party(self):
-		from model import SearchParty
-		keyname = "search_party"
-		sp = SearchParty.get_or_insert(keyname)
-		return sp
 
 	def redirect_with_msg(self, msg, dst='/'):
 		self.session['msg'] = msg

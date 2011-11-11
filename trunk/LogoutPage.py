@@ -37,7 +37,6 @@ class LogoutPage(SearchPartyRequestHandler):
 			student.log_out()
 			student_nickname = student.nickname
 			teacher = student.lesson.teacher
-#			send_update_msg(self.student.teacher, "Student %s logged out."%self.student.nickname)
 			send_update_log_out(teacher=teacher, student_nickname=student_nickname)
 			self.session.terminate()
 			msg = 'Student Logged out: Goodbye ' + student_nickname
