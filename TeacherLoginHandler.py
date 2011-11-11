@@ -16,27 +16,17 @@ class TeacherLoginHandler(SearchPartyRequestHandler):
 		from model import Teacher
 		self.load_search_party_context(user_type="teacher")
 
-		log( "LOGIN:  teacher, get" )
-
 		# Close any active session the user has since s/he is trying to login
 		if self.session.is_active():
 			self.session.terminate()
 
 		# Get the teacher's record
 		if not self.is_teacher:
-			sp = self.get_search_party()
-			teacher = Teacher()
+			teacher = Teacher(key_name=self.user.user_id())
 			teacher.user = self.user
-			teacher_id = sp.next_teacher_id
-			teacher.teacher_id = teacher_id
 			teacher.put()
-			sp.next_teacher_id += 1
-			sp.put()
 			self.set_person(teacher)
-#			log( ".....   Make new teacher and stored in DB" )
 
-#		self.session['teacher'] = teacher  # don't store teacher object in two places
 		self.session.regenerate_id()
 
-#		log( ".....   redirect to /teacher")
 		self.redirect_with_msg('Teacher Logged in. Hello: ' + self.teacher.user.nickname(), dst='/teacher_lessons')

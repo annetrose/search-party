@@ -31,13 +31,14 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 			elif not student_nickname:
 				raise StudentLoginException("Please enter a student name.")
 
-			lesson = Lesson.all().filter("lesson_code =", lesson_code).get()
+			lesson = Lesson.get_by_key_name(lesson_code)
 
 			if lesson is None:
 				raise StudentLoginException("Please check the lesson code.")
 
 			login_timestamp = datetime.now()
-			student = Student.all().filter("nickname =", student_nickname).filter("lesson =", lesson).get()
+			key_name = Student.make_key_name(student_nickname=student_nickname, lesson_code=lesson_code)
+			student = Student.get_by_key_name(key_name)
 			if student is not None:
 				student.session_sid=self.session.sid
 				task_idx = student.task_idx
@@ -49,10 +50,12 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 			else:
 				task_idx = self.INITIAL_TASK_IDX
 				student = Student(
+					key_name=key_name,
 					logged_in=True,
 					nickname=student_nickname,
 					session_sid=self.session.sid,
 					lesson=lesson,
+					teacher=lesson.teacher_key,
 					task_idx=task_idx,
 					first_login_timestamp=login_timestamp,
 					latest_login_timestamp=login_timestamp,

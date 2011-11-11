@@ -9,9 +9,12 @@ def _send_update(person, *updates):
 	from google.appengine.api import channel
 	from django.utils import simplejson as json
 	from model import Student, Teacher
-	assert isinstance(person, Student) or isinstance(person, Teacher), repr(person)
+	assert isinstance(person, (Student,Teacher)), repr(person)
+	from helpers import log
+	log( repr(person) + " --> " + updates[0]["type"] )
 	updates_json = json.dumps(list(updates))
 	for client_id in person.get_all_client_ids():
+		log( "client ID : %r"%client_id )
 		channel.send_message(client_id, updates_json)
 
 def send_update_query(teacher, student_nickname, task_idx, query):

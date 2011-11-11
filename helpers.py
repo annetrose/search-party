@@ -22,22 +22,13 @@ def calc_since_time(since_str):
 		since_time -= timedelta(days=1)
 	return since_time
 
-
-#def send_msg(person, msg_type, msg):
-#	from google.appengine.api import channel
-#	from django.utils import simplejson as json
-#	from model import Student, Teacher
-#	assert isinstance(person, Student) or isinstance(person, Teacher), repr(person)
-#	for client_id in person.get_all_client_ids():
-#		channel.send_message(client_id, json.dumps({msg_type:msg}))
-#
-#def send_update_msg(person, msg):
-#	send_msg(person=person, msg_type="change", msg=msg)
-#
-#def send_log_msg(person, msg):
-#	import settings
-#	if settings.ENABLE_UPDATE_LOGGING:
-#		send_msg(person=person, msg_type="log", msg=msg)
+def to_str_if_ascii(s):
+	if isinstance(s, basestring):
+		try:
+			s = str(s)
+		except UnicodeEncodeError:
+			pass
+	return s
 
 def log(msg):
 	import logging, settings
@@ -125,24 +116,3 @@ def literal_eval(node_or_string):
 		raise ValueError('malformed string')
 
 	return _convert(node_or_string)
-
-#print smush( "fish", 5 )
-#print smush( "fish fried with butter", 5 )
-#print smush( 1, 5 )
-#print smush( 1234567890, 5 )
-#print chop( "fish", 5 )
-#print chop( "fish fried with butter", 5 )
-#print chop( 1, 5 )
-#print chop( 1234567890, 5 )
-
-	
-
-
-
-
-#def extend_session_lifetime(session):
-#	from datetime import datetime
-#	expire_dt = datetime.now() + DEFAULT_LIFETIME
-#	expiration = time.mktime(expire_dt.timetuple())
-#	session.regenerate_id(expiration_ts=expiration)	 # Extends expiration time
-	
