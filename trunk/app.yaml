@@ -26,3 +26,28 @@ handlers:
  
 builtins:
 - appstats: on
+
+skip_files:
+- ^(.*/)?app\.yaml
+- ^(.*/)?app\.yml
+- ^(.*/)?index\.yaml
+- ^(.*/)?index\.yml
+- ^(.*/)?#.*#
+- ^(.*/)?.*~
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*/RCS/.*
+- ^(.*/)?\..*
+- ^(.*/)?.*\.zip$
+- ^(.*/)?.*\.swp$
+- ^(.*/)?.*\.swo$
+- ^(.*/)?.*\.pptx$
+- ^(.*/)?.*\.ppt$
+- ^(.*/)?.*\.bat$
+- ^(.*/)?.*\.txt$
+- ^(.*[^a-zA-Z])?delme[^a-zA-Z].*
+- ^(.*/)?junk/.+
+- ^(.*/)?scripts/.+
+- ^(.*/)?templatetags/.*
+- ^(.*/)?js/graph/.*\.html$
+- ^(.*/)?js/graph/example\.js$
+- ^(.*/)?\.svn/.*

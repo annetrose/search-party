@@ -2,6 +2,10 @@
 {# vim: set sw=2 ts=2 expandtab: #}
 
 {% block side_panel %}
+  <p>
+    <div id="lesson_cd_lbl">Lesson code:</div>
+    <div id="lesson_code">{{ lesson.lesson_code }}</div>
+  </p>
   <select class="task_title" id="task_chooser">
     {% for task in lesson.tasks %}
       <option class="task_title" id="task_title_{{forloop.counter}}">{{forloop.counter}}. {{task.0}}</option>{% endfor %}

@@ -313,34 +313,56 @@ function updateQueries() {
 
 
 function isStopWord(word) {
-	var stopWordsSet = {
-		"a":true,
-		"the":true,
-		"by":true,
-		"am":true,
-		"an":true,
-		"in":true,
-		"and":true,
-		"or":true,
-		"is":true
+	var stopWordsSet = isStopWord._stopWordsSet;
+	if(stopWordsSet==undefined) {
+		var stopWordsArray = [
+			"a",
+			"the",
+			"by",
+			"am",
+			"an",
+			"in",
+			"and",
+			"or",
+			"is",
+			"was",
+			"been",
+			"were"
+		];
+		var stopWordsSet = {};
+		var numStopWords = stopWordsArray.length;
+		for(var i=0; i<numStopWords; i++) {
+			stopWordsSet[stopWordsArray[i]] = true;
+		}
+		isStopWord._stopWordsSet = stopWordsSet;
 	}
 	return (stopWordsSet[word]!=undefined); // if it's undefined, then it's not a stop word.
 }
 
 function getWordStem(word) {
-	var stemCache = getWordStem.stemCache;
+	var stemCache = getWordStem._stemCache;
+	if( getWordStem.stemCache == undefined ) {
+		getWordStem._stemCache = {};
+	}
+
 	var stem = stemCache[stem];
+
 	if( stem==undefined ) {
+
+		var snowballStemmer = getWordStem._snowballStemmer;
+		if( getWordStem.snowballStemmer == undefined ) {
+			getWordStem._snowballStemmer = new Snowball("english");
+		}
+
 		var snowballStemmer = getWordStem.snowballStemmer;
 		snowballStemmer.setCurrent(word);
 		snowballStemmer.stem();
 		stem = snowballStemmer.getCurrent();
 		stemCache[word] = stem;
 	}
+
 	return stem;
 }
-getWordStem.stemCache = {};
-getWordStem.snowballStemmer = new Snowball("english");
 
 function aggregateWords(words) {
 	var numWords = words.length;
@@ -627,7 +649,7 @@ function sortCaseInsensitiveInPlace(list) {
 // RECEIVING UPDATES
 //
 
-function onMessage(msg) {
+function onSocketMessage(msg) {
 	// Note:  Messages are limited to 32K.  This is not an issue now, but it
 	// might come up in the future.
 	//
@@ -664,6 +686,16 @@ function onMessage(msg) {
 				break;
 		}
 	}
+}
+
+function onSocketOpen() {
+	alert("Socket opened");
+}
+function onSocketError() {
+	alert("Socket error");
+}
+function onSocketClose() {
+	alert("Socket closed");
 }
 
 function handle_update_query(student_nickname, task_idx, query) {
@@ -785,7 +817,10 @@ function initialize() {
 	// Open Channel
 	var channel = new goog.appengine.Channel(TOKEN);
 	var socket = channel.open();
-	socket.onmessage = onMessage;
+	socket.onmessage = onSocketMessage;
+//	socket.onopen = onSocketOpen;
+//	socket.onerror = onSocketError;
+//	socket.onclose = onSocketClose;
 
 	updateUI();
 	//initializeGraph();
@@ -793,38 +828,6 @@ function initialize() {
 	loadPane(START_PANE);
 	window.status = "Loaded";
 }
-
-
-function initializeGraph() {
-//    var width = $(document).width() - 20;
-//    var height = $(document).height() - 60;
-    var width = 811;
-    var height = 334;
-    g = new Graph();
-    g.addNode("Marty");
-    g.addNode("Allison");
-    g.addNode("Tasha");
-    g.addNode("Ben");
-    g.addNode("Emma");
-	g.addEdge("Marty",   "Allison", {label:"aardvark, pajamas, nighty, slippers"})
-	g.addEdge("Allison", "Emma",    {label:"aardvark, pajamas, blanket"})
-	g.addEdge("Emma", "Ben",    {label:"warm, night, cold"})
-	g.addEdge("Ben", "Tasha",    {label:"animal, nightware, ants, warm"})
-	g.addEdge("Tasha", "Marty",    {label:"aardvark, slippers, nighty, ants, warm, night"})
-	g.addEdge("Ben", "Marty",    {label:"aardvark, warm, night, ants"})
-
-    /* layout the graph using the Spring layout implementation */
-    var layouter = new Graph.Layout.Spring(g);
-    
-    /* draw the graph using the RaphaelJS draw implementation */
-    var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
-    
-    redraw_graph = function() {
-        layouter.layout();
-        renderer.draw();
-    };
-}
-
 
 
 ///////////////////////////////////////////////////////////
@@ -993,7 +996,7 @@ function asList(items, listType, shouldEscapeAsHTML) {
 //	$("#students").html(html);
 //}
 
-//function onMessage(msg) {
+//function onSocketMessage(msg) {
 //	// Note:  Messages are limited to 32K.  This is not an issue now, but it
 //	// might come up in the future.
 //	//
@@ -1068,4 +1071,34 @@ function asList(items, listType, shouldEscapeAsHTML) {
 //
 //	var html = lines.join("");
 //	$("#words").html(html);
+//}
+
+//function initializeGraph() {
+////    var width = $(document).width() - 20;
+////    var height = $(document).height() - 60;
+//    var width = 811;
+//    var height = 334;
+//    g = new Graph();
+//    g.addNode("Marty");
+//    g.addNode("Allison");
+//    g.addNode("Tasha");
+//    g.addNode("Ben");
+//    g.addNode("Emma");
+//	g.addEdge("Marty",   "Allison", {label:"aardvark, pajamas, nighty, slippers"})
+//	g.addEdge("Allison", "Emma",    {label:"aardvark, pajamas, blanket"})
+//	g.addEdge("Emma", "Ben",    {label:"warm, night, cold"})
+//	g.addEdge("Ben", "Tasha",    {label:"animal, nightware, ants, warm"})
+//	g.addEdge("Tasha", "Marty",    {label:"aardvark, slippers, nighty, ants, warm, night"})
+//	g.addEdge("Ben", "Marty",    {label:"aardvark, warm, night, ants"})
+//
+//    /* layout the graph using the Spring layout implementation */
+//    var layouter = new Graph.Layout.Spring(g);
+//    
+//    /* draw the graph using the RaphaelJS draw implementation */
+//    var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
+//    
+//    redraw_graph = function() {
+//        layouter.layout();
+//        renderer.draw();
+//    };
 //}

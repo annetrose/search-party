@@ -11,6 +11,7 @@ class ChannelConnectedHandler(SearchPartyChannelHandler):
 	def post(self):
 		self.load_search_party_context()
 		if self.is_student:
-			if not self.student.logged_in:
-				self.student.logged_in = True
-				self.student.put()
+			student = self.student
+			if not student.logged_in:
+				student.logged_in = True
+			student.put()
