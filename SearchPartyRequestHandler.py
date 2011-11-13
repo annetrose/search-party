@@ -14,6 +14,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		from gaesessions import get_current_session
 		from google.appengine.api import users
 		from helpers import log, smush
+		from all_exceptions import StudentLoginException
 
 		log( "" )
 		log( "" )
@@ -21,10 +22,12 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		log( "____________________________________________________________________" )
 		log( self.request.url )
 		log( "" )
+
+		assert user_type in ("student", "teacher", None)
+
 		self.session = get_current_session()
 		self.user = users.get_current_user()
 
-		assert user_type in ("student", "teacher", None)
 
 		# PERFORMANCE:  Instead of fetching the Student or Teacher, you could just get the key and then fetch the real thing lazily in a property.
 		person = None
@@ -34,12 +37,23 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 			if lesson_code is not None and student_nickname is not None:
 				log( "Found by data" )
 				key_name = Student.make_key_name(student_nickname=student_nickname, lesson_code=lesson_code)
-				person = Student.get_by_key_name(key_name)
-				if person is not None and person.session_sid != self.session.sid:
-					self.redirect_with_msg('Please log in again.', dst="/student_login")
+				student = Student.get_by_key_name(key_name)
+				if (student is not None) and (student.session_sid != self.session.sid):
+					log("Student SID doesn't match:\n * student == %r\n * student.session_sid == %r\n * self.session.sid == %r"%
+							(student, student.session_sid, self.session.sid))
+					if student.is_logged_in:
+						raise StudentLoginException("Someone is already logged into this lesson with that name.",
+								"Session ID doesn't match.", student.session_sid, self.session.sid,
+								student.latest_login_timestamp, student.latest_logout_timestamp)
+					else:
+						self.session.clear()
+						self.session.regenerate_id()
+						student.session_sid = self.session.sid
+						student.put()
 			else:
 				log( "Found by session" )
-				person = Student.all().filter("session_sid =", self.session.sid).get()
+				student = Student.all().filter("session_sid =", self.session.sid).get()
+			person = student
 		elif self.user is not None:
 			assert user_type in ("teacher", None)
 			person = Teacher.get_by_key_name(self.user.user_id())
@@ -50,17 +64,18 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		assert not ((self.is_student) ^ (self.student is not None))
 
 
-#		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
-#		log( "..............  user="+repr(self.user) )
-#		if self.user is not None:
-#			log( "......  user.user_id="+repr(self.user.user_id()) )
-#			log( "........  vars(user)="+repr(vars(self.user)) )
-#		log( "...........  student="+repr(self.student) )
-#		if self.student is not None:
-#			log( "...  student.teacher="+repr(self.student.teacher) )
-#		log( "...........  teacher="+repr(self.teacher) )
-#		log( "......session.keys()="+repr(tuple(self.session)) )
-#		log( ".........session.sid="+smush(self.session.sid, 40))
+	def log_state(self):
+		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
+		log( "..............  user="+repr(self.user) )
+		if self.user is not None:
+			log( "......  user.user_id="+repr(self.user.user_id()) )
+			log( "........  vars(user)="+repr(vars(self.user)) )
+		log( "...........  student="+repr(self.student) )
+		if self.student is not None:
+			log( "...  student.teacher="+repr(self.student.teacher) )
+		log( "...........  teacher="+repr(self.teacher) )
+		log( "......session.keys()="+repr(tuple(self.session)) )
+		log( ".........session.sid="+smush(self.session.sid, 40))
 
 
 	@property
@@ -100,52 +115,72 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		self.student = None
 		self.is_teacher = False
 		self.teacher = None
+		self.person_type = None
 
-		person_type = None
 		if person is not None:
 			if isinstance(person, Student):
 				self.student = person
 				self.teacher = None
 				self.is_student = True
 				self.is_teacher = False
-				person_type = "student"
+				self.person_type = "student"
 			elif isinstance(person, Teacher):
 				self.teacher = person
 				self.student = None
 				self.is_teacher = True
 				self.is_student = False
-				person_type = "teacher"
+				self.person_type = "teacher"
 			else:
 				assert False, "Unknown person type in set_person(..),  error # 13108, "+repr(person)
 
-			if self.session.get("person_type",None) != person_type:
-				self.session["person_type"] = person_type
+			if self.session.get("person_type",None) != self.person_type:
+				self.session["person_type"] = self.person_type
 
 		else:
 			if self.session.has_key("person_type"):
 				del self.session["person_type"]
 
+		self.person = person
+
 	def redirect_to_teacher_login(self):
 		from google.appengine.api import users
 		self.redirect(users.create_login_url('/teacher_login'))
 	
-	def create_channel(self):
-		# PERFORMANCE:  These client IDs could probably be stored more efficiently as a StringListProperty of Teacher.
-		from model import Client
+	def create_channel(self, lesson_code):
 		from google.appengine.api import channel
-		client_id = self.session.sid  # same for teacher or student, for now.  may change later.
-		client = Client(key_name=client_id)
-		if self.is_teacher:
-			client.user_type = "teacher"
-			client.client_id = self.teacher.make_client_id(session_sid=self.session.sid)
-		elif self.is_student:
-			client.user_type = "student"
-			client.client_id = self.student.make_client_id(session_sid=self.session.sid)
-		client.student = self.student
-		client.teacher = self.teacher
-		client.put()
+		import client_id_utils
+		from helpers import log
+
+#		from model import Client
+#		client_id = self.session.sid  # same for teacher or student, for now.  may change later.
+#		client = Client(key_name=client_id)
+#		if self.is_teacher:
+#			client.user_type = "teacher"
+#			client.client_id = self.teacher.make_client_id(session_sid=self.session.sid)
+#		elif self.is_student:
+#			client.user_type = "student"
+#			client.client_id = self.student.make_client_id(session_sid=self.session.sid)
+#		client.student = self.student
+#		client.teacher = self.teacher
+#		client.put()
+
+		client_id = client_id_utils.create_client_id(session_sid=self.session.sid, lesson_code=lesson_code, person_type=self.person_type)
 		token = channel.create_channel(client_id)
+		self.person.add_client_id(client_id)
+		self.person.put()
+		log( "Created channel for %r on %s."%(self.person, client_id) )
+#		if self.is_teacher:
+#			self.teacher.add_client_id(client_id)
+#			self.teacher.put()
+#			log( "Created channel for teacher %r on %s."%(self.teacher, client_id) )
+#		elif self.is_student:
+#			self.student.client_id = client_id
+#			self.student.put()
+#			log( "Created channel for student %r on %s."%(self.student, client_id) )
+#		else:
+#			assert False, "Neither Student nor Teacher"
 		return token
+
 
 	def gen_header(self, role="unknown"):
 		from google.appengine.api import users

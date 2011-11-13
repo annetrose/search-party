@@ -38,6 +38,8 @@ class PersonPage(SearchPartyRequestHandler):
 					"tasks"     : tasks_info
 				}
 
+			# Policy:  Don't report same (query,student,task_idx) more than once.
+			# This dictionary enforces that.
 			searches_dict = {}
 
 			link_infos_and_ratings = {}  # (student_nickname,task_idx,link_url) -> ([link_info,...], is_helpful)
@@ -51,26 +53,32 @@ class PersonPage(SearchPartyRequestHandler):
 				task_idx = activity.task_idx
 
 				activity_type = activity.activity_type
-				if activity_type in (StudentActivity.ACTIVITY_TYPE_LINK, StudentActivity.ACTIVITY_TYPE_LINK_RATING):
+				if activity_type in (StudentActivity.ACTIVITY_TYPE_LINK,
+						             StudentActivity.ACTIVITY_TYPE_LINK_RATING,
+									 StudentActivity.ACTIVITY_TYPE_SEARCH):
+
 					link_url = activity.link
 					key = (student_nickname,task_idx,link_url)
 					link_infos_and_rating = link_infos_and_ratings.setdefault(key, [[],None])
-					if activity_type==StudentActivity.ACTIVITY_TYPE_LINK:
+					if activity_type in (StudentActivity.ACTIVITY_TYPE_LINK, StudentActivity.ACTIVITY_TYPE_SEARCH):
 						query = activity.search
 						search_key = (student_nickname, task_idx, query)
 						try:
 							search_info = searches_dict[search_key]
 						except KeyError:
 							search_info = {"query":query, "links_followed":[]}
-							searches_dict[search_key] = search_info
 							student_structure[student_nickname]["tasks"][task_idx]["searches"].append(search_info)
+							searches_dict[search_key] = search_info
 
+					if activity_type==StudentActivity.ACTIVITY_TYPE_LINK:
 						link_title = activity.link_title
 						link_info = {"url":link_url, "title":link_title, "is_helpful":None}
 						search_info["links_followed"].append(link_info)
 						link_infos_and_rating[0].append(link_info)
+
 					elif activity_type==StudentActivity.ACTIVITY_TYPE_LINK_RATING:
 						link_infos_and_rating[1] = activity.is_helpful
+
 				elif activity_type==StudentActivity.ACTIVITY_TYPE_ANSWER:
 					# This will end up with the most recent answer because it is in ascending time order, so
 					# later answers will overwrite the older ones.

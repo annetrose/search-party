@@ -10,7 +10,7 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 class SearchExecutedHandler(SearchPartyRequestHandler):
 	def post(self):		   
 #		from helpers import send_update_msg
-#		from helpers import log
+		from helpers import log
 		from model import StudentActivity
 #		from datetime import datetime
 		from updates import send_update_query
@@ -36,3 +36,5 @@ class SearchExecutedHandler(SearchPartyRequestHandler):
 			)
 			activity.put()
 			send_update_query(teacher=teacher, student_nickname=student_nickname, task_idx=task_idx, query=query)
+		else:
+			log( "Not a student" )

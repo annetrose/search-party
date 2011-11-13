@@ -9,8 +9,12 @@ from google.appengine.ext import webapp
 
 class SearchPartyChannelHandler(webapp.RequestHandler):
 	def load_search_party_context(self):
-		from model import Client
 		from helpers import log
+		import client_id_utils
+
+		# Note:  Apparently, you cannot get the user or session from here.
+		#        Both get_current_session() and get_current_user() return None
+		#        when called from this handler.
 
 		log( "" )
 		log( "" )
@@ -19,19 +23,64 @@ class SearchPartyChannelHandler(webapp.RequestHandler):
 		log( self.request.url )
 		log( "" )
 		self.client_id = self.request.get('from', None)
-		self.is_student = False
-		self.is_teacher = False
-		self.teacher = None
-		self.student = None
-		self.client = Client.get_by_key_name(self.client_id)
-		if self.client is not None:
-			user_type = self.client.user_type
-			assert user_type in ("student", "teacher")
-			if user_type=="teacher":
-				self.teacher = self.client.teacher
-				self.is_teacher = True
-			elif user_type=="student":
-				self.student = self.client.student
-				self.is_student = True
+		log( self.client_id )
+
+		person_type = client_id_utils.person_type_for_client_id(self.client_id)
+		assert person_type in ("student", "teacher")
+		self.is_student = (person_type=="student")
+		self.is_teacher = (person_type=="teacher")
+		self.person_type = person_type
+	
+	@property
+	def person(self):
+		if self.is_student:
+			return self.student
+		elif self.is_teacher:
+			return self.teacher
 		else:
-			log( "Client ID not found! ... %s"%repr(self.client_id) )
+			return None
+
+	@property
+	def teacher(self):
+		from model import Teacher
+		from all_exceptions import NoTeacherForChannelError
+		try:
+			teacher = self._teacher
+		except AttributeError:
+			if self.is_teacher:
+				teacher = self._teacher = Teacher.all().filter("client_ids =", self.client_id).get()  # will match any
+				if teacher is None:
+					raise NoTeacherForChannelError("%r not in %r"%(self.client_id, [tuple(t.client_ids) for t in Teacher.all()]))
+			else:
+				teacher = self._teacher = None
+		return teacher
+
+	@property
+	def student(self):
+		from model import Student
+		from all_exceptions import NoStudentForChannelError
+		try:
+			student = self._student
+		except AttributeError:
+			if self.is_student:
+				student = self._student = Student.all().filter("client_ids =", self.client_id).get()
+				if student is None:
+					raise NoStudentForChannelError("%r not in %r"%(self.client_id, [s.client_ids for s in Student.all()]))
+			else:
+				student = self._student = None
+		return student
+
+#
+#		from model import Client
+#		self.client = Client.get_by_key_name(self.client_id)
+#		if self.client is not None:
+#			user_type = self.client.user_type
+#			assert user_type in ("student", "teacher")
+#			if user_type=="teacher":
+#				self.teacher = self.client.teacher
+#				self.is_teacher = True
+#			elif user_type=="student":
+#				self.student = self.client.student
+#				self.is_student = True
+#		else:
+#			log( "Client ID not found! ... %s"%repr(self.client_id) )

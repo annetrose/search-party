@@ -7,7 +7,7 @@
 # Date: Originally created July 2011
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
-from model import Teacher, Student, StudentActivity, Client
+from model import Teacher, Student, StudentActivity
 from google.appengine.ext import webapp
 
 # This filter is no longer used

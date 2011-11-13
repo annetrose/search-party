@@ -16,10 +16,11 @@ class StudentPage(PersonPage):
 			self.redirect_with_msg('Not a student')
 		else:
 			lesson = self.student.lesson
+			lesson_code = lesson.lesson_code
 			template_values = {
 				'header' :     self.gen_header("student"),
 				'nickname' :   self.student.nickname,
-				"token" :      self.create_channel(),
+				"token" :      self.create_channel(lesson_code=lesson_code),
 				"lesson" :     lesson,
 				"student_js" : self.make_student_structure_js(lesson=lesson, indent="  ", student=self.student),
 			}

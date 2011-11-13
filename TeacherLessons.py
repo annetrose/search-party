@@ -47,6 +47,7 @@ class TeacherLessons(SearchPartyRequestHandler):
 		from helpers import log, chop
 		from datetime import datetime
 		from model import Lesson
+		from django.utils import simplejson as json
 		assert method in ("get", "post")
 		self.load_search_party_context(user_type="teacher")
 		log( "PAGE:  %s, is_teacher==%s, method==%s, session.sid==%s"%
@@ -66,14 +67,16 @@ class TeacherLessons(SearchPartyRequestHandler):
 				if task_title != "":
 					task_infos.append((task_title, task_description))
 
-			tasks_repr = repr(tuple(task_infos))
+#			tasks_repr = repr(tuple(task_infos))
+			tasks_json = json.dumps(task_infos)
 
 			if (len(lesson_title) > 0) and (len(lesson_code) > 0) and (len(task_infos) > 0):
 				now = datetime.now()
 				lesson = Lesson(key_name=lesson_code,
 								teacher=self.teacher, title=lesson_title, lesson_code=lesson_code,
 						        description=lesson_description, class_name=class_name,
-								start_time=now, stop_time=None, tasks_repr=tasks_repr)
+								start_time=now, stop_time=None, tasks_json=tasks_json)
+#								start_time=now, stop_time=None, tasks_repr=tasks_repr)
 				lesson.put()
 
 		if self.is_teacher:

@@ -57,10 +57,11 @@ def timestamp():
 	return time.strftime("%Y%m%d-%H%M%S")
 
 def prettify_html(html):
-	from BeautifulSoup import BeautifulSoup
-	soup = BeautifulSoup(html)
-	pretty_html = soup.prettify()
-	return pretty_html
+	try:
+		from BeautifulSoup import BeautifulSoup
+		return BeautifulSoup(html).prettify()
+	except ImportError:  # quietly fail if BeautifulSoup module is not found
+		return html
 
 def smush(s, to_length, num_dots=3):
 	if not isinstance(s, basestring):
@@ -80,39 +81,3 @@ def chop(s, to_length, num_dots=3):
 		front_len = to_length - num_dots
 		s = s[:front_len] + "."*num_dots
 	return s
-
-def literal_eval(node_or_string):
-	# Credit for this method: Gabriel Genellina
-	# http://www.velocityreviews.com/forums/t698556-re-compiler-ast-helper-function-literal_eval-in-python-2-4-a.html
-	"""
-	Safely evaluate an expression node or a string containing a Python
-	expression. The string or node provided may only consist of the following
-	Python literal structures: strings, numbers, tuples, lists, dicts, booleans,
-	and None.
-	"""
-	from compiler import parse
-	from compiler.ast import Const, Tuple, List, Dict, Name, UnarySub, Expression
-	_safe_names = {'None': None, 'True': True, 'False': False}
-
-	if isinstance(node_or_string, basestring):
-		node_or_string = parse(node_or_string, mode='eval')
-	if isinstance(node_or_string, Expression):
-		node_or_string = node_or_string.node
-
-	def _convert(node):
-		if isinstance(node, Const) and isinstance(node.value, (basestring, int, float, long, complex)):
-			return node.value
-		elif isinstance(node, Tuple):
-			return tuple(map(_convert, node.nodes))
-		elif isinstance(node, List):
-			return list(map(_convert, node.nodes))
-		elif isinstance(node, Dict):
-			return dict((_convert(k), _convert(v)) for k, v in node.items)
-		elif isinstance(node, Name):
-			if node.name in _safe_names:
-				return _safe_names[node.name]
-			elif isinstance(node, UnarySub):
-				return -_convert(node.expr)
-		raise ValueError('malformed string')
-
-	return _convert(node_or_string)
