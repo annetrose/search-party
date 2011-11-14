@@ -2,10 +2,9 @@
 <table class='header' width='100%'>
   <tr>
     <td id="header_logo"><a href='/'><img src="/imgs/search_party_logo_250x46.png" height="46" width="250" alt="Search Party Logo" id="logo_img" /></a></td>
-    <td align='center' id="header_title">Search Party: Learn To Search</td>
-    <td align='right' id="header_user_info">
+    <td align="right" id="header_user_info">
 {% if is_logged_in %}
-    {{ nickname }}<br/>
+    {{ nickname }}
     <a class="header_link" href='/logout' id="logout_link">Logout</a>
   {% if role == "teacher" %}
     &nbsp; 

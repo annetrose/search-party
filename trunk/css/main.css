@@ -270,17 +270,48 @@ h3 {
 #result_page_container table td:first-child h3 {
 	margin: 0px;
 }
-ol.query_history_links .not_helpful {
-	text-decoration: line-through;
-	color: #999999;
+.query_history_links {
+	padding-left: 0px;
+	list-style-type: none;
 }
-ol.query_history_links a.not_helpful:visited,
-ol.query_history_links a.not_helpful:active,
-ol.query_history_links a.not_helpful:link,
-ol.query_history_links a.not_helpful:hover
+.query_history_links li.helpful {
+	color: #78FF81;
+}
+.query_history_links li.helpful a {
+	/* Underline in different color from text.  Only way to do this is with a border. */
+	text-decoration: none;
+	border-bottom: 3px solid #78FF81;
+}
+
+.query_history_links li.not_helpful {
+	color: #FF5781;
+}
+.query_history_links li.not_helpful a {
+	/* Underline in different color from text.  Only way to do this is with a border. */
+	text-decoration: none;
+	border-bottom: 3px solid #FF5781;
+}
+
+#helpful_button,
+.query_history_links a.helpful,
+.query_history_links a.helpful:visited,
+.query_history_links a.helpful:active,
+.query_history_links a.helpful:link,
+.query_history_links a.helpful:hover
 {
-	text-decoration: line-through;
-	color: #999999;
+	/* background-color: #78FF81; */
+	/* text-decoration: line-through; */
+	/* color: #999999; */
+}
+
+#not_helpful_button,
+.query_history_links a.not_helpful,
+.query_history_links a.not_helpful:visited,
+.query_history_links a.not_helpful:active,
+.query_history_links a.not_helpful:link,
+.query_history_links a.not_helpful:hover
+{
+	/* background-color: #FF5781; */
 }
 
 div.data_list_container {
