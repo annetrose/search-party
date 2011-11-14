@@ -134,8 +134,9 @@ function initialize() {
 		var answerText = document.getElementById("answer_text").value;
 		var answerTextIsEmpty = (answerText.trim().length==0);
 		var answerExplanation = document.getElementById("answer_explanation").value;
-		var answerExplanationIsEmpty = (answerExplanation.trim().length==0);
-		document.getElementById("answer_button").disabled = (answerTextIsEmpty || answerExplanationIsEmpty);
+//		var answerExplanationIsEmpty = (answerExplanation.trim().length==0);
+//		document.getElementById("answer_button").disabled = (answerTextIsEmpty || answerExplanationIsEmpty);
+		document.getElementById("answer_button").disabled = answerTextIsEmpty;
 	};
 	$("#answer_text").keyup(checkContent);
 	$("#answer_explanation").keyup(checkContent);
@@ -205,37 +206,102 @@ function onLinkRated() {
 	});
 }
 
+function getLinkInfosByQuery(searches) {
+	// Aggregate links by query
+	// Links sorted by time descending
+
+	var linkInfosByQuery = {};
+	var urlsSeen = {};
+	var numSearches = searches.length;
+	for(var searchIdx=numSearches-1; searchIdx>=0; searchIdx--) {  // descending time order
+		var search = searches[searchIdx];
+		var query = search.query;
+
+		var linksForThisQuery = linkInfosByQuery[query];
+		if(linksForThisQuery==undefined) {
+			linkInfosByQuery[query] = linksForThisQuery = [];
+		}
+
+		var linksFollowed = search.links_followed;
+		var numLinksFollowed = linksFollowed.length;
+		for(var linkIdx=numLinksFollowed-1; linkIdx>=0; linkIdx--) {  // descending time order
+			var linkInfo = linksFollowed[linkIdx];
+			var url = linkInfo.url;
+			var urlsSeenKey = url + "::" + query;
+			if(urlsSeen[urlsSeenKey]==undefined) {
+				urlsSeen[urlsSeenKey] = true;
+				linksForThisQuery.push(linkInfo);
+			}
+		}
+	}
+	return linkInfosByQuery;
+}
+
+function sortAndDedupeSearches(searches) {
+	// Sort by time descending
+	// Group all links under same query
+	// Dedupe queries, keeping the most recent
+	// Links also sorted by time descending
+
+	var linkInfosByQuery = getLinkInfosByQuery(searches);
+	var queriesSeen = {};
+	var numSearches = searches.length;
+	var processedSearches = [];
+	for(var searchIdx=numSearches-1; searchIdx>=0; searchIdx--) {  // descending time order
+		var search = searches[searchIdx];
+		var query = search.query;
+		if(queriesSeen[query]==undefined) {
+			queriesSeen[query] = true;
+			var linkInfos = linkInfosByQuery[query];
+			if(linkInfos != undefined) {
+				var searchInfo = {
+					query: query,
+					links_followed: linkInfosByQuery[query]
+				};
+				processedSearches.push(searchInfo);
+			}
+		}
+	}
+	return processedSearches;
+}
+
 function updateQueryHistory() {
 	var taskIdx = selectedTaskIdx();
 	var taskInfo = g_student_info.tasks[taskIdx];
-	var searches = taskInfo.searches;
-	var numSearches = searches.length;
+	var processedSearches = sortAndDedupeSearches(taskInfo.searches);
+	var numProcessedSearches = processedSearches.length;
 	var queryHistory = $("#query_history");
-	if(numSearches==0) {
+
+
+	if(numProcessedSearches==0) {
 		queryHistory.replaceWith('<div id="query_history">No searches, yet</div>')
 	}
 	else {
 		var parts = [];
 		parts.push('<ol id="query_history">');
-		for(var i=0; i<numSearches; i++) {
-			var search = searches[i];
+//		for(var searchIdx=numProcessedSearches-1; searchIdx>=0; searchIdx--) {
+		for(var searchIdx=0; searchIdx<numProcessedSearches; searchIdx++) {
+			var search = processedSearches[searchIdx];
+			var searchNumToDisplay = numProcessedSearches - searchIdx;
 			var query = search.query;
-			parts.push('<li>');
+			parts.push('<li value="' + searchNumToDisplay + '">')
 			parts.push(escapeForHtml(query));
 			var linksFollowed = search.links_followed;
 			var numLinksFollowed = linksFollowed.length;
 			if( numLinksFollowed > 0 ) {
-				parts.push('<ol type="a" class="query_history_links">');
+				parts.push('<ul class="query_history_links">');
+//				parts.push('<ol type="a" class="query_history_links">');
 				for(var j=0; j<numLinksFollowed; j++) {
 					var linkInfo = linksFollowed[j];
-					parts.push('<li>');
-					var className = (linkInfo.is_helpful ? "helpful" : "not_helpful");
-					var linkHtml = makeLinkHTML(linkInfo, 16, className);
+					var className = (linkInfo.is_helpful!=false ? "helpful" : "not_helpful");
+					parts.push('<li class="' + className + '">');
+					var linkHtml = makeLinkHTML(linkInfo, 19, className);
 					//var linkHtml = makeLinkHTML(linkInfo, 0);
 					parts.push(linkHtml);
 					parts.push('</li>');
 				}
-				parts.push('</ol>');
+				parts.push('</ul>');
+//				parts.push('</ol>');
 			}
 			parts.push();
 			parts.push('</li>');
