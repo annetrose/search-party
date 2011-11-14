@@ -158,24 +158,6 @@ function StudentDataItem(studentNickname) {
 	this.getQ
 }
 
-function updateStudents_OLD() {
-	var studentNames = getStudentNames();
-	var lines = [];
-	lines.push("<ol>");
-	$.each(g_students, function(studentNickname, studentInfo) {
-	});
-	var numStudents = studentNames.length;
-	for( var i=0; i<numStudents; i++ ) {
-		var student_nickname = studentNames[i];
-		var attribs = (g_students[student_nickname].logged_in ? '' : ' style="color:gray"');
-		var annotation = (g_students[student_nickname].logged_in ? '' : ' (logged out)');
-		lines.push("<li" + attribs + ">" + student_nickname + annotation + "</li>");
-	}
-	lines.push("</ol>");
-	var html = lines.join("");
-	$("#students").html(html);
-}
-
 function updateStudents() {
 	var studentNames = getStudentNames();
 	var dataItems = [];
@@ -195,99 +177,6 @@ function updateStudents() {
 	renderDataList("students", dataItems);
 }
 
-
-function updateStudents_MESSY_TABLE() {
-	var maxLinkTitleLength = 30;
-	var taskIdx = selectedTaskIdx();
-	var lines=[];
-	var studentNames = getStudentNames();
-	var studentsLoggedIn=[], studentsLoggedOut=[];
-
-	// Put logged in students ahead of logged out students, but display both..
-	for(var studentIdx in studentNames) {
-		var studentNickname = studentNames[studentIdx];
-		if(g_students[studentNickname].logged_in) {
-			studentsLoggedIn.push(studentNickname);
-		}
-		else {
-			studentsLoggedOut.push(studentNickname);
-		}
-	}
-	studentNames.length = 0;
-	for(var studentIdx in studentsLoggedIn) {
-		studentNames.push(studentsLoggedIn[studentIdx]);
-	}
-	for(var studentIdx in studentsLoggedOut) {
-		studentNames.push(studentsLoggedOut[studentIdx]);
-	}
-	lines.push('<table id="student_table" border="1">');
-	lines.push('<thead>')
-	lines.push('<th>Name</th>')
-	lines.push('<th>Query</th>')
-	lines.push('<th>Link followed</th>')
-	lines.push('</thead>')
-	lines.push('<tbody>')
-	for(var studentIdx in studentNames) {
-		var studentNickname = studentNames[studentIdx];
-		var studentInfo = g_students[studentNickname];
-		var loggedIn = studentInfo.logged_in;
-		var loggedInOrOutClass = (loggedIn ? "" : " logged_out");
-		var taskInfo = studentInfo.tasks[taskIdx];
-		var searches = taskInfo.searches;
-		var answer = taskInfo.answer;
-
-		// Find rowspan for student name cell.
-		var rowSpanStudent = 0;
-		if(searches.length==0) {
-			rowSpanStudent = 1;
-		}
-		else {
-			rowSpanStudent = 0;
-			for(var searchIdx in searches) {
-				var searchInfo = searches[searchIdx];
-				var numLinksFollowed = searchInfo.links_followed.length;
-				rowSpanStudent += (numLinksFollowed==0 ? 1 : numLinksFollowed);
-			}
-		}
-		lines.push('<td class="st_student' + loggedInOrOutClass + '" rowspan="' + rowSpanStudent + '">' + studentNickname + "</td>");
-		if(searches.length==0) {
-			lines.push('<td class="st_query nothing_done" colspan="2">&empty;</td>')
-			lines.push("</tr>")
-		}
-		else {
-			for(var searchIdx in searches) {
-				var searchInfo = searches[searchIdx];
-				var query = searchInfo.query;
-				var linksFollowed = searchInfo.links_followed;
-				var numLinksFollowed = linksFollowed.length;
-				var rowSpanQuery = (numLinksFollowed <= 1 ? 1 : numLinksFollowed);
-				if(searchIdx > 0) {
-					lines.push("<tr>")
-				}
-				lines.push('<td class="st_query' + loggedInOrOutClass + '" rowspan="' + rowSpanQuery + '">' + query + "</td>");
-				if(linksFollowed.length==0) {
-					lines.push('<td class="st_link nothing_done' + loggedInOrOutClass + '">&empty;</td>')
-					lines.push('</tr>')
-				}
-				else {
-					for(var linkIdx in linksFollowed) {
-						if(linkIdx > 0) {
-							lines.push("<tr>")
-						}
-						var link = linksFollowed[linkIdx];
-						lines.push('<td class="st_link' + loggedInOrOutClass + '">' + makeLinkHTML(link, null) + '</td>');
-						lines.push("</tr>")
-					}
-				}
-			}
-		}
-		lines.push('</tr>')
-	}
-	lines.push('</tbody>')
-	lines.push("</table>")
-	var html = lines.join("");
-	$("#students").html(html);
-}
 
 function updateQueries() {
 	// Include only queries for the currently selected task.
@@ -1102,3 +991,117 @@ function asList(items, listType, shouldEscapeAsHTML) {
 //        renderer.draw();
 //    };
 //}
+
+/*
+function updateStudents_OLD() {
+	var studentNames = getStudentNames();
+	var lines = [];
+	lines.push("<ol>");
+	$.each(g_students, function(studentNickname, studentInfo) {
+	});
+	var numStudents = studentNames.length;
+	for( var i=0; i<numStudents; i++ ) {
+		var student_nickname = studentNames[i];
+		var attribs = (g_students[student_nickname].logged_in ? '' : ' style="color:gray"');
+		var annotation = (g_students[student_nickname].logged_in ? '' : ' (logged out)');
+		lines.push("<li" + attribs + ">" + student_nickname + annotation + "</li>");
+	}
+	lines.push("</ol>");
+	var html = lines.join("");
+	$("#students").html(html);
+}
+
+
+function updateStudents_MESSY_TABLE() {
+	var maxLinkTitleLength = 30;
+	var taskIdx = selectedTaskIdx();
+	var lines=[];
+	var studentNames = getStudentNames();
+	var studentsLoggedIn=[], studentsLoggedOut=[];
+
+	// Put logged in students ahead of logged out students, but display both..
+	for(var studentIdx in studentNames) {
+		var studentNickname = studentNames[studentIdx];
+		if(g_students[studentNickname].logged_in) {
+			studentsLoggedIn.push(studentNickname);
+		}
+		else {
+			studentsLoggedOut.push(studentNickname);
+		}
+	}
+	studentNames.length = 0;
+	for(var studentIdx in studentsLoggedIn) {
+		studentNames.push(studentsLoggedIn[studentIdx]);
+	}
+	for(var studentIdx in studentsLoggedOut) {
+		studentNames.push(studentsLoggedOut[studentIdx]);
+	}
+	lines.push('<table id="student_table" border="1">');
+	lines.push('<thead>')
+	lines.push('<th>Name</th>')
+	lines.push('<th>Query</th>')
+	lines.push('<th>Link followed</th>')
+	lines.push('</thead>')
+	lines.push('<tbody>')
+	for(var studentIdx in studentNames) {
+		var studentNickname = studentNames[studentIdx];
+		var studentInfo = g_students[studentNickname];
+		var loggedIn = studentInfo.logged_in;
+		var loggedInOrOutClass = (loggedIn ? "" : " logged_out");
+		var taskInfo = studentInfo.tasks[taskIdx];
+		var searches = taskInfo.searches;
+		var answer = taskInfo.answer;
+
+		// Find rowspan for student name cell.
+		var rowSpanStudent = 0;
+		if(searches.length==0) {
+			rowSpanStudent = 1;
+		}
+		else {
+			rowSpanStudent = 0;
+			for(var searchIdx in searches) {
+				var searchInfo = searches[searchIdx];
+				var numLinksFollowed = searchInfo.links_followed.length;
+				rowSpanStudent += (numLinksFollowed==0 ? 1 : numLinksFollowed);
+			}
+		}
+		lines.push('<td class="st_student' + loggedInOrOutClass + '" rowspan="' + rowSpanStudent + '">' + studentNickname + "</td>");
+		if(searches.length==0) {
+			lines.push('<td class="st_query nothing_done" colspan="2">&empty;</td>')
+			lines.push("</tr>")
+		}
+		else {
+			for(var searchIdx in searches) {
+				var searchInfo = searches[searchIdx];
+				var query = searchInfo.query;
+				var linksFollowed = searchInfo.links_followed;
+				var numLinksFollowed = linksFollowed.length;
+				var rowSpanQuery = (numLinksFollowed <= 1 ? 1 : numLinksFollowed);
+				if(searchIdx > 0) {
+					lines.push("<tr>")
+				}
+				lines.push('<td class="st_query' + loggedInOrOutClass + '" rowspan="' + rowSpanQuery + '">' + query + "</td>");
+				if(linksFollowed.length==0) {
+					lines.push('<td class="st_link nothing_done' + loggedInOrOutClass + '">&empty;</td>')
+					lines.push('</tr>')
+				}
+				else {
+					for(var linkIdx in linksFollowed) {
+						if(linkIdx > 0) {
+							lines.push("<tr>")
+						}
+						var link = linksFollowed[linkIdx];
+						lines.push('<td class="st_link' + loggedInOrOutClass + '">' + makeLinkHTML(link, null) + '</td>');
+						lines.push("</tr>")
+					}
+				}
+			}
+		}
+		lines.push('</tr>')
+	}
+	lines.push('</tbody>')
+	lines.push("</table>")
+	var html = lines.join("");
+	$("#students").html(html);
+}
+*/

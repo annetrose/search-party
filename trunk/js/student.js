@@ -272,6 +272,8 @@ function updateQueryHistory() {
 	var numProcessedSearches = processedSearches.length;
 	var queryHistory = $("#query_history");
 
+	var scheme=1;
+
 
 	if(numProcessedSearches==0) {
 		queryHistory.replaceWith('<div id="query_history">No searches, yet</div>')
@@ -289,15 +291,31 @@ function updateQueryHistory() {
 			var linksFollowed = search.links_followed;
 			var numLinksFollowed = linksFollowed.length;
 			if( numLinksFollowed > 0 ) {
-				parts.push('<ul class="query_history_links">');
+				parts.push('<ul class="query_history_links scheme'+scheme+'">');
 //				parts.push('<ol type="a" class="query_history_links">');
 				for(var j=0; j<numLinksFollowed; j++) {
-					var linkInfo = linksFollowed[j];
-					var className = (linkInfo.is_helpful!=false ? "helpful" : "not_helpful");
+					var linkInfo, className, linkHtml;
+
+					linkInfo = linksFollowed[j];
+					var is_helpful = (linkInfo.is_helpful != false);
+					className = (is_helpful ? "helpful" : "not_helpful");
 					parts.push('<li class="' + className + '">');
-					var linkHtml = makeLinkHTML(linkInfo, 19, className);
+					if( scheme==3 ) {
+						if( is_helpful ) {
+							parts.push('<img src="/imgs/star-on.png" width="23" height="23" alt="helpful"/>')
+						}
+						else {
+							parts.push('<img src="/imgs/star-off5.png" width="23" height="23" alt="not helpful"/>')
+						}
+					}
+					linkHtml = makeLinkHTML(linkInfo, 14, className);
 					//var linkHtml = makeLinkHTML(linkInfo, 0);
 					parts.push(linkHtml);
+					if( scheme==4 ) {
+						if( is_helpful ) {
+							parts.push('<img src="/imgs/star-on.png" width="23" height="23" alt="helpful"/>')
+						}
+					}
 					parts.push('</li>');
 				}
 				parts.push('</ul>');
@@ -307,7 +325,7 @@ function updateQueryHistory() {
 			parts.push('</li>');
 		}
 		parts.push('</ol>');
-		var listHtml = parts.join("\n");
+		var listHtml = parts.join("");
 		queryHistory.replaceWith(listHtml);
 	}
 }

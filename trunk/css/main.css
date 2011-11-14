@@ -253,66 +253,126 @@ h3 {
 .logged_out {
 	color: #888888;
 }
-#result_page_container table {
-	width: 100%;
-	border-width: 0px;
-	/* table-layout: fixed; */
-}
-#result_page_container table td {
-	vertical-align: middle;
-	height: 33px;
-}
-#result_page_container table td:first-child > td {
-	vertical-align: middle;
-	height: 33px;
-	width: 200px;
-}
-#result_page_container table td:first-child h3 {
+#result_page_container h3 {
 	margin: 0px;
 }
-.query_history_links {
+/********  SCHEME0 ********/
+.query_history_links.scheme0 a {
+}
+.query_history_links.scheme0 {
 	padding-left: 0px;
 	list-style-type: none;
 }
-.query_history_links li.helpful {
-	color: #78FF81;
+.query_history_links.scheme0 li.helpful {
+	color: #BD6E46;
 }
-.query_history_links li.helpful a {
-	/* Underline in different color from text.  Only way to do this is with a border. */
-	text-decoration: none;
-	border-bottom: 3px solid #78FF81;
+.query_history_links.scheme0 li.helpful a {
+	color: #BD6E46;
 }
-
-.query_history_links li.not_helpful {
+.query_history_links.scheme0 li.not_helpful {
 	color: #FF5781;
 }
-.query_history_links li.not_helpful a {
-	/* Underline in different color from text.  Only way to do this is with a border. */
-	text-decoration: none;
-	border-bottom: 3px solid #FF5781;
+.query_history_links.scheme0 li.not_helpful a {
+	color: #FF5781;
 }
 
-#helpful_button,
-.query_history_links a.helpful,
-.query_history_links a.helpful:visited,
-.query_history_links a.helpful:active,
-.query_history_links a.helpful:link,
-.query_history_links a.helpful:hover
-{
+/********  SCHEME1 ********/
+.query_history_links.scheme1 a {
+	text-decoration: none;
+}
+.query_history_links.scheme1 {
+	padding-left: 0px;
+	list-style-type: none;
+}
+.query_history_links.scheme1 li.helpful {
+	color: #78FF81;
+}
+.query_history_links.scheme1 li.helpful a {
+	border-bottom: 3px solid #78FF81; /* Underline in different color from text.  Only way to do this is with a border. */
+}
+.query_history_links.scheme1 li.not_helpful {
+	color: #FF5781;
+}
+.query_history_links.scheme1 li.not_helpful a {
+	border-bottom: 3px solid #FF5781; /* Underline in different color from text.  Only way to do this is with a border. */
+}
+
+
+/********  SCHEME2 ********/
+.query_history_links.scheme2 a {
+	text-decoration: none;
+}
+.query_history_links.scheme2 {
+	padding-left: 0px;
+	list-style-type: none;
+	text-decoration: none;
+}
+.query_history_links.scheme2 li.helpful {
+	color: #82BF93;
+}
+.query_history_links.scheme2 li.helpful a {
+	border-bottom: 3px solid #82BF93; /* Underline in different color from text.  Only way to do this is with a border. */
+}
+.query_history_links.scheme2 li.not_helpful {
+	color: #8C8984;
+}
+.query_history_links.scheme2 li.not_helpful a {
+	border-bottom: 3px solid #8C8984; /* Underline in different color from text.  Only way to do this is with a border. */
+}
+
+
+/********  SCHEME3 ********/
+.query_history_links.scheme3 {
+	list-style-type: none;
+	padding-left: 0px;
+}
+.query_history_links.scheme3 li.helpful {
+}
+.query_history_links.scheme3 li.helpful a {
+}
+.query_history_links.scheme3 li.not_helpful {
+}
+.query_history_links.scheme3 li.not_helpful a {
+}
+
+
+/********  SCHEME4 ********/
+.query_history_links.scheme4 {
+	padding-left: 0px;
+	list-style-type: none;
+	text-decoration: none;
+}
+.query_history_links.scheme4 li.helpful {
+	color: #78FF81;
+}
+.query_history_links.scheme4 li.helpful a {
+}
+.query_history_links.scheme4 li.not_helpful {
+}
+.query_history_links.scheme4 li.not_helpful a {
+}
+
+/* #helpful_button, */
+/* .query_history_links a.helpful, */
+/* .query_history_links a.helpful:visited, */
+/* .query_history_links a.helpful:active, */
+/* .query_history_links a.helpful:link, */
+/* .query_history_links a.helpful:hover */
+/* { */
 	/* background-color: #78FF81; */
 	/* text-decoration: line-through; */
 	/* color: #999999; */
-}
+/* } */
 
-#not_helpful_button,
-.query_history_links a.not_helpful,
-.query_history_links a.not_helpful:visited,
-.query_history_links a.not_helpful:active,
-.query_history_links a.not_helpful:link,
-.query_history_links a.not_helpful:hover
-{
+/* #not_helpful_button, */
+/* .query_history_links a.not_helpful, */
+/* .query_history_links a.not_helpful:visited, */
+/* .query_history_links a.not_helpful:active, */
+/* .query_history_links a.not_helpful:link, */
+/* .query_history_links a.not_helpful:hover */
+/* { */
 	/* background-color: #FF5781; */
-}
+/* } */
 
 div.data_list_container {
 	width: 400px;
