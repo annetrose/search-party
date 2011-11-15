@@ -387,6 +387,21 @@ div.supplemental_data_container {
 	width: 400px;
 }
 
+#data_display_container {
+	background-color: #FFFFDD;
+}
+
+#data_display_content {
+	width: 400px;
+	background-color: yellow;
+}
+
+#data_display_annotation {
+	background-color: gray;
+	width: 400px;
+	position: absolute;
+}
+
 /*
 ol.query_history_links {
 	width: 200px;
