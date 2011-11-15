@@ -75,11 +75,8 @@ function renderDataList(targetElementId, dataItems) {
 	w('</div>');
 	var html = parts.join("");
 	$("#" + targetElementId).html(html);
-	$("#" + targetElementId + " .data_list_container li").each( function(idx) {
-		$(this).mouseover({
-			type:type,
-			dataItem:dataItems[idx]
-		}, onHoverOverDataListItem);
+	$("#" + targetElementId + " .data_list_container li").each( function(idx,liElement) {
+		$(this).mouseover(dataItems[idx], onHoverOverDataListItem);
 	});
 }
 
@@ -133,30 +130,201 @@ function updateButtonTitles() {
 
 function DataItem(type, displayText, count, className) {
 // For info on JavaScript OOP, see:
-//   http://www.javascriptkit.com/javatutors/oopjs.shtml
-//   http://www.javascriptkit.com/javatutors/oopjs2.shtml
+//   http://www.javascriptkit.com/javatutors/oopjs.shtml   (new and this)
+//   http://www.javascriptkit.com/javatutors/oopjs2.shtml  (constructors)
+//   http://www.javascriptkit.com/javatutors/oopjs3.shtml  (inheritance)
 
+	this.type = type;
 	this.displayText = displayText;
 	this.count = count;
 	this.className = className;
 }
 
 function StudentDataItem(studentNickname) {
-	DataItem("student", studentNickname, null, null);
+	this._super = DataItem;
+	this._super("student", studentNickname, null, null);
+
 	this.getSupplementalInfo = function() {
+		var queryCounter = new Counter();
+		var linkCounter = new Counter();
+		var wordCounter = new Counter();
+		var answerCounter = new Counter();
+
+		$.each(taskInfos.searches, function (i,searchInfo) {
+			queryCounter(searchInfo.query);
+		});
 		var queries = [];
 		var linksFollowed = [];
 		var answer = taskInfo.answer;
-
 		var taskIdx = selectedTaskIdx();
 		var taskInfo = g_students[studentNickname].tasks[taskIdx];
-		var searchInfos = taskInfo.searches;
 		var numSearches = searchInfos.length;
 		for(var i=0; i<numSearches; i++) {
 		}
 	}
-	this.getQ
 }
+
+//function WordCounter() {
+//	this.stemDict = {};
+//	this.add = function(word) {
+//		var stem = getWordStem(word).toLowerCase();
+//		var stemDict = this.stemDict;
+//		var wordCounter = stemDict[stem];
+//		if(wordCounter===undefined) {
+//			stemDict[stem] = wordCounter = Counter();
+//		}
+//		wordCounter.add(word);
+//	}
+//	this.itemsByOccurrence = function(direction) {
+//		var occurrences = [];
+//		$.each(stemDict, function (key,wordCounter) {
+//			occurrences.push(wordCounter);
+//		});
+//
+//		assert(direction=="ascending" || direction=="descending");
+//	}
+//	this.count = function (key) {
+//	}
+//}
+
+function AnswerDataItem(answerText) {
+	this._super = DataItem;
+	this._super("answer", answerText, null, null);
+}
+
+function LinkDataItem(url) {
+	this._super = DataItem;
+	this._super("link", url, null, null);
+}
+
+function QueryAccumulator() {
+	this.add = function(query, studentNickname) {
+		var uniquenessKey = studentNickname + "::" + query;
+		var uniquenessDict = this._uniquenessDict;
+		if(this._uniquenessDict[uniquenessKey]===undefined) {
+			this._uniquenessDict[uniquenessKey] = true;
+			var occurrenceDict = this._occurrenceDict;
+			var occurrenceKey = query.toLowerCase();
+			var counterItem = occurrenceDict[occurrenceKey];
+			if(counterItem===undefined) {
+				occurrenceDict[occurrenceKey] = counterItem = {
+					query : query,
+					count : 1
+				};
+			}
+			else {
+				counterItem.count += 1;
+			}
+		}
+	};
+
+	this.itemsByOccurrence = function() {
+		// Sorts by DESCENDING FREQUENCY
+		var occurrences = valuesOfObject(this.occurrenceDict);
+		sortInPlaceByCountDescending(occurrences);
+		return occurrences;
+	}
+
+	this._occurrenceDict = {};
+	this._uniquenessDict = {};
+}
+
+function QueryDataItem(query) {
+	this._super = DataItem;
+	this._super("query", query, null, null);
+}
+
+
+function WordAccumulator() {
+	this.add = function(query, studentNickname) {
+		var stem = getWordStem(word).toLowerCase();
+		var uniquenessKey = stem + "::" + query.toLowerCase() + "::" + studentNickname;
+		var uniquenessDict = this._uniquenessDict;
+		if(this._uniquenessDict[uniquenessKey]===undefined) {
+			this._uniquenessDict[uniquenessKey] = true;
+			var occurrenceKey = stem;
+			var counterItem = this._occurrenceDict[occurrenceKey];
+			if(counterItem===undefined) {
+				this._occurrenceDict[occurrenceKey] = counterItem = {
+					wordsDict : {word:1},
+					stem  : stem,
+					studentNicknames : [studentNickname],
+					count : 1
+				};
+			}
+			else {
+				counterItem.count += 1;
+				counterItem.wordsDict[word] = (counterItem.wordsDict[word] || 0) + 1;
+				counterItem.studentNicknames.push(studentNickname);
+			}
+		}
+	};
+
+	this.itemsByOccurrence = function() {
+		// Sorts by DESCENDING FREQUENCY
+		var occurrences = valuesOfObject(this.occurrenceDict);
+		sortInPlaceByCountDescending(occurrences);
+		$.each(function (i,occurrence) {
+			occurrence.wordsStr = keysOfObjectSortedByValueDescending(occurrence.wordsDict).join(", ");
+		});
+		return occurrences;
+	}
+
+	this._occurrenceDict = {};
+	this._uniquenessDict = {};
+}
+
+function WordDataItem(word) {
+	this._super = DataItem;
+	this._super("word", word, null, null);
+}
+
+
+function keysOfObjectSortedByValueDescending(o) {
+	var keys = keysOfObject(o);
+	keys.sort(function (a,b) {
+		var aValue = o[a];
+		var bValue = o[b];
+		return (a > b ? -1 : (a < b ? 1 : 0));
+	});
+	return keys;
+}
+
+function keysOfObject(o) {
+	var keys = [];
+	$.each(o, function (k,v) {
+	for(var k in o) {
+		keys.push(k);
+	};
+	return keys;
+}
+
+function sortInPlaceByCountDescending(occurrences) {
+	occurrences.sort(function (a,b) {
+		var aCount = a.count;
+		var bCount = b.count;
+		return (aCount > bCount ? -1 : (aCount < bCount ? 1 : 0));
+	});
+}
+function valuesOfObject(o) {
+	var values = [];
+	for(var k in o) {
+		values.push(o[k]);
+	};
+	return values;
+}
+
+
+function assert(condition, msg) {
+	if(!condition) {
+		var s = JSON.stringify(condition);
+		if( msg !== undefined ) {
+			s = msg + "\n\n" + s;
+		}
+		alert(msg);
+	}
+}
+
 
 function updateStudents() {
 	var studentNames = getStudentNames();
@@ -165,14 +333,13 @@ function updateStudents() {
 	// Put logged in students ahead of logged out students, but display both..
 	studentNames.sort();
 	for(var i=0; i<2; i++) {
-		for(var studentIdx in studentNames) {
-			var studentNickname = studentNames[studentIdx];
+		$.each(studentNames, function (studentIdx, studentNickname) {
 			var studentInfo = g_students[studentNickname];
 			var logged_in = studentInfo.logged_in;
 			if((logged_in==true && i==0) || (logged_in==false && i==1)) {
 				dataItems.push(new StudentDataItem(studentNickname));
 			}
-		}
+		});
 	}
 	renderDataList("students", dataItems);
 }
@@ -546,6 +713,7 @@ function onSocketMessage(msg) {
 
 	window.status = msg.data;
 	updates = JSON.parse(msg.data);
+	alert( JSON.stringify(msg) );
 	var num_updates = updates.length;
 	for(var i=0; i<num_updates; i++) {
 		var update = updates[i];
