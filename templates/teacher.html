@@ -54,6 +54,11 @@
 
 
 {% block content_area %}
+  <div id="data_display_container">
+    <div id="data_display_content"></div>
+    <div id="data_display_annotation"></div>
+  </div>
+  {% comment %}
   <div id="pane_students" class="teacher_pane">
     <h3>Students</h3>
     <div id="students"></div>
@@ -81,6 +86,7 @@
     <h3>Answers</h3>
     <div id="answers"></div>
   </div>
+  {% endcomment %}
 {% endblock %}
 
 

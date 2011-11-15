@@ -60,22 +60,19 @@ function countUnique(list) {
 	return numUnique;
 }
 
-function renderDataList(targetElementId, dataItems) {
+function renderDataList(targetId, dataItems) {
 	var parts = [];
-	function w(s) { parts.push(s); }
-	
-	w('<div class="data_list_container">');
-	w('<ol>');
+	parts.push('<ol>');
 	$.each(dataItems, function(idx,dataItem) {
-		w('<li>');
-		w(escapeForHtml(dataItem.displayText));
-		w('</li>');
+		parts.push('<li>');
+		parts.push(escapeForHtml(dataItem.displayText));
+		parts.push('</li>');
 	});
-	w('</ol>');
-	w('</div>');
+	parts.push('</ol>');
 	var html = parts.join("");
-	$("#" + targetElementId).html(html);
-	$("#" + targetElementId + " .data_list_container li").each( function(idx,liElement) {
+	var selector = "#" + targetId;
+	$(selector).html(html)
+	$(selector).each( function(idx,liElement) {
 		$(this).mouseover(dataItems[idx], onHoverOverDataListItem);
 	});
 }
@@ -299,22 +296,47 @@ function StudentDataItem(studentNickname, isLoggedIn) {
 	this.isLoggedIn = isLoggedIn;
 
 	this.getSupplementalInfo = function() {
-		var queryCounter = new Counter();
-		var linkCounter = new Counter();
-		var wordCounter = new Counter();
-		var answerCounter = new Counter();
+		var queryAccumulator = new QueryAccumulator();
+		var wordAccumulator = new WordAccumulator();
+		var answerAccumulator = new AnswerAccumulator();
+		var linkAccumulator = new LinkAccumulator();
 
-		$.each(taskInfos.searches, function (i,searchInfo) {
-			queryCounter(searchInfo.query);
+		var studentInfo = g_students[studentNickname];
+		var taskInfo = studentInfo.tasks[selectedTaskIdx()];
+		var answerInfo = taskInfo.answer;
+		var studentNickname = this.studentNickname;
+		var searches = taskInfo.searches;
+
+		$.each(searches, function (i,searchInfo) {
+			var query = searchInfo.query;
+			queryAccumulator.add(query, studentNickname);
+			$.each(searchInfo.links_followed, function (j,linkInfo) {
+				linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, query, studentNickname);
+			})
 		});
-		var queries = [];
-		var linksFollowed = [];
-		var answer = taskInfo.answer;
-		var taskIdx = selectedTaskIdx();
-		var taskInfo = g_students[studentNickname].tasks[taskIdx];
-		var numSearches = searchInfos.length;
-		for(var i=0; i<numSearches; i++) {
-		}
+//		var queries = [];
+//		var linksFollowed = [];
+//		var answer = taskInfo.answer;
+//		var taskIdx = selectedTaskIdx();
+//		var taskInfo = g_students[studentNickname].tasks[taskIdx];
+//		var numSearches = searchInfos.length;
+//		for(var i=0; i<numSearches; i++) {
+//		}
+	}
+}
+
+function assembleSupplementalInfo(studentItems, queryItems, wordItems, linkItems, answerItems) {
+	var info = [];
+	if( studentItems !== null )
+		info.push({items:studentItems, title:"Students"});
+	if( queryItems !== null )
+		info.push({items:queryItems, title:"Queries"});
+	if( wordItems !== null )
+		info.push({items:wordItems, title:"Words"});
+	if( linkItems !== null )
+		info.push({items:linkItems, title:"Links"});
+	if( answerItems !== null ) {
+		info.push({items:answerItems, title:"Answers"});
 	}
 }
 
@@ -444,7 +466,7 @@ function updateStudents() {
 	});
 	var dataItems = accumulator.getItems();
 
-	renderDataList("students", dataItems);
+	renderDataList("data_display_content", dataItems);
 }
 
 
