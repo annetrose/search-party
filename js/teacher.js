@@ -140,9 +140,163 @@ function DataItem(type, displayText, count, className) {
 	this.className = className;
 }
 
-function StudentDataItem(studentNickname) {
+function AnswerAccumulator() {
+	this.add = function(answerText, studentNickname) {
+		var item = new AnswerDataItem(answerText, studentNickname);
+		this._items.push(item);
+	};
+
+	this.getItems = function() {
+		// Sorts ALPHABETICALLY by answer text, case insensitive, ascending
+		var items = copyOfArray( this._items );
+		items.sort(function (a,b) {
+			var aAnswerText = a.answerText.toLowerCase();
+			var bAnswerText = b.answerText.toLowerCase();
+			return (aAnswerText > bAnswerText ? 1 : (aAnswerText < bAnswerText ? -1 : 0));
+		});
+		return items;
+	}
+
+	this._items = [];
+}
+
+
+function AnswerDataItem(answerText) {
+	this._super = DataItem;
+	this._super("answer", answerText, null, null);
+	this.answerText = answerText;
+	this.studentNickname = studentNickname;
+}
+
+
+
+function LinkAccumulator() {
+	this.add = function(url, title, isHelpful, query, studentNickname) {
+		var uniquenessKey = url + "::" + query + "::" + studentNickname;
+		var uniquenessDict = this._uniquenessDict;
+		if(this._uniquenessDict[uniquenessKey]===undefined) {
+			this._uniquenessDict[uniquenessKey] = true;
+			var occurrenceDict = this._occurrenceDict;
+			var occurrenceKey = url;
+			var counterItem = occurrenceDict[occurrenceKey];
+			var linkContext = {
+				studentNickname: studentNickname,
+				query: query,
+				isHelpful: isHelpful
+			};
+			if(counterItem===undefined) {
+				occurrenceDict[occurrenceKey] = counterItem = {
+					linkContexts : [],
+					url : url,
+					title : title,
+					count : 0
+				};
+			}
+			counterItem.count += 1;
+			counterItem.linkContexts.push(linkContext);
+		}
+	};
+
+	this.getItems = function() {
+		// Sorts by DESCENDING FREQUENCY
+		var occurrences = valuesOfObject(this._occurrenceDict);
+		sortInPlaceByCountDescending(occurrences);
+		return occurrences;
+	}
+
+	this._occurrenceDict = {};
+	this._uniquenessDict = {};
+}
+
+function LinkDataItem(url) {
+	this._super = DataItem;
+	this._super("link", url, null, null);
+}
+
+
+
+function QueryAccumulator() {
+	this.add = function(query, studentNickname) {
+		var uniquenessKey = studentNickname + "::" + query;
+		var uniquenessDict = this._uniquenessDict;
+		if(this._uniquenessDict[uniquenessKey]===undefined) {
+			this._uniquenessDict[uniquenessKey] = true;
+			var occurrenceDict = this._occurrenceDict;
+			var occurrenceKey = query.toLowerCase();
+			var counterItem = occurrenceDict[occurrenceKey];
+			if(counterItem===undefined) {
+				counterItem = new QueryDataItem(query, [studentNickname], 1);
+				occurrenceDict[occurrenceKey] = counterItem;
+			}
+			else {
+				counterItem.count += 1;
+				counterItem.studentNicknames.push(studentNickname);
+			}
+		}
+	};
+
+	this.getItems = function() {
+		// Sorts by DESCENDING FREQUENCY
+		var occurrences = valuesOfObject(this._occurrenceDict);
+		sortInPlaceByCountDescending(occurrences);
+		return occurrences;
+	}
+
+	this._occurrenceDict = {};
+	this._uniquenessDict = {};
+}
+
+function QueryDataItem(query, studentNicknames, count) {
+	this._super = DataItem;
+	this._super("query", query, null, null);
+
+	this.query = query;
+	this.studentNicknames = studentNicknames;
+	this.count = count;
+}
+
+
+
+function StudentAccumulator() {
+	this.add = function(studentNickname, isLoggedIn) {
+		var occurrenceDict = this._occurrenceDict;
+		var occurrenceKey = studentNickname;
+		var counterItem = occurrenceDict[occurrenceKey];
+		if(counterItem===undefined) {
+			counterItem = new StudentDataItem(studentNickname, isLoggedIn);
+			occurrenceDict[occurrenceKey] = counterItem;
+		}
+	};
+
+	this.getItems = function() {
+		// Sorts by DESCENDING FREQUENCY
+		var occurrences = valuesOfObject(this._occurrenceDict);
+		occurrences.sort( function (a,b) {
+			var aIsLoggedIn = a.isLoggedIn;
+			var bIsLoggedIn = b.isLoggedIn;
+			if( aIsLoggedIn==true && b.isLoggedIn==false ) {
+				return 1;
+			}
+			else if( aIsLoggedIn==true && b.isLoggedIn==false ) {
+				return -1;
+			}
+			else {
+				var aName = a.toLowerCase();
+				var bName = b.toLowerCase();
+				return (aName > bName ? 1 : (aName < bName ? -1 : 0));
+			}
+		});
+		return occurrences;
+	}
+
+	this._occurrenceDict = {};
+}
+
+function StudentDataItem(studentNickname, isLoggedIn) {
 	this._super = DataItem;
 	this._super("student", studentNickname, null, null);
+	this.studentNickname = studentNickname;
+	this.isLoggedIn = isLoggedIn;
 
 	this.getSupplementalInfo = function() {
 		var queryCounter = new Counter();
@@ -164,75 +318,6 @@ function StudentDataItem(studentNickname) {
 	}
 }
 
-//function WordCounter() {
-//	this.stemDict = {};
-//	this.add = function(word) {
-//		var stem = getWordStem(word).toLowerCase();
-//		var stemDict = this.stemDict;
-//		var wordCounter = stemDict[stem];
-//		if(wordCounter===undefined) {
-//			stemDict[stem] = wordCounter = Counter();
-//		}
-//		wordCounter.add(word);
-//	}
-//	this.itemsByOccurrence = function(direction) {
-//		var occurrences = [];
-//		$.each(stemDict, function (key,wordCounter) {
-//			occurrences.push(wordCounter);
-//		});
-//
-//		assert(direction=="ascending" || direction=="descending");
-//	}
-//	this.count = function (key) {
-//	}
-//}
-
-function AnswerDataItem(answerText) {
-	this._super = DataItem;
-	this._super("answer", answerText, null, null);
-}
-
-function LinkDataItem(url) {
-	this._super = DataItem;
-	this._super("link", url, null, null);
-}
-
-function QueryAccumulator() {
-	this.add = function(query, studentNickname) {
-		var uniquenessKey = studentNickname + "::" + query;
-		var uniquenessDict = this._uniquenessDict;
-		if(this._uniquenessDict[uniquenessKey]===undefined) {
-			this._uniquenessDict[uniquenessKey] = true;
-			var occurrenceDict = this._occurrenceDict;
-			var occurrenceKey = query.toLowerCase();
-			var counterItem = occurrenceDict[occurrenceKey];
-			if(counterItem===undefined) {
-				occurrenceDict[occurrenceKey] = counterItem = {
-					query : query,
-					count : 1
-				};
-			}
-			else {
-				counterItem.count += 1;
-			}
-		}
-	};
-
-	this.itemsByOccurrence = function() {
-		// Sorts by DESCENDING FREQUENCY
-		var occurrences = valuesOfObject(this.occurrenceDict);
-		sortInPlaceByCountDescending(occurrences);
-		return occurrences;
-	}
-
-	this._occurrenceDict = {};
-	this._uniquenessDict = {};
-}
-
-function QueryDataItem(query) {
-	this._super = DataItem;
-	this._super("query", query, null, null);
-}
 
 
 function WordAccumulator() {
@@ -248,6 +333,7 @@ function WordAccumulator() {
 				this._occurrenceDict[occurrenceKey] = counterItem = {
 					wordsDict : {word:1},
 					stem  : stem,
+					queries : [query],
 					studentNicknames : [studentNickname],
 					count : 1
 				};
@@ -256,16 +342,22 @@ function WordAccumulator() {
 				counterItem.count += 1;
 				counterItem.wordsDict[word] = (counterItem.wordsDict[word] || 0) + 1;
 				counterItem.studentNicknames.push(studentNickname);
+				counterItem.queries.push(query);
 			}
 		}
 	};
 
-	this.itemsByOccurrence = function() {
+	this.getItems = function() {
 		// Sorts by DESCENDING FREQUENCY
-		var occurrences = valuesOfObject(this.occurrenceDict);
+		var occurrences = valuesOfObject(this._occurrenceDict);
 		sortInPlaceByCountDescending(occurrences);
+		var items = [];
 		$.each(function (i,occurrence) {
-			occurrence.wordsStr = keysOfObjectSortedByValueDescending(occurrence.wordsDict).join(", ");
+			var wordsDict = occurrence.wordsDict;
+			var allWordsSortedByFrequency = keysOfObjectSortedByValueDescending(wordsDict)
+			var wordsStr = allWordsSortedByFrequency.join(", ");
+			var item = new WordDataItem(wordsStr, wordsDict, occurrence.stem,
+									occurrence.queries, occurrence.studentNicknames, count)
 		});
 		return occurrences;
 	}
@@ -274,11 +366,27 @@ function WordAccumulator() {
 	this._uniquenessDict = {};
 }
 
-function WordDataItem(word) {
+function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, count) {
 	this._super = DataItem;
 	this._super("word", word, null, null);
+
+	this.wordsStr = wordsStr;
+	this.wordsDict = wordsDict;
+	this.stem = stem;
+	this.queries = queries;
+	this.studentNicknames = studentNicknames;
+	this.count = count;
 }
 
+
+function copyOfArray(arr) {
+	var newArray = [];
+	var numItems = arr.length;
+	for(var i=0; i<numItems; i++) {
+		newArray.push( arr[i] );
+	}
+	return newArray;
+}
 
 function keysOfObjectSortedByValueDescending(o) {
 	var keys = keysOfObject(o);
@@ -293,9 +401,10 @@ function keysOfObjectSortedByValueDescending(o) {
 function keysOfObject(o) {
 	var keys = [];
 	$.each(o, function (k,v) {
-	for(var k in o) {
-		keys.push(k);
-	};
+		for(var k in o) {
+			keys.push(k);
+		}
+	});
 	return keys;
 }
 
@@ -327,20 +436,14 @@ function assert(condition, msg) {
 
 
 function updateStudents() {
-	var studentNames = getStudentNames();
-	var dataItems = [];
+	var accumulator = new StudentAccumulator();
+	var studentNames = keysOfObject(g_students);
+	$.each(studentNames, function(i, studentNickname) {
+		var isLoggedIn = g_students[studentNickname].logged_in;
+		accumulator.add(studentNickname, isLoggedIn);
+	});
+	var dataItems = accumulator.getItems();
 
-	// Put logged in students ahead of logged out students, but display both..
-	studentNames.sort();
-	for(var i=0; i<2; i++) {
-		$.each(studentNames, function (studentIdx, studentNickname) {
-			var studentInfo = g_students[studentNickname];
-			var logged_in = studentInfo.logged_in;
-			if((logged_in==true && i==0) || (logged_in==false && i==1)) {
-				dataItems.push(new StudentDataItem(studentNickname));
-			}
-		});
-	}
 	renderDataList("students", dataItems);
 }
 
