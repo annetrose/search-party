@@ -14,6 +14,8 @@
 function updateUI() {
 	updateSideBarInfo();
 	updateButtonTitles();
+	$("#data_display_content").html("");
+	$("#data_display_annotation").html("");
 	switch( g_currentPaneName ) {
 		case "students":
 			updateStudents();
@@ -60,27 +62,67 @@ function countUnique(list) {
 	return numUnique;
 }
 
-function renderDataList(targetId, dataItems) {
+function renderDataList(targetId, itemList) {
+	var dataItems = itemList.items;
 	var parts = [];
 	parts.push('<ol>');
-	$.each(dataItems, function(idx,dataItem) {
+	$.each(itemList.items, function(idx,dataItem) {
 		parts.push('<li>');
-		parts.push(escapeForHtml(dataItem.displayText));
+		parts.push(dataItem.asHTML());
 		parts.push('</li>');
 	});
 	parts.push('</ol>');
 	var html = parts.join("");
 	var selector = "#" + targetId;
 	$(selector).html(html)
-	$(selector).each( function(idx,liElement) {
-		$(this).mouseover(dataItems[idx], onHoverOverDataListItem);
+	$(selector).each( function(idx,displayItem) {
+		// CLOSURE:  Will this work right?  Will we have the right value of idx?
+		var data = {
+			item:dataItems[idx],
+			idx: idx,
+			displayItem: displayItem
+		};
+		$(this).click(data, onDataListItemClicked);
 	});
 }
 
-function onHoverOverDataListItem(eventObject) {
+function onDataListItemClicked(eventObject) {
 	var target = eventObject.target;
 	var data = eventObject.data;
 	var type = data.type;
+	var $target = $(target);
+	var isSelected = $target.hasClass("selected");
+//	$(".data_display_item.selected").removeClass("selected");
+	if( isSelected ) {
+		$target.removeClass("selected");
+		hideAnnotations();
+	}
+	else {
+		$target.addClass("selected");
+		showAnnotations(data.displayItem, data.item);
+	}
+}
+
+function hideAnnotations(displayItem, item) {
+	var $data_display_annotation = $("#data_display_annotation");
+	$data_display_annotation.hide();
+	$data_display_annotation.html("");
+}
+function showAnnotations(displayItem, item) {
+	var $data_display_annotation = $("#data_display_annotation");
+	var $displayItem = $(displayItem);
+	var offset = $displayItem.offset();
+	var parts = [];
+	$.each(item.getAnnotationsItemLists(), function (i,itemList) {
+		parts.push(itemList.asHTML());
+	});
+	var html = parts.join("");
+	$data_display_annotation.html(html);
+	$data_display_annotation.css({
+		top: offset.top + "px",
+		left: (offset.left + $displayItem.parent().width() - 10) + "px",
+	});
+	$data_display_annotation.show();
 }
 
 function updateButtonTitles() {
@@ -137,32 +179,69 @@ function DataItem(type, displayText, count, className) {
 	this.className = className;
 }
 
+function ItemList(items, type, title) {
+	this.items = items;
+	this.type = type;
+	this.title = title;
+	this.itemsAsHTML = function() {
+		var items = this.items;
+		var html;
+		if( items.length==0 ) {
+			html = "<div>(none)</div>"
+		}
+		else {
+			var parts = [];
+			parts.push('<ol>');
+			$.each(items, function(idx,dataItem) {
+				parts.push('<li class="data_display_item">');
+				parts.push(dataItem.asHTML());
+				parts.push('</li>');
+			});
+			parts.push('</ol>');
+	//		if(DEBUG_MODE) {
+	//			parts.push('<div><tt><pre>' + JSON.stringify(this) + '</pre></tt></div>');
+	//		}
+			html = parts.join("");
+		}
+		return html;
+	};
+	this.asHTML = function() {
+		return '<h3>' + escapeForHtml(this.title) + '</h3>' + this.itemsAsHTML();
+	}
+}
+
 function AnswerAccumulator() {
 	this.add = function(answerText, studentNickname) {
-		var item = new AnswerDataItem(answerText, studentNickname);
-		this._items.push(item);
+		// POLICY:  Quietly ignore blank answers.
+		if( answerText.trim()!=="" ) {
+			var item = new AnswerDataItem(answerText, studentNickname);
+			this._answersByStudent[studentNickname] = item;
+		}
 	};
 
 	this.getItems = function() {
 		// Sorts ALPHABETICALLY by answer text, case insensitive, ascending
-		var items = copyOfArray( this._items );
+		var items = valuesOfObject(this._answersByStudent);
 		items.sort(function (a,b) {
 			var aAnswerText = a.answerText.toLowerCase();
 			var bAnswerText = b.answerText.toLowerCase();
 			return (aAnswerText > bAnswerText ? 1 : (aAnswerText < bAnswerText ? -1 : 0));
 		});
-		return items;
+		return new ItemList(items, "answer", "Answers");
 	}
 
-	this._items = [];
+	this._answersByStudent = {};
 }
 
 
-function AnswerDataItem(answerText) {
+function AnswerDataItem(answerText, studentNickname) {
 	this._super = DataItem;
-	this._super("answer", answerText, null, null);
+	this._super("answer", answerText, null, "answer_data_item");
 	this.answerText = answerText;
 	this.studentNickname = studentNickname;
+	this.asHTML = function() {
+		return escapeForHtml(this.answerText);
+	}
 }
 
 
@@ -196,18 +275,26 @@ function LinkAccumulator() {
 
 	this.getItems = function() {
 		// Sorts by DESCENDING FREQUENCY
-		var occurrences = valuesOfObject(this._occurrenceDict);
-		sortInPlaceByCountDescending(occurrences);
-		return occurrences;
+		var items = valuesOfObject(this._occurrenceDict);
+		sortInPlaceByCountDescending(items);
+		items = $.map(items, function (item, i) {
+			return new LinkDataItem(item.url, item.title, item.count);
+		});
+		return new ItemList(items, "link", "Links Followed");
 	}
 
 	this._occurrenceDict = {};
 	this._uniquenessDict = {};
 }
 
-function LinkDataItem(url) {
+function LinkDataItem(url, title, count) {
 	this._super = DataItem;
-	this._super("link", url, null, null);
+	this._super("link", url, count, "link_data_item");
+	this.url = url;
+	this.title = title;
+	this.asHTML = function() {
+		return makeLinkHTML({url:this.url, title:this.title}, 30) + ' &times; ' + this.count;
+	};
 }
 
 
@@ -234,9 +321,9 @@ function QueryAccumulator() {
 
 	this.getItems = function() {
 		// Sorts by DESCENDING FREQUENCY
-		var occurrences = valuesOfObject(this._occurrenceDict);
-		sortInPlaceByCountDescending(occurrences);
-		return occurrences;
+		var items = valuesOfObject(this._occurrenceDict);
+		sortInPlaceByCountDescending(items);
+		return new ItemList(items, "query", "Queries");
 	}
 
 	this._occurrenceDict = {};
@@ -245,11 +332,44 @@ function QueryAccumulator() {
 
 function QueryDataItem(query, studentNicknames, count) {
 	this._super = DataItem;
-	this._super("query", query, null, null);
+	this._super("query", query, count, "query_data_item");
 
 	this.query = query;
 	this.studentNicknames = studentNicknames;
-	this.count = count;
+	this.asHTML = function() {
+		return escapeForHtml(this.query) + ' &times; ' + this.count;
+	}
+
+	this.getAnnotationsItemLists = function() {
+		var studentAccumulator = new StudentAccumulator();
+//		var queryAccumulator = new QueryAccumulator();
+		var wordAccumulator = new WordAccumulator();
+		var answerAccumulator = new AnswerAccumulator();
+		var linkAccumulator = new LinkAccumulator();
+
+		$.each(g_students, function (studentNickname,studentInfo) {
+			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
+			$.each(taskInfo.searches, function (i,searchInfo) {
+				var query = searchInfo.query;
+				studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
+//				var anyLinksHelpful = false;
+				$.each(searchInfo.links_followed, function (j,linkInfo) {
+					linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful,
+										query, studentNickname);
+//					anyLinksHelpful = anyLinksHelpful || linkInfo.is_helpful;
+				});
+				$.each(getWordsForQuery(query), function (j,word) {
+					wordAccumulator.add(word, query, studentNickname);
+				});
+				answerAccumulator.add(taskInfo.answer.text, studentNickname);
+			});
+		});
+
+		return [studentAccumulator.getItems(),
+				wordAccumulator.getItems(),
+				linkAccumulator.getItems(),
+				answerAccumulator.getItems()];
+	}
 }
 
 
@@ -267,8 +387,8 @@ function StudentAccumulator() {
 
 	this.getItems = function() {
 		// Sorts by DESCENDING FREQUENCY
-		var occurrences = valuesOfObject(this._occurrenceDict);
-		occurrences.sort( function (a,b) {
+		var items = valuesOfObject(this._occurrenceDict);
+		items.sort( function (a,b) {
 			var aIsLoggedIn = a.isLoggedIn;
 			var bIsLoggedIn = b.isLoggedIn;
 			if( aIsLoggedIn==true && b.isLoggedIn==false ) {
@@ -283,7 +403,7 @@ function StudentAccumulator() {
 				return (aName > bName ? 1 : (aName < bName ? -1 : 0));
 			}
 		});
-		return occurrences;
+		return new ItemList(items, "student", "Students");
 	}
 
 	this._occurrenceDict = {};
@@ -291,59 +411,51 @@ function StudentAccumulator() {
 
 function StudentDataItem(studentNickname, isLoggedIn) {
 	this._super = DataItem;
-	this._super("student", studentNickname, null, null);
+	this._super("student", studentNickname, null, "student_data_item");
 	this.studentNickname = studentNickname;
 	this.isLoggedIn = isLoggedIn;
 
-	this.getSupplementalInfo = function() {
+	this.getAnnotationsItemLists = function() {
 		var queryAccumulator = new QueryAccumulator();
 		var wordAccumulator = new WordAccumulator();
 		var answerAccumulator = new AnswerAccumulator();
 		var linkAccumulator = new LinkAccumulator();
 
-		var studentInfo = g_students[studentNickname];
+		var studentInfo = g_students[this.studentNickname];
 		var taskInfo = studentInfo.tasks[selectedTaskIdx()];
 		var answerInfo = taskInfo.answer;
 		var studentNickname = this.studentNickname;
 		var searches = taskInfo.searches;
+		if( answerInfo.text ) {
+			answerAccumulator.add(answerInfo.answerText, studentNickname);
+		}
 
 		$.each(searches, function (i,searchInfo) {
 			var query = searchInfo.query;
 			queryAccumulator.add(query, studentNickname);
 			$.each(searchInfo.links_followed, function (j,linkInfo) {
-				linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, query, studentNickname);
-			})
+				linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful,
+									query, studentNickname);
+			});
+			var words = getWordsForQuery(query);
+			$.each(words, function (j,word) {
+				wordAccumulator.add(word, query, studentNickname);
+			});
 		});
-//		var queries = [];
-//		var linksFollowed = [];
-//		var answer = taskInfo.answer;
-//		var taskIdx = selectedTaskIdx();
-//		var taskInfo = g_students[studentNickname].tasks[taskIdx];
-//		var numSearches = searchInfos.length;
-//		for(var i=0; i<numSearches; i++) {
-//		}
+
+		return [queryAccumulator.getItems(),
+				wordAccumulator.getItems(),
+				linkAccumulator.getItems(),
+				answerAccumulator.getItems()];
+	}
+	this.asHTML = function() {
+		return escapeForHtml(this.studentNickname);
 	}
 }
-
-function assembleSupplementalInfo(studentItems, queryItems, wordItems, linkItems, answerItems) {
-	var info = [];
-	if( studentItems !== null )
-		info.push({items:studentItems, title:"Students"});
-	if( queryItems !== null )
-		info.push({items:queryItems, title:"Queries"});
-	if( wordItems !== null )
-		info.push({items:wordItems, title:"Words"});
-	if( linkItems !== null )
-		info.push({items:linkItems, title:"Links"});
-	if( answerItems !== null ) {
-		info.push({items:answerItems, title:"Answers"});
-	}
-}
-
 
 
 function WordAccumulator() {
-	this.add = function(query, studentNickname) {
+	this.add = function(word, query, studentNickname) {
 		var stem = getWordStem(word).toLowerCase();
 		var uniquenessKey = stem + "::" + query.toLowerCase() + "::" + studentNickname;
 		var uniquenessDict = this._uniquenessDict;
@@ -352,8 +464,10 @@ function WordAccumulator() {
 			var occurrenceKey = stem;
 			var counterItem = this._occurrenceDict[occurrenceKey];
 			if(counterItem===undefined) {
+				var wordsDict = {};
+				wordsDict[word] = 1;
 				this._occurrenceDict[occurrenceKey] = counterItem = {
-					wordsDict : {word:1},
+					wordsDict : wordsDict,
 					stem  : stem,
 					queries : [query],
 					studentNicknames : [studentNickname],
@@ -371,17 +485,16 @@ function WordAccumulator() {
 
 	this.getItems = function() {
 		// Sorts by DESCENDING FREQUENCY
-		var occurrences = valuesOfObject(this._occurrenceDict);
-		sortInPlaceByCountDescending(occurrences);
-		var items = [];
-		$.each(function (i,occurrence) {
-			var wordsDict = occurrence.wordsDict;
+		var items = valuesOfObject(this._occurrenceDict);
+		sortInPlaceByCountDescending(items);
+		items = $.map(items, function (item, i) {
+			var wordsDict = item.wordsDict;
 			var allWordsSortedByFrequency = keysOfObjectSortedByValueDescending(wordsDict)
 			var wordsStr = allWordsSortedByFrequency.join(", ");
-			var item = new WordDataItem(wordsStr, wordsDict, occurrence.stem,
-									occurrence.queries, occurrence.studentNicknames, count)
+			return new WordDataItem(wordsStr, wordsDict, item.stem,
+									item.queries, item.studentNicknames, item.count)
 		});
-		return occurrences;
+		return new ItemList(items, "word", "Words");
 	}
 
 	this._occurrenceDict = {};
@@ -390,16 +503,38 @@ function WordAccumulator() {
 
 function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, count) {
 	this._super = DataItem;
-	this._super("word", word, null, null);
+	this._super("word", wordsStr, count, "word_data_item");
 
 	this.wordsStr = wordsStr;
 	this.wordsDict = wordsDict;
 	this.stem = stem;
 	this.queries = queries;
 	this.studentNicknames = studentNicknames;
-	this.count = count;
+	this.asHTML = function() {
+		return escapeForHtml(this.wordsStr) + ' &times; ' + this.count;
+	}
 }
 
+
+
+
+
+
+
+function assembleSupplementalInfo(studentItems, queryItems, wordItems, linkItems, answerItems) {
+	var info = [];
+	if( studentItems !== null )
+		info.push({items:studentItems, title:"Students"});
+	if( queryItems !== null )
+		info.push({items:queryItems, title:"Queries"});
+	if( wordItems !== null )
+		info.push({items:wordItems, title:"Words"});
+	if( linkItems !== null )
+		info.push({items:linkItems, title:"Links"});
+	if( answerItems !== null ) {
+		info.push({items:answerItems, title:"Answers"});
+	}
+}
 
 function copyOfArray(arr) {
 	var newArray = [];
@@ -445,6 +580,11 @@ function valuesOfObject(o) {
 	return values;
 }
 
+function getWordsForQuery(query) {
+	query = normalizeSpacing(query);
+	words = query.split(" ");
+	return words;
+}
 
 function assert(condition, msg) {
 	if(!condition) {
@@ -456,7 +596,6 @@ function assert(condition, msg) {
 	}
 }
 
-
 function updateStudents() {
 	var accumulator = new StudentAccumulator();
 	var studentNames = keysOfObject(g_students);
@@ -464,32 +603,35 @@ function updateStudents() {
 		var isLoggedIn = g_students[studentNickname].logged_in;
 		accumulator.add(studentNickname, isLoggedIn);
 	});
-	var dataItems = accumulator.getItems();
-
-	renderDataList("data_display_content", dataItems);
+	updateAnyWithItems(accumulator.getItems());
 }
 
+function updateAnyWithItems(itemList) {
+	var dataItems = itemList.items;
+	$("#data_display_content").html(itemList.asHTML());
+//	renderDataList("data_display_content", accumulator.getItems());
+	$("#data_display_content .data_display_item").each( function(idx,displayItem) {
+		// CLOSURE:  Will this work right?  Will we have the right value of idx?
+		var data = {
+			item:dataItems[idx],
+			idx: idx,
+			displayItem: displayItem
+		};
+		$(this).click(data, onDataListItemClicked);
+	});
+}
 
 function updateQueries() {
 	// Include only queries for the currently selected task.
+	
+	var accumulator = new QueryAccumulator();
 	var taskIdx = selectedTaskIdx();
-
-	// Get a list of queries, sorted, deduped, with space normalized.
-	var queries = getQueriesSpaceNormalized(taskIdx);
-	sortAndDeDupeInPlace(queries);
-
-	// Make the HTML list
-	lines = [];
-	lines.push('<ol id="queries_list">');
-	var numQueries = queries.length;
-	for( var queryIdx=0; queryIdx<numQueries; queryIdx++ ) {
-		lines.push("<li>" + queries[queryIdx] + "</li>");
-	}
-	lines.push("</ol>");
-	var html = lines.join("");
-
-	// Put HTML list in the document.
-	$("#queries").html(html);
+	$.each(g_students, function (studentNickname,studentInfo) {
+		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
+			accumulator.add(searchInfo.query, studentNickname);
+		});
+	});
+	updateAnyWithItems(accumulator.getItems());
 }
 
 
@@ -523,19 +665,18 @@ function isStopWord(word) {
 function getWordStem(word) {
 	var stemCache = getWordStem._stemCache;
 	if( getWordStem.stemCache == undefined ) {
-		getWordStem._stemCache = {};
+		stemCache = getWordStem._stemCache = {};
 	}
 
-	var stem = stemCache[stem];
+	var stem = stemCache[word];
 
 	if( stem==undefined ) {
 
 		var snowballStemmer = getWordStem._snowballStemmer;
-		if( getWordStem.snowballStemmer == undefined ) {
-			getWordStem._snowballStemmer = new Snowball("english");
+		if( snowballStemmer == undefined ) {
+			snowballStemmer = getWordStem._snowballStemmer = new Snowball("english");
 		}
 
-		var snowballStemmer = getWordStem.snowballStemmer;
 		snowballStemmer.setCurrent(word);
 		snowballStemmer.stem();
 		stem = snowballStemmer.getCurrent();
@@ -687,7 +828,7 @@ function updateLinks() {
 		var linkHTML = makeLinkHTML(linkInfo, null);
 		lines.push('<tr>');
 		lines.push('<td class="occurences_num">' + occurrences + '</td>');
-		lines.push('<td class="occurrences_times_symbol">&times;</td>');
+		lines.push('<td class="occurrences_times_symbol"> &times;</td>');
 		lines.push('<td class="occurrences_item">'+linkHTML+'</td>');
 		lines.push('</tr>');
 	}
@@ -838,7 +979,6 @@ function onSocketMessage(msg) {
 
 	window.status = msg.data;
 	updates = JSON.parse(msg.data);
-	alert( JSON.stringify(msg) );
 	var num_updates = updates.length;
 	for(var i=0; i<num_updates; i++) {
 		var update = updates[i];
