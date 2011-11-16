@@ -79,9 +79,11 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 							   task_idx=task_idx)
 
 			self.response.out.write(json.dumps({"status":"logged_in"}))
+			log( "LOGIN SUCCESS" )
 
 		except StudentLoginException, e:
 			e.log()
 			self.set_person(None)
 			self.session['msg'] = e.args[0]
 			self.response.out.write(json.dumps({"status":"logged_out"}))
+			log( "LOGIN FAILURE" )

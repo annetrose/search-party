@@ -10,10 +10,9 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 class LogoutPage(SearchPartyRequestHandler):
 	def get(self):
 		from google.appengine.api import users
-#		from helpers import send_update_msg
 		from helpers import log
-#		from model import Teacher
 		from updates import send_update_log_out
+		import settings
 
 		self.load_search_party_context()
 
@@ -42,7 +41,7 @@ class LogoutPage(SearchPartyRequestHandler):
 			msg = 'Student Logged out: Goodbye ' + student_nickname
 			self.set_person(None)
 			self.redirect_with_msg(msg)
-		else:
+		elif settings.ENABLE_LOGOUT_WHOOPS_ERROR:
 			log("LOGOUT: ????, sid=%s"%(self.session.sid))
 			if self.session.is_active():	 # defensive
 				self.session.terminate()
