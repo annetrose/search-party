@@ -13,6 +13,8 @@ class TeacherPage(PersonPage):
 
 		from helpers import log, smush
 		from model import Lesson, Teacher
+		from django.utils import simplejson as json
+		import settings
 		self.load_search_party_context(user_type="teacher")
 #		log("<<< Teacher channels before TeacherPage.get(...)")
 #		log(Teacher.all_client_ids())
@@ -34,6 +36,7 @@ class TeacherPage(PersonPage):
 					"token"      : self.create_channel(lesson_code=lesson_code),
 					"students_js": self.make_student_structure_js(lesson=lesson, indent="  "),
 					"default_start_pane" : default_start_pane,
+					"debug_mode" : json.dumps(settings.DEBUG),
 				}
 				if self.session.has_key('msg'):
 					template_values['msg'] = self.session.pop('msg')  # only show the message once

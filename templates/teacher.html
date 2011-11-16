@@ -25,6 +25,7 @@
   var TOKEN = "{{ token }}";
   var LESSON_CODE = "{{ lesson.lesson_code }}"
   var START_PANE = window.location.hash.substr(1) || "{{ default_start_pane }}";
+  var DEBUG_MODE = {{ debug_mode }};
   {{ students_js|safe }}{# g_students will be defined here, via a long string of JavaScript statements. #}
   $(initialize);        {# set the initialize() function from teacher.js to load when the window loads. #}
 
@@ -92,6 +93,7 @@
 
 
 {% block bottom %}
+  <div id="dbg_log_container"></div>
   <div id="log"></div>
   <div id="searchers"></div>
 {% endblock %}
