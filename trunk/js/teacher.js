@@ -92,9 +92,8 @@ function onDataListItemClicked(eventObject) {
 	var type = data.type;
 	var $target = $(target);
 	var isSelected = $target.hasClass("selected");
-//	$(".data_display_item.selected").removeClass("selected");
+	$(".data_display_item.selected").removeClass("selected");
 	if( isSelected ) {
-		$target.removeClass("selected");
 		hideAnnotations();
 	}
 	else {
@@ -398,8 +397,8 @@ function StudentAccumulator() {
 				return -1;
 			}
 			else {
-				var aName = a.toLowerCase();
-				var bName = b.toLowerCase();
+				var aName = a.studentNickname.toLowerCase();
+				var bName = b.studentNickname.toLowerCase();
 				return (aName > bName ? 1 : (aName < bName ? -1 : 0));
 			}
 		});

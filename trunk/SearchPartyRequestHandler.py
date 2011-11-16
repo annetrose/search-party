@@ -15,6 +15,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		from google.appengine.api import users
 		from helpers import log, smush
 		from all_exceptions import StudentLoginException
+		import settings
 
 		log( "" )
 		log( "" )
@@ -38,7 +39,8 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 				log( "Found by data" )
 				key_name = Student.make_key_name(student_nickname=student_nickname, lesson_code=lesson_code)
 				student = Student.get_by_key_name(key_name)
-				if (student is not None) and (student.session_sid != self.session.sid):
+				assert self.session.sid is not None
+				if settings.PREVENT_MULTIPLE_STUDENT_LOGINS and (student is not None) and (student.session_sid != self.session.sid):
 					log("Student SID doesn't match:\n * student == %r\n * student.session_sid == %r\n * self.session.sid == %r"%
 							(student, student.session_sid, self.session.sid))
 					if student.is_logged_in:
