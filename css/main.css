@@ -423,7 +423,12 @@ tr.dbg_log.even td {
 tr.dbg_log.odd td {
 	background-color: #FFDDFF;
 }
-
+.studentLoggedOut {
+	color: #888888;
+}
+.studentLoggedIn {
+	color: #000000;
+}
 /*
 ol.query_history_links {
 	width: 200px;
