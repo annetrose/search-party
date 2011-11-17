@@ -211,6 +211,8 @@ function ItemList(items, type, title) {
 		}
 		else {
 			var parts = [];
+			var type = this.type;
+//			parts.push('<div>');
 			parts.push('<ol>');
 			$.each(items, function(idx,dataItem) {
 				parts.push('<li class="data_display_item">');
@@ -218,6 +220,8 @@ function ItemList(items, type, title) {
 				parts.push('</li>');
 			});
 			parts.push('</ol>');
+//			parts.push('<a href="#" onclick="$(this).parent().find(\'li + li + li + li + li + li li\')">Expand</a>')
+//			parts.push('</div>');
 	//		if(DEBUG_MODE) {
 	//			parts.push('<div><tt><pre>' + JSON.stringify(this) + '</pre></tt></div>');
 	//		}
