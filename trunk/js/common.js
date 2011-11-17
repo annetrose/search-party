@@ -43,7 +43,7 @@ function log(arg1, arg2) {
 	var s = (hasName ? (name + " == " + value) : value);
 	s = escapeForHtml(s);
 
-	if(typeof console != "undefined") {
+	if((typeof console) != "undefined") {
 		console.log(s);
 	}
 	if(DEBUG_MODE) {
