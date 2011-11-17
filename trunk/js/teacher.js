@@ -294,7 +294,36 @@ function AnswerDataItem(answerText, studentNickname) {
 	}
 }
 
-
+function RatingCounter() {
+	this.increment = function(isHelpful) {
+		// POLICY:  if isHelpful is null or undefined or otherwise unspecified, treat as helpful.
+		if( isHelpful !== false ) {
+			this.helpful += 1;
+		}
+		else {
+			this.unhelpful += 1;
+		}
+	}
+	this.helpful = 0;
+	this.unhelpful = 0;
+	this.asHTML = function() {
+		var html = "";
+		html += "(";
+		if( this.helpful > 0 ) {
+//			html += '<img src="/imgs/thumbs-up-18x18.png" alt="helpful" width="18" height="18" />' + this.helpful;
+			html += '<img src="' + THUMBS_UP_18X18_DATA_URL + '" alt="helpful" width="18" height="18" />' + this.helpful;
+			if( this.unhelpful > 0 ) {
+				html += ", ";
+			}
+		}
+		if( this.unhelpful > 0 ) {
+//			html += '<img src="/imgs/thumbs-down-18x18.png" alt="unhelpful" width="18" height="18" />' + this.unhelpful;
+			html += '<img src="' + THUMBS_DOWN_18X18_DATA_URL + '" alt="unhelpful" width="18" height="18" />' + this.unhelpful;
+		}
+		html += ")";
+		return html;
+	}
+}
 
 function LinkAccumulator() {
 	this.add = function(url, title, isHelpful, query, studentNickname) {
@@ -315,11 +344,13 @@ function LinkAccumulator() {
 					linkContexts : [],
 					url : url,
 					title : title,
+					ratings : new RatingCounter(),
 					count : 0
 				};
 			}
 			counterItem.count += 1;
 			counterItem.linkContexts.push(linkContext);
+			counterItem.ratings.increment(isHelpful);
 		}
 	};
 
@@ -328,7 +359,7 @@ function LinkAccumulator() {
 		var items = valuesOfObject(this._occurrenceDict);
 		sortInPlaceByCountDescending(items, "title");
 		items = $.map(items, function (item, i) {
-			return new LinkDataItem(item.url, item.title, item.count);
+			return new LinkDataItem(item.url, item.title, item.count, item.ratings);
 		});
 		return new ItemList(items, "link", "Links Followed");
 	}
@@ -337,13 +368,16 @@ function LinkAccumulator() {
 	this._uniquenessDict = {};
 }
 
-function LinkDataItem(url, title, count) {
+function LinkDataItem(url, title, count, ratings) {
 	this._super = DataItem;
 	this._super("link", url, count, "link_data_item");
 	this.url = url;
 	this.title = title;
+	this.ratings = ratings;
 	this.asHTML = function() {
-		return makeLinkHTML({url:this.url, title:this.title}, 30) + ' &times; ' + this.count;
+//		return makeLinkHTML({url:this.url, title:this.title}, 30) + ' &times; ' + this.count;
+		var html = makeLinkHTML({url:this.url, title:this.title}, 30) + " " + this.ratings.asHTML();
+		return html;
 	};
 	this.getAnnotationsItemLists = function() {
 		var studentAccumulator = new StudentAccumulator();
@@ -1002,6 +1036,7 @@ function onSocketMessage(msg) {
 	//
 	// http://code.google.com/appengine/docs/python/channel/overview.html
 
+	log( "msg", msg );
 	window.status = msg.data;
 	updates = JSON.parse(msg.data);
 	var num_updates = updates.length;
@@ -1060,7 +1095,8 @@ function handle_update_link_rated(student_nickname, task_idx, url, is_helpful) {
 			var link_info = links_followed[j];
 			var link_url = link_info.url;
 			if(link_url==url) {
-				link_url.is_helpful = is_helpful;
+				log( url + " matches with " + student_nickname );
+				link_info.is_helpful = is_helpful;
 			}
 		}
 	}

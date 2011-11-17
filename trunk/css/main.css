@@ -353,6 +353,28 @@ h3 {
 .query_history_links.scheme4 li.not_helpful a {
 }
 
+/********  SCHEME1 ********/
+.query_history_links.scheme5 a {
+	text-decoration: none;
+}
+.query_history_links.scheme5 {
+	padding-left: 0px;
+	list-style-type: none;
+}
+.query_history_links.scheme5 li.helpful {
+	color: #719C95;
+}
+.query_history_links.scheme5 li.helpful a {
+	border-bottom: 3px solid #719C95; /* Underline in different color from text.  Only way to do this is with a border. */
+}
+.query_history_links.scheme5 li.not_helpful {
+	color: #F94B19;
+}
+.query_history_links.scheme5 li.not_helpful a {
+	border-bottom: 3px solid #F94B19; /* Underline in different color from text.  Only way to do this is with a border. */
+}
+
+
 /* #helpful_button, */
 /* .query_history_links a.helpful, */
 /* .query_history_links a.helpful:visited, */

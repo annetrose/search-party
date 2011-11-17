@@ -278,7 +278,7 @@ function updateQueryHistory() {
 	var numProcessedSearches = processedSearches.length;
 	var queryHistory = $("#query_history");
 
-	var scheme=1;
+	var scheme=5;
 
 
 	if(numProcessedSearches==0) {
@@ -312,6 +312,16 @@ function updateQueryHistory() {
 						}
 						else {
 							parts.push('<img src="/imgs/star-off5.png" width="23" height="23" alt="not helpful"/>')
+						}
+					}
+					else if( scheme==5 ) {
+						if( is_helpful ) {
+//							parts.push('<img src="/imgs/thumbs-up-14x14.png" width="14" height="14" alt="helpful"/>')
+							parts.push('<img src="' + THUMBS_UP_14X14_DATA_URL + '" width="14" height="14" alt="helpful"/>')
+						}
+						else {
+//							parts.push('<img src="/imgs/thumbs-down-14x14.png" width="14" height="14" alt="not helpful"/>')
+							parts.push('<img src="' + THUMBS_DOWN_14X14_DATA_URL + '" width="14" height="14" alt="not helpful"/>')
 						}
 					}
 					linkHtml = makeLinkHTML(linkInfo, 14, className);
