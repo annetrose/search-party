@@ -14,28 +14,34 @@
 function updateUI() {
 	updateSideBarInfo();
 	updateButtonTitles();
-	$("#data_display_content").html("");
-	$("#data_display_annotation").html("");
-	switch( g_currentPaneName ) {
-		case "students":
-			updateStudents();
-			break;
-		case "queries":
-			updateQueries();
-			break;
-		case "words":
-			updateWords();
-			break;
-		case "links":
-			updateLinks();
-			break;
-		case "answers":
-			updateAnswers();
-			break;
-//		case "common":
-//			break;
-		default:
-			break;
+	if($(".data_display_item.selected").size() == 0) {
+		$("#data_display_content").html("");
+		$("#data_display_annotation").html("");
+		switch( g_currentPaneName ) {
+			case "students":
+				updateStudents();
+				break;
+			case "queries":
+				updateQueries();
+				break;
+			case "words":
+				updateWords();
+				break;
+			case "links":
+				updateLinks();
+				break;
+			case "answers":
+				updateAnswers();
+				break;
+	//		case "common":
+	//			break;
+			default:
+				break;
+		}
+		g_updatesAreWaiting = false;
+	}
+	else {
+		g_updatesAreWaiting = true;
 	}
 }
 
@@ -95,6 +101,9 @@ function onDataListItemClicked(eventObject) {
 	$(".data_display_item.selected").removeClass("selected");
 	if( isSelected ) {
 		hideAnnotations();
+		if( g_updatesAreWaiting ) {
+			updateUI();
+		}
 	}
 	else {
 		$target.addClass("selected");
@@ -305,7 +314,7 @@ function LinkAccumulator() {
 	this.getItems = function() {
 		// Sorts by DESCENDING FREQUENCY
 		var items = valuesOfObject(this._occurrenceDict);
-		sortInPlaceByCountDescending(items);
+		sortInPlaceByCountDescending(items, "title");
 		items = $.map(items, function (item, i) {
 			return new LinkDataItem(item.url, item.title, item.count);
 		});
@@ -389,7 +398,7 @@ function QueryAccumulator() {
 	this.getItems = function() {
 		// Sorts by DESCENDING FREQUENCY
 		var items = valuesOfObject(this._occurrenceDict);
-		sortInPlaceByCountDescending(items);
+		sortInPlaceByCountDescending(items, "query");
 		return new ItemList(items, "query", "Queries");
 	}
 
@@ -554,7 +563,7 @@ function WordAccumulator() {
 	this.getItems = function() {
 		// Sorts by DESCENDING FREQUENCY
 		var items = valuesOfObject(this._occurrenceDict);
-		sortInPlaceByCountDescending(items);
+		sortInPlaceByCountDescending(items, "stem");
 		items = $.map(items, function (item, i) {
 			var wordsDict = item.wordsDict;
 			var allWordsSortedByFrequency = keysOfObjectSortedByValueDescending(wordsDict)
@@ -663,11 +672,19 @@ function keysOfObject(o) {
 	return keys;
 }
 
-function sortInPlaceByCountDescending(occurrences) {
+function sortInPlaceByCountDescending(occurrences, secondarySortKey) {
 	occurrences.sort(function (a,b) {
 		var aCount = a.count;
 		var bCount = b.count;
-		return (aCount > bCount ? -1 : (aCount < bCount ? 1 : 0));
+		var result = (aCount > bCount ? -1 : (aCount < bCount ? 1 : 0));
+		if( result===0 && secondarySortKey ) {
+			var aKey = a[secondarySortKey];
+			aKey = (((typeof aKey)=="string") ? aKey.toLowerCase() : aKey);
+			var bKey = b[secondarySortKey];
+			bKey = (((typeof bKey)=="string") ? bKey.toLowerCase() : bKey);
+			result = (aKey > bKey ? 1 : (aKey < bKey ? -1 : 0));
+		}
+		return result;
 	});
 }
 function valuesOfObject(o) {
