@@ -24,7 +24,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 			_log( "____________________________________________________________________" )
 			_log( self.request.url )
 			_log( "" )
-
+			
 			assert user_type in ("student", "teacher", None)
 
 			self.session = get_current_session()
@@ -35,6 +35,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 
 			# PERFORMANCE:  Instead of fetching the Student or Teacher, you could just get the key and then fetch the real thing lazily in a property.
 			person = None
+			person_is_dirty = False
 
 			if user_type=="student":
 				lesson_code = self.request.get("lesson_code", None)
@@ -53,7 +54,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 									(student, student.session_sid, self.session.sid))
 
 							# Duplicate student?
-							if settings.PREVENT_MULTIPLE_STUDENT_LOGINS and (student.is_logged_in):
+							if settings.PREVENT_MULTIPLE_STUDENT_LOGINS and (student.logged_in):
 								raise StudentLoginException("Someone is already logged into this lesson with that name.",
 										"Session ID doesn't match.", student.session_sid, self.session.sid,
 										student.latest_login_timestamp, student.latest_logout_timestamp)
@@ -68,7 +69,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 									student.session_sid = self.session.sid
 								else:
 									student.session_sid = ""
-								student.put()
+								person_is_dirty = True
 
 				else:
 					_log( "Found by session" )
@@ -95,13 +96,22 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 			if user_type=="student" and student is not None and self.session.sid not in (None,"") and student.session_sid != self.session.sid:
 				student.session_sid = self.session.sid
 				assert student.session_sid is not None
-				student.put()
+#				student.put()
+				person_is_dirty = True
 				_log( "Stored new session ID" )
 
 			self.set_person(person)
 
 			assert not ((self.is_teacher) ^ (self.teacher is not None))
 			assert not ((self.is_student) ^ (self.student is not None))
+
+			if self.is_student and not self.student.logged_in:
+				self.student.logged_in = True
+#				self.student.put()
+				person_is_dirty = True
+
+			if person_is_dirty:
+				self.person.put()
 
 			_log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
 			_log( "..............  user="+repr(self.user) )

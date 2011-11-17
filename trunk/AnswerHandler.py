@@ -11,6 +11,7 @@ class AnswerHandler(SearchPartyRequestHandler):
 	def post(self):
 		from helpers import log
 		from updates import send_update_answer
+		from model import StudentActivity
 
 		self.load_search_party_context(user_type="student")
 		if self.is_student:
@@ -34,4 +35,4 @@ class AnswerHandler(SearchPartyRequestHandler):
 			log( "AnswerHandler:  task_idx=%r,  answer=%r, explanation=%r"%(task_idx, answer_text, answer_explanation) )
 			send_update_answer(teacher=teacher, student_nickname=student_nickname, task_idx=task_idx,
 										answer_text=answer_text, answer_explanation=answer_explanation)
-			log( "             :  %r"%student_answer )
+			log( "             :  %r"%answer_text )

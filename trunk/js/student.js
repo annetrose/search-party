@@ -45,7 +45,12 @@ function searchCompleteCallback() {  // called from js/student_custom_search.js
 	$("#cse").contents().find("a[class='gs-title']").click(function(event) {
 		var href = $(this).attr("href");
         var title = $(this).text();
-		onLinkFollowed(href, title)
+		onLinkFollowed(href, title);
+
+		// Open the link in the IFRAME.  If we used the a.target attribute
+		// Firefox insisted on opening it in a new tab/window.
+		$("#result_frame").get(0).src = href;
+		return false;
 	});
 	
 	// Ads seem to show up a bit later, so we wait a bit and then remove them
@@ -83,6 +88,7 @@ function switchToResultPage() {
 	$("#search_container").hide();
 }
 function switchToSearch() {
+	$("#result_frame").get(0).src = "about:blank";
 	$("#result_page_container").hide();
 	$("#search_container").show();
 }
@@ -121,7 +127,7 @@ function onAnswerSubmitted(text, explanation) {
 	var taskIdx = selectedTaskIdx();
 	var taskInfo = g_student_info.tasks[taskIdx];
 	var answerInfo = {text:text, explanation:explanation};
-	taskInfo.answerInfo = answerInfo;
+	taskInfo.answer = answerInfo;
 }
 
 function initialize() {
@@ -336,14 +342,17 @@ function onTaskChanged(taskIdx) { // called from js/task_chooser.js
 		student_nickname : g_studentNickname,
 		lesson_code : g_lessonCode,
 	});
-	document.getElementById("answer_text").value = "";
-	document.getElementById("answer_msg").innerHTML = "";
-	document.getElementById("answer_explanation").value = "";
-	document.getElementById("answer_button").disabled = true;
-
 	// Fill in previously submitted answer text and explanation.
 	var taskIdx = selectedTaskIdx();
 	var taskInfo = g_student_info.tasks[taskIdx];
-	var answerInfo = {text:text, explanation:explanation};
-	taskInfo.answerInfo = taskInfo.answer;
+	var answerInfo = taskInfo.answer;
+	var answerText = answerInfo.text;
+	var answerExplanation = answerInfo.explanation;
+
+	document.getElementById("answer_text").value = answerText;
+	document.getElementById("answer_msg").innerHTML = "";
+	document.getElementById("answer_explanation").value = answerExplanation;
+	document.getElementById("answer_button").disabled = true;
+
+	updateQueryHistory();
 }
