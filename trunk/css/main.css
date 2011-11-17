@@ -396,7 +396,9 @@ h3 {
 	margin: 0px;
 	padding: 0px;
 }
-#data_display_annotation h3 {
+#data_display_annotation h3,
+#data_display_annotation ol,
+#data_display_annotation ul {
 	margin-top: 0px;
 }
 
