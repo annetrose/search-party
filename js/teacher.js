@@ -186,7 +186,7 @@ function ItemList(items, type, title) {
 		var items = this.items;
 		var html;
 		if( items.length==0 ) {
-			html = "<div>(none)</div>"
+			html = '<div style="margin-bottom:18px;">(none)</div>'
 		}
 		else {
 			var parts = [];
@@ -241,6 +241,36 @@ function AnswerDataItem(answerText, studentNickname) {
 	this.asHTML = function() {
 		return escapeForHtml(this.answerText);
 	}
+	this.getAnnotationsItemLists = function() {
+		var studentAccumulator = new StudentAccumulator();
+		var queryAccumulator = new QueryAccumulator();
+		var wordAccumulator = new WordAccumulator();
+//		var answerAccumulator = new AnswerAccumulator();
+		var linkAccumulator = new LinkAccumulator();
+
+		var answerText = this.answerText;
+		$.each(g_students, function (studentNickname,studentInfo) {
+			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
+			if( taskInfo.answer.text == answerText ) {
+				studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
+				$.each(taskInfo.searches, function (i,searchInfo) {
+					var query = searchInfo.query;
+					queryAccumulator.add(query, studentNickname);
+					$.each(searchInfo.links_followed, function (j,linkInfo) {
+						linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, query, studentNickname);
+					});
+					$.each(getWordsForQuery(query), function (j,word) {
+						wordAccumulator.add(word, query, studentNickname);
+					});
+				});
+			}
+		});
+
+		return [studentAccumulator.getItems(),
+				queryAccumulator.getItems(),
+				wordAccumulator.getItems(),
+				answerAccumulator.getItems()];
+	}
 }
 
 
@@ -294,6 +324,45 @@ function LinkDataItem(url, title, count) {
 	this.asHTML = function() {
 		return makeLinkHTML({url:this.url, title:this.title}, 30) + ' &times; ' + this.count;
 	};
+	this.getAnnotationsItemLists = function() {
+		var studentAccumulator = new StudentAccumulator();
+		var queryAccumulator = new QueryAccumulator();
+		var wordAccumulator = new WordAccumulator();
+		var answerAccumulator = new AnswerAccumulator();
+//		var linkAccumulator = new LinkAccumulator();
+
+		var url = this.url;
+		$.each(g_students, function (studentNickname,studentInfo) {
+			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
+			$.each(taskInfo.searches, function (i,searchInfo) {
+				var query = searchInfo.query;
+
+				var matchesThisLink = false;
+				var linksFollowed = searchInfo.links_followed;
+				var numLinksFollowed = linksFollowed.length;
+				for( var j=0; j<numLinksFollowed; j++ ) {
+					if( linksFollowed[j].url == url ) {
+						matchesThisLink = true;
+						break;
+					}
+				}
+
+				if( matchesThisLink ) {
+					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
+					queryAccumulator.add(query, studentNickname);
+					$.each(getWordsForQuery(query), function (j,word) {
+						wordAccumulator.add(word, query, studentNickname);
+					});
+					answerAccumulator.add(taskInfo.answer.text, studentNickname);
+				}
+			});
+		});
+
+		return [studentAccumulator.getItems(),
+				queryAccumulator.getItems(),
+				wordAccumulator.getItems(),
+				answerAccumulator.getItems()];
+	}
 }
 
 
@@ -346,11 +415,12 @@ function QueryDataItem(query, studentNicknames, count) {
 		var answerAccumulator = new AnswerAccumulator();
 		var linkAccumulator = new LinkAccumulator();
 
+		var query = this.query;
 		$.each(g_students, function (studentNickname,studentInfo) {
 			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
 			$.each(taskInfo.searches, function (i,searchInfo) {
 				var query = searchInfo.query;
-				if( query==this.query ) {
+				if( searchInfo.query==query ) {
 					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
 	//				var anyLinksHelpful = false;
 					$.each(searchInfo.links_followed, function (j,linkInfo) {
@@ -517,7 +587,6 @@ function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, coun
 	this.getAnnotationsItemLists = function() {
 		var studentAccumulator = new StudentAccumulator();
 		var queryAccumulator = new QueryAccumulator();
-//		var wordAccumulator = new WordAccumulator();
 		var answerAccumulator = new AnswerAccumulator();
 		var linkAccumulator = new LinkAccumulator();
 
@@ -525,22 +594,28 @@ function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, coun
 			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
 			$.each(taskInfo.searches, function (i,searchInfo) {
 				var query = searchInfo.query;
-				studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
-//				var anyLinksHelpful = false;
-				$.each(searchInfo.links_followed, function (j,linkInfo) {
-					linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful,
-										query, studentNickname);
-//					anyLinksHelpful = anyLinksHelpful || linkInfo.is_helpful;
-				});
-				$.each(getWordsForQuery(query), function (j,word) {
-					wordAccumulator.add(word, query, studentNickname);
-				});
-				answerAccumulator.add(taskInfo.answer.text, studentNickname);
+				var words = getWordsForQuery(query);
+				var numWords = words.length;
+				var queryMatches = false;
+				for( var j=0; j<numWords; j++ ) {
+					if( wordsDict[words[j]] !== undefined ) {
+						queryMatches = true;
+						break;
+					}
+				}
+				if( queryMatches ) {
+					queryAccumulator.add(query, studentNickname);
+					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
+					$.each(searchInfo.links_followed, function (j,linkInfo) {
+						linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, query, studentNickname);
+					});
+					answerAccumulator.add(taskInfo.answer.text, studentNickname);
+				}
 			});
 		});
 
 		return [studentAccumulator.getItems(),
-				wordAccumulator.getItems(),
+				queryAccumulator.getItems(),
 				linkAccumulator.getItems(),
 				answerAccumulator.getItems()];
 	}
@@ -780,146 +855,42 @@ function aggregateWords(words) {
 }
 
 function updateWords() {
+	var accumulator = new WordAccumulator();
 	var taskIdx = selectedTaskIdx();
-	var words = []
-	var queries = getQueriesSpaceNormalized(taskIdx);
-	var numQueries = queries.length;
-	for(var queryIdx=0; queryIdx<numQueries; queryIdx++) {
-		var query = queries[queryIdx];
-		var wordsInQuery = query.split(" ");
-		var numWordsInQuery = wordsInQuery.length;
-		for(var wordInQueryIdx=0; wordInQueryIdx<numWordsInQuery; wordInQueryIdx++) {
-			var wordInQuery = wordsInQuery[wordInQueryIdx];
-			if(!isStopWord(wordInQuery)) {
-				words.push(wordInQuery);
-			}
-		}
-	}
-
-	var stemInfos = aggregateWords(words);
-	var numStemInfos = stemInfos.length;
-
-	var lines = [];
-	lines.push('<table class="occurrences_table">');
-	for(var i=0; i<numStemInfos; i++) {
-		var stemInfo = stemInfos[i];
-		var occurrences = stemInfo.totalWords;
-		var wordsStr = stemInfo.words.join(", ");
-		row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + escapeForHtml(wordsStr) + '</td></tr>';
-		lines.push(row_html);
-	}
-	lines.push('</table>');
-
-	var html = lines.join("");
-	$("#words").html(html);
+	$.each(g_students, function (studentNickname,studentInfo) {
+		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
+			var query = searchInfo.query;
+			var words = getWordsForQuery(query);
+			$.each(words, function(j, word) {
+				accumulator.add(word, query, studentNickname);
+			});
+		});
+	});
+	updateAnyWithItems(accumulator.getItems());
 }
 
 function updateLinks() {
+	var accumulator = new LinkAccumulator();
 	var taskIdx = selectedTaskIdx();
-	var linksOccurrenceDict = {};
-	var titlesByUrl = {};
-	var maxLinkTitleLength = 80;
-	for(var studentNickname in g_students) {
-		var searches = g_students[studentNickname].tasks[taskIdx].searches;
-		for(var searchIdx in searches) {
-			var searchInfo = searches[searchIdx];
+	$.each(g_students, function (studentNickname,studentInfo) {
+		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
 			var linksFollowed = searchInfo.links_followed;
-			for(var linkIdx in linksFollowed) {
-				var linkInfo = linksFollowed[linkIdx];
-				var url = linkInfo.url;
-				var title = linkInfo.title;
-				var occurrences = linksOccurrenceDict[url];
-				occurrences = (occurrences==undefined ? 0 : occurrences);
-				linksOccurrenceDict[url] = occurrences + 1;
-				titlesByUrl[url] = title;
-			}
-		}
-	}
-
-	var urlsOrderedByOccurrences = [];
-	for(var url in linksOccurrenceDict) {
-		urlsOrderedByOccurrences.push(url);
-	}
-	urlsOrderedByOccurrences.sort(function (a,b) {
-		// Sort in DESCENDING order of occurrences.
-		aOccurrences = linksOccurrenceDict[a];
-		bOccurrences = linksOccurrenceDict[b];
-		return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
+			$.each(linksFollowed, function(j, linkInfo) {
+				accumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, searchInfo.query, studentNickname);
+			});
+		});
 	});
-
-	var lines = [];
-	lines.push('<table id="link_occurrences_table" class="occurrences_table">');
-	for(var urlIdx in urlsOrderedByOccurrences) {
-		var url = urlsOrderedByOccurrences[urlIdx];
-		var occurrences = linksOccurrenceDict[url];
-		var linkInfo = {
-			url : url,
-			title : titlesByUrl[url]
-		};
-		var linkHTML = makeLinkHTML(linkInfo, null);
-		lines.push('<tr>');
-		lines.push('<td class="occurences_num">' + occurrences + '</td>');
-		lines.push('<td class="occurrences_times_symbol"> &times;</td>');
-		lines.push('<td class="occurrences_item">'+linkHTML+'</td>');
-		lines.push('</tr>');
-	}
-	lines.push('</table>');
-
-	var html = lines.join("");
-	$("#links").html(html);
-
-	return queries;
+	updateAnyWithItems(accumulator.getItems());
 }
 
 function updateAnswers() {
+	var accumulator = new AnswerAccumulator();
 	var taskIdx = selectedTaskIdx();
-	var answers = [];
-	var lines = [];
-	for(var studentNickname in g_students) {
-		var answer = g_students[studentNickname].tasks[taskIdx].answer.text.trim();
-		if(answer.length > 0) {
-			answers.push(answer);
-		}
-	}
-	if(answers.length==0) {
-		lines.push('<div class="nothing_done">No answers have been submitted.</div>');
-	}
-	else {
-		var answerOccurrenceDict = {};
-		var numAnswers = answers.length;
-		for(var answerIdx=0; answerIdx<numAnswers; answerIdx++) {
-			var answer = answers[answerIdx];
-			var currentOccurrenceCount = answerOccurrenceDict[answer];
-			if(currentOccurrenceCount==undefined) {
-				currentOccurrenceCount = 0;
-			}
-			answerOccurrenceDict[answer] = currentOccurrenceCount + 1;
-		}
-
-		var answerList = [];
-		for(var answer in answerOccurrenceDict) {
-			answerList.push(answer);
-		}
-		answerList.sort(function (a,b) {
-			// Sort in DESCENDING order of occurrences.
-			var aOccurrences = answerOccurrenceDict[a];
-			var bOccurrences = answerOccurrenceDict[b];
-			return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
-		});
-
-		lines.push('<table class="occurrences_table">');
-		for(var answerIdx in answerList) {
-			var answer = answerList[answerIdx];
-			var occurrences = answerOccurrenceDict[answer];
-			var answerRepresentation = (answer.length==0 ? "&empty;" : escapeForHtml(answer));
-			var row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + answerRepresentation + '</td></tr>';
-			lines.push(row_html);
-		}
-		lines.push('</table>');
-	}
-
-	var html = lines.join("");
-	$("#answers").html(html);
+	$.each(g_students, function (studentNickname,studentInfo) {
+		var answerText = studentInfo.tasks[selectedTaskIdx()].answer.text;
+		accumulator.add(answerText, studentNickname)
+	});
+	updateAnyWithItems(accumulator.getItems());
 }
 
 function getQueriesSpaceNormalized(taskIdx) {

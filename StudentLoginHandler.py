@@ -69,6 +69,7 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 					client_ids=[]
 				)
 
+			assert student.session_sid is not None
 			student.put()
 			self.set_person(student)
 

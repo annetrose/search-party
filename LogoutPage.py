@@ -47,7 +47,7 @@ class LogoutPage(SearchPartyRequestHandler):
 			if self.session.is_active():	 # defensive
 				self.session.terminate()
 			self.set_person(None)
-			if settings.CLEAR_SESSION_ID_ON_STUDENT_DISCONNECT==False or settings.ENABLE_LOGOUT_WHOOPS_ERROR:
+			if settings.CLEAR_SESSION_ID_ON_STUDENT_DISCONNECT==False and settings.ENABLE_LOGOUT_WHOOPS_ERROR:
 				self.redirect_with_msg("Whoops, you weren't logged in")
 			else:
 				self.redirect("/")

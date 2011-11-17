@@ -28,6 +28,9 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 			assert user_type in ("student", "teacher", None)
 
 			self.session = get_current_session()
+			if self.session.sid is None:
+				self.session.start()
+			assert self.session.sid is not None
 			self.user = users.get_current_user()
 
 			# PERFORMANCE:  Instead of fetching the Student or Teacher, you could just get the key and then fetch the real thing lazily in a property.
@@ -61,7 +64,10 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 									_log( "Removingtale student session ID" )
 									self.session.clear()
 									self.session.regenerate_id()
-								student.session_sid = self.session.sid
+								if self.session.sid in (None, ""):
+									student.session_sid = self.session.sid
+								else:
+									student.session_sid = ""
 								student.put()
 
 				else:
@@ -69,9 +75,11 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 					student = Student.all().filter("session_sid =", self.session.sid).get()
 				person = student
 
-			elif self.user is not None:
+			elif self.user is not None and user_type != "student":
 				assert user_type in ("teacher", None)
 				person = Teacher.get_by_key_name(self.user.user_id())
+				if person is not None:
+					user_type = "teacher"
 
 			# Try one more time to find a student by session SID.
 			#
@@ -86,6 +94,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 
 			if user_type=="student" and student is not None and self.session.sid not in (None,"") and student.session_sid != self.session.sid:
 				student.session_sid = self.session.sid
+				assert student.session_sid is not None
 				student.put()
 				_log( "Stored new session ID" )
 
@@ -202,6 +211,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		client_id = client_id_utils.create_client_id(session_sid=self.session.sid, lesson_code=lesson_code, person_type=self.person_type)
 		token = channel.create_channel(client_id)
 		self.person.add_client_id(client_id)
+		assert not self.is_student or self.student.session_sid is not None
 		self.person.put()
 		log( "Created channel for %r on %s."%(self.person, client_id) )
 #		if self.is_teacher:
