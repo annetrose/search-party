@@ -98,7 +98,7 @@ function onDataListItemClicked(eventObject) {
 	var type = data.type;
 	var $target = $(target);
 	var isSelected = $target.hasClass("selected");
-	$(".data_display_item.selected").removeClass("selected");
+	deselectAnnotation();
 	if( isSelected ) {
 		hideAnnotations();
 		if( g_updatesAreWaiting ) {
@@ -111,7 +111,12 @@ function onDataListItemClicked(eventObject) {
 	}
 }
 
+function deselectAnnotation() {
+	$(".data_display_item.selected").removeClass("selected");
+}
+
 function hideAnnotations(displayItem, item) {
+	deselectAnnotation();
 	var $data_display_annotation = $("#data_display_annotation");
 	$data_display_annotation.hide();
 	$data_display_annotation.html("");
@@ -126,8 +131,15 @@ function showAnnotations(displayItem, item) {
 	});
 	var html = parts.join("");
 	$data_display_annotation.html(html);
+	var minimumAnnotationDivHeight = 241;  // discovered experimentally in Opera
+	var top = (offset.top - minimumAnnotationDivHeight);
+	var scrollPosition = $("html").scrollTop();
+	var containerTop = $("#data_display_container").offset().top;
+	var minTop = Math.max(scrollPosition, containerTop);
+	top = Math.max(top, minTop);
 	$data_display_annotation.css({
-		top: offset.top + "px",
+//		top: (offset.top - 260) + "px",
+		top: top + "px",
 		left: (offset.left + $displayItem.parent().width() - 10) + "px",
 	});
 	$data_display_annotation.show();
@@ -526,7 +538,9 @@ function StudentDataItem(studentNickname, isLoggedIn) {
 				answerAccumulator.getItems()];
 	}
 	this.asHTML = function() {
-		return escapeForHtml(this.studentNickname);
+		var className = (this.isLoggedIn===false ? "studentLoggedOut" : "studentLoggedIn");
+		var html = '<span class="' + className + '">' + escapeForHtml(this.studentNickname) + '</span>';
+		return html;
 	}
 }
 
@@ -1138,6 +1152,7 @@ function loadButtonId(paneName) {
 }
 
 function onPaneChanged(newPane) {
+	hideAnnotations();
 	updateUI();
 }
 
