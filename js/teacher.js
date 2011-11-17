@@ -276,12 +276,14 @@ function AnswerDataItem(answerText, studentNickname) {
 				studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
 				$.each(taskInfo.searches, function (i,searchInfo) {
 					var query = searchInfo.query;
-					queryAccumulator.add(query, studentNickname);
+					var isHelpful = (searchInfo.links_followed.length > 0 ? false : null);
 					$.each(searchInfo.links_followed, function (j,linkInfo) {
 						linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, query, studentNickname);
+						isHelpful = isHelpful || linkInfo.is_helpful!==false;
 					});
+					queryAccumulator.add(query, studentNickname, isHelpful);
 					$.each(getWordsForQuery(query), function (j,word) {
-						wordAccumulator.add(word, query, studentNickname);
+						wordAccumulator.add(word, query, studentNickname, isHelpful);
 					});
 				});
 			}
@@ -296,11 +298,11 @@ function AnswerDataItem(answerText, studentNickname) {
 
 function RatingCounter() {
 	this.increment = function(isHelpful) {
-		// POLICY:  if isHelpful is null or undefined or otherwise unspecified, treat as helpful.
-		if( isHelpful !== false ) {
+		// POLICY:  if isHelpful is null or undefined or otherwise unspecified, don't count it at all.
+		if( isHelpful === true ) {
 			this.helpful += 1;
 		}
-		else {
+		else if ( isHelpful === false ) {
 			this.unhelpful += 1;
 		}
 	}
@@ -308,19 +310,21 @@ function RatingCounter() {
 	this.unhelpful = 0;
 	this.asHTML = function() {
 		var html = "";
-		html += "(";
-		if( this.helpful > 0 ) {
-//			html += '<img src="/imgs/thumbs-up-18x18.png" alt="helpful" width="18" height="18" />' + this.helpful;
-			html += '<img src="' + THUMBS_UP_18X18_DATA_URL + '" alt="helpful" width="18" height="18" />' + this.helpful;
-			if( this.unhelpful > 0 ) {
-				html += ", ";
+		if( this.helpful > 0 || this.unhelpful > 0 ) {
+			html += "(";
+			if( this.helpful > 0 ) {
+	//			html += '<img src="/imgs/thumbs-up-18x18.png" alt="helpful" width="18" height="18" />' + this.helpful;
+				html += '<img src="' + THUMBS_UP_18X18_DATA_URL + '" alt="helpful" width="18" height="18" />' + this.helpful;
+				if( this.unhelpful > 0 ) {
+					html += ", ";
+				}
 			}
+			if( this.unhelpful > 0 ) {
+	//			html += '<img src="/imgs/thumbs-down-18x18.png" alt="unhelpful" width="18" height="18" />' + this.unhelpful;
+				html += '<img src="' + THUMBS_DOWN_18X18_DATA_URL + '" alt="unhelpful" width="18" height="18" />' + this.unhelpful;
+			}
+			html += ")";
 		}
-		if( this.unhelpful > 0 ) {
-//			html += '<img src="/imgs/thumbs-down-18x18.png" alt="unhelpful" width="18" height="18" />' + this.unhelpful;
-			html += '<img src="' + THUMBS_DOWN_18X18_DATA_URL + '" alt="unhelpful" width="18" height="18" />' + this.unhelpful;
-		}
-		html += ")";
 		return html;
 	}
 }
@@ -395,18 +399,20 @@ function LinkDataItem(url, title, count, ratings) {
 				var matchesThisLink = false;
 				var linksFollowed = searchInfo.links_followed;
 				var numLinksFollowed = linksFollowed.length;
+				var isHelpful = (searchInfo.links_followed.length > 0 ? false : null);
 				for( var j=0; j<numLinksFollowed; j++ ) {
-					if( linksFollowed[j].url == url ) {
+					var linkInfo = linksFollowed[j];
+					if( linkInfo.url == url ) {
 						matchesThisLink = true;
-						break;
 					}
+					isHelpful = isHelpful || linkInfo.is_helpful!==false;
 				}
 
 				if( matchesThisLink ) {
 					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
-					queryAccumulator.add(query, studentNickname);
+					queryAccumulator.add(query, studentNickname, isHelpful);
 					$.each(getWordsForQuery(query), function (j,word) {
-						wordAccumulator.add(word, query, studentNickname);
+						wordAccumulator.add(word, query, studentNickname, isHelpful);
 					});
 					answerAccumulator.add(taskInfo.answer.text, studentNickname);
 				}
@@ -422,7 +428,7 @@ function LinkDataItem(url, title, count, ratings) {
 
 
 function QueryAccumulator() {
-	this.add = function(query, studentNickname) {
+	this.add = function(query, studentNickname, isHelpful) {
 		var uniquenessKey = studentNickname + "::" + query;
 		var uniquenessDict = this._uniquenessDict;
 		if(this._uniquenessDict[uniquenessKey]===undefined) {
@@ -431,12 +437,15 @@ function QueryAccumulator() {
 			var occurrenceKey = query.toLowerCase();
 			var counterItem = occurrenceDict[occurrenceKey];
 			if(counterItem===undefined) {
-				counterItem = new QueryDataItem(query, [studentNickname], 1);
+				var ratings = new RatingCounter();
+				ratings.increment(isHelpful);
+				counterItem = new QueryDataItem(query, [studentNickname], 1, ratings);
 				occurrenceDict[occurrenceKey] = counterItem;
 			}
 			else {
 				counterItem.count += 1;
 				counterItem.studentNicknames.push(studentNickname);
+				counterItem.ratings.increment(isHelpful);
 			}
 		}
 	};
@@ -452,14 +461,15 @@ function QueryAccumulator() {
 	this._uniquenessDict = {};
 }
 
-function QueryDataItem(query, studentNicknames, count) {
+function QueryDataItem(query, studentNicknames, count, ratings) {
 	this._super = DataItem;
 	this._super("query", query, count, "query_data_item");
 
 	this.query = query;
 	this.studentNicknames = studentNicknames;
+	this.ratings = ratings;
 	this.asHTML = function() {
-		return escapeForHtml(this.query) + ' &times; ' + this.count;
+		return escapeForHtml(this.query) + " " + this.ratings.asHTML();
 	}
 
 	this.getAnnotationsItemLists = function() {
@@ -475,14 +485,14 @@ function QueryDataItem(query, studentNicknames, count) {
 			$.each(taskInfo.searches, function (i,searchInfo) {
 				if( searchInfo.query==query ) {
 					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
-	//				var anyLinksHelpful = false;
+					var isHelpful = (searchInfo.links_followed.length > 0 ? false : null);
 					$.each(searchInfo.links_followed, function (j,linkInfo) {
 						linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful,
 											query, studentNickname);
-	//					anyLinksHelpful = anyLinksHelpful || linkInfo.is_helpful;
+						isHelpful = isHelpful || linkInfo.is_helpful!==false;
 					});
 					$.each(getWordsForQuery(query), function (j,word) {
-						wordAccumulator.add(word, query, studentNickname);
+						wordAccumulator.add(word, query, studentNickname, isHelpful);
 					});
 					answerAccumulator.add(taskInfo.answer.text, studentNickname);
 				}
@@ -555,14 +565,16 @@ function StudentDataItem(studentNickname, isLoggedIn) {
 
 		$.each(searches, function (i,searchInfo) {
 			var query = searchInfo.query;
-			queryAccumulator.add(query, studentNickname);
+			var isHelpful = (searchInfo.links_followed.length > 0 ? false : null);
 			$.each(searchInfo.links_followed, function (j,linkInfo) {
 				linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful,
 									query, studentNickname);
+				isHelpful = isHelpful || linkInfo.is_helpful!==false;
 			});
+			queryAccumulator.add(query, studentNickname, isHelpful);
 			var words = getWordsForQuery(query);
 			$.each(words, function (j,word) {
-				wordAccumulator.add(word, query, studentNickname);
+				wordAccumulator.add(word, query, studentNickname, isHelpful);
 			});
 		});
 
@@ -580,7 +592,7 @@ function StudentDataItem(studentNickname, isLoggedIn) {
 
 
 function WordAccumulator() {
-	this.add = function(word, query, studentNickname) {
+	this.add = function(word, query, studentNickname, isHelpful) {
 		var stem = getWordStem(word).toLowerCase();
 		var uniquenessKey = stem + "::" + query.toLowerCase() + "::" + studentNickname;
 		var uniquenessDict = this._uniquenessDict;
@@ -591,11 +603,14 @@ function WordAccumulator() {
 			if(counterItem===undefined) {
 				var wordsDict = {};
 				wordsDict[word] = 1;
+				var ratings = new RatingCounter();
+				ratings.increment(isHelpful);
 				this._occurrenceDict[occurrenceKey] = counterItem = {
 					wordsDict : wordsDict,
 					stem  : stem,
 					queries : [query],
 					studentNicknames : [studentNickname],
+					ratings : ratings,
 					count : 1
 				};
 			}
@@ -604,6 +619,7 @@ function WordAccumulator() {
 				counterItem.wordsDict[word] = (counterItem.wordsDict[word] || 0) + 1;
 				counterItem.studentNicknames.push(studentNickname);
 				counterItem.queries.push(query);
+				counterItem.ratings.increment(isHelpful);
 			}
 		}
 	};
@@ -617,7 +633,7 @@ function WordAccumulator() {
 			var allWordsSortedByFrequency = keysOfObjectSortedByValueDescending(wordsDict)
 			var wordsStr = allWordsSortedByFrequency.join(", ");
 			return new WordDataItem(wordsStr, wordsDict, item.stem,
-									item.queries, item.studentNicknames, item.count)
+									item.queries, item.studentNicknames, item.count, item.ratings)
 		});
 		return new ItemList(items, "word", "Words");
 	}
@@ -626,7 +642,7 @@ function WordAccumulator() {
 	this._uniquenessDict = {};
 }
 
-function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, count) {
+function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, count, ratings) {
 	this._super = DataItem;
 	this._super("word", wordsStr, count, "word_data_item");
 
@@ -635,14 +651,16 @@ function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, coun
 	this.stem = stem;
 	this.queries = queries;
 	this.studentNicknames = studentNicknames;
+	this.ratings = ratings;
 	this.asHTML = function() {
-		return escapeForHtml(this.wordsStr) + ' &times; ' + this.count;
+		return escapeForHtml(this.wordsStr) + " " + this.ratings.asHTML();
 	}
 	this.getAnnotationsItemLists = function() {
 		var studentAccumulator = new StudentAccumulator();
 		var queryAccumulator = new QueryAccumulator();
 		var answerAccumulator = new AnswerAccumulator();
 		var linkAccumulator = new LinkAccumulator();
+		var wordsDict = this.wordsDict;
 
 		$.each(g_students, function (studentNickname,studentInfo) {
 			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
@@ -658,11 +676,13 @@ function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, coun
 					}
 				}
 				if( queryMatches ) {
-					queryAccumulator.add(query, studentNickname);
 					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
+					var isHelpful = (searchInfo.links_followed.length > 0 ? false : null);
 					$.each(searchInfo.links_followed, function (j,linkInfo) {
 						linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, query, studentNickname);
+						isHelpful = isHelpful || linkInfo.is_helpful!==false;
 					});
+					queryAccumulator.add(query, studentNickname, isHelpful);
 					answerAccumulator.add(taskInfo.answer.text, studentNickname);
 				}
 			});
@@ -791,7 +811,8 @@ function updateQueries() {
 	var taskIdx = selectedTaskIdx();
 	$.each(g_students, function (studentNickname,studentInfo) {
 		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
-			accumulator.add(searchInfo.query, studentNickname);
+			var isHelpful = searchIsHelpful(searchInfo);
+			accumulator.add(searchInfo.query, studentNickname, isHelpful);
 		});
 	});
 	updateAnyWithItems(accumulator.getItems());
@@ -917,9 +938,10 @@ function updateWords() {
 	$.each(g_students, function (studentNickname,studentInfo) {
 		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
 			var query = searchInfo.query;
+			var isHelpful = searchIsHelpful(searchInfo);
 			var words = getWordsForQuery(query);
 			$.each(words, function(j, word) {
-				accumulator.add(word, query, studentNickname);
+				accumulator.add(word, query, studentNickname, isHelpful);
 			});
 		});
 	});
@@ -1036,7 +1058,6 @@ function onSocketMessage(msg) {
 	//
 	// http://code.google.com/appengine/docs/python/channel/overview.html
 
-	log( "msg", msg );
 	window.status = msg.data;
 	updates = JSON.parse(msg.data);
 	var num_updates = updates.length;
@@ -1095,7 +1116,6 @@ function handle_update_link_rated(student_nickname, task_idx, url, is_helpful) {
 			var link_info = links_followed[j];
 			var link_url = link_info.url;
 			if(link_url==url) {
-				log( url + " matches with " + student_nickname );
 				link_info.is_helpful = is_helpful;
 			}
 		}
@@ -1251,4 +1271,29 @@ function asList(items, listType, shouldEscapeAsHTML) {
 	}
 	lines.push("</" + listType + ">");
 	return lines.join("");
+}
+
+function searchIsHelpful(searchInfo) {
+	var isHelpful = (searchInfo.links_followed.length > 0 ? false : null);
+	var linksFollowed = searchInfo.links_followed;
+	var numLinksFollowed = linksFollowed.length;
+	for( var i=0; i<numLinksFollowed; i++ ) {
+		if( linksFollowed[i].is_helpful !== false ) {
+			isHelpful = true;
+			break;
+		}
+	}
+	return isHelpful;
+}
+
+function arrayContainsItem(arr, item) {
+	var numItems = arr.length;
+	var isContained = false;
+	for( var i=0; i<numItems; i++ ) {
+		if(arr[i]==item) {
+			isContained = true;
+			break;
+		}
+	}
+	return isContained;
 }

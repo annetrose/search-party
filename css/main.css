@@ -435,7 +435,7 @@ h3 {
 	background-color: #FFFF66;
 }
 .data_display_item.selected {
-	font-weight: bold;
+	/* font-weight: bold; */
 }
 
 tr.dbg_log.even td {
