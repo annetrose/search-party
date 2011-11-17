@@ -13,7 +13,7 @@ class StudentPage(PersonPage):
 		self.load_search_party_context(user_type="student")
 
 		if not self.is_student:
-			self.redirect_with_msg('Not a student')
+			self.redirect_with_msg('Please log in again.')
 		else:
 			lesson = self.student.lesson
 			lesson_code = lesson.lesson_code

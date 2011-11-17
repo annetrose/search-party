@@ -5,7 +5,7 @@ google.setOnLoadCallback(function() {
 	customSearchControl.setResultSetSize(5);
 	customSearchControl.draw('cse');
 	customSearchControl.setSearchCompleteCallback(null, searchCompleteCallback)
-	customSearchControl.setLinkTarget("result_frame");
+	//customSearchControl.setLinkTarget("result_frame");
 	initEventHandlers();
 }, true);
 

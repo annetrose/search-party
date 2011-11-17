@@ -269,7 +269,7 @@ function AnswerDataItem(answerText, studentNickname) {
 		return [studentAccumulator.getItems(),
 				queryAccumulator.getItems(),
 				wordAccumulator.getItems(),
-				answerAccumulator.getItems()];
+				linkAccumulator.getItems()];
 	}
 }
 
@@ -366,7 +366,6 @@ function LinkDataItem(url, title, count) {
 }
 
 
-
 function QueryAccumulator() {
 	this.add = function(query, studentNickname) {
 		var uniquenessKey = studentNickname + "::" + query;
@@ -419,7 +418,6 @@ function QueryDataItem(query, studentNicknames, count) {
 		$.each(g_students, function (studentNickname,studentInfo) {
 			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
 			$.each(taskInfo.searches, function (i,searchInfo) {
-				var query = searchInfo.query;
 				if( searchInfo.query==query ) {
 					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
 	//				var anyLinksHelpful = false;
@@ -442,7 +440,6 @@ function QueryDataItem(query, studentNicknames, count) {
 				answerAccumulator.getItems()];
 	}
 }
-
 
 
 function StudentAccumulator() {
@@ -498,7 +495,7 @@ function StudentDataItem(studentNickname, isLoggedIn) {
 		var studentNickname = this.studentNickname;
 		var searches = taskInfo.searches;
 		if( answerInfo.text ) {
-			answerAccumulator.add(answerInfo.answerText, studentNickname);
+			answerAccumulator.add(answerInfo.text, studentNickname);
 		}
 
 		$.each(searches, function (i,searchInfo) {
@@ -620,11 +617,6 @@ function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, coun
 				answerAccumulator.getItems()];
 	}
 }
-
-
-
-
-
 
 
 function assembleSupplementalInfo(studentItems, queryItems, wordItems, linkItems, answerItems) {
@@ -1192,351 +1184,3 @@ function asList(items, listType, shouldEscapeAsHTML) {
 	lines.push("</" + listType + ">");
 	return lines.join("");
 }
-
-
-
-//function updateNumStudents_Request() {
-//	// LESSON_CODE is global, defined in the HTML file
-//	// $.getJSON("/query", "qt=num_students", updateNumStudents_Callback);
-//	//$.getJSON("/query", "qt=num_students&lesson_code="+LESSON_CODE, updateNumStudents_Callback);
-//}
-//
-//function updateNumStudents_Callback(data) {
-//    //var numStudents = data['num_students'];
-//    //if (numStudents === 0) {
-//    //    var html = "No students logged in";
-//    //} else {
-//    //    // var html = "# <a href='/student_list'>students</a>: " + numStudents;
-//    //    var html = "# students: " + numStudents;
-//    //}
-//    $("#num_students").html(data["num_students"]);
-//}
-//
-//
-//
-//function displaySearchers_Request(searchTerms) {
-//	//$.getJSON("/query", "qt=search&terms=" + searchTerms, displaySearchers_Callback);
-//}
-//
-//function displaySearchers_Callback(terms) {
-//    var html = terms.join(", ");
-//    var searchers = $("#searchers");
-//    searchers.show();
-//    searchers.html(html);  // TODO:  Escape html.
-//    searchers.css("left", $(this).position().left + searchers.width());
-//    searchers.css("top", $(this).position().top);
-//}
-//
-//
-//
-//function updateStudentActivities_Request(data) {
-//	//$.getJSON("/query", "qt=student_activity&lesson_code=" + LESSON_CODE, updateStudentActivities_Callback);
-//}
-//
-//function updateStudentActivities_Callback(data) {
-//    // Search terms
-//	var searchTerms = data['terms'];
-//	var html = "";
-//	var count = searchTerms.length;
-//	if (count > 0) {
-//	    html += "<ul>";
-//	    for (i in searchTerms) {
-//		    var j = count - 1 - i;
-//		    var term = searchTerms[j][0];
-//		    var termCount = searchTerms[j][1];
-//		    html += "<li><a class='term'>" + term + "</a> (" + termCount + ")</li>";
-//	    }
-//	    html += "</ul>";
-//    } else {
-//        html = "&lt;none&gt;";
-//    }
-//	$("#searchTerms").html(html);
-//
-//    // Followed links
-//	var links = data['links'];
-//	var html = "";
-//	var count = links.length;
-//	if (count > 0) {
-//	    html += "<ul>";
-//	    for (i in links) {
-//	        var j = count - 1 - i;
-//		    var link = links[j][0];
-//		    var linkCount = links[j][1];
-//		    html += "<li><a href='" + link + "' target='_blank'>" + link + "</a> (" + linkCount + ")</li>";
-//	    }
-//	    html += "</ul>";
-//    } else {
-//        html = "&lt;none&gt;";
-//    }
-//	$("#links").html(html);
-//	
-//	$(".term").mouseenter(function() {
-//	    var searchTerms = $(this).html();
-//		displaySearchers_Request(searchTerms);
-//        var searchers = $("#searchers");
-//        searchers.css("height", "20px");
-//        searchers.css("left", $(this).position().left + $(this).width() + 30);
-//        searchers.css("top", $(this).position().top - (searchers.height() - $(this).height()));
-//	});
-//	$(".term").mouseleave(function() {
-//	    $("#searchers").hide();
-//    });
-//}
-//
-//
-//function updateStudents_Request() {
-//	//$.getJSON("/query", "qt=students&lesson_code"+LESSON_CODE, updateStudents_Callback);  // for students list
-//}
-//
-//function updateStudents_Callback(data) {
-//	var students = data;
-//	var html;
-//	if (students.length == 0) {
-//	    html = "No students logged in";
-//	} else {
-//	    html = "Currently logged in students:";
-//	    html += "<ul>";
-//	    for (var i in students) {
-//	        var student = students[i];
-//	        var name = student[0];
-//	        var activities = student[1];
-//		    html += "<li>" + name + ": ";
-//		    for (var j in activities) {
-//		        if (j > 0) {
-//		            html += " => ";
-//		        }
-//		        var activity = activities[j];
-//		        var activityType = activity[0];
-//		        var action = activity[1];
-//		        if (activityType == 'search') {
-//		            html += action;
-//	            } else if (activityType == 'link') {
-//	                html += "<a href = '" + action + "'>" + action + "</a>";
-//		        }
-//		    }
-//	    }
-//	    html += "</ul>";
-//    }
-//	$("#students").html(html);
-//}
-
-//function onSocketMessage(msg) {
-//	// Note:  Messages are limited to 32K.  This is not an issue now, but it
-//	// might come up in the future.
-//	//
-//	// http://code.google.com/appengine/docs/python/channel/overview.html
-//
-//	alert(msg.data)
-//    var state = JSON.parse(msg.data);
-//	var sinceStr;
-//	var shouldUpdateNumStudents=false;
-//	var shouldUpdateTermsAndLinks=false;
-//    if (state.change == "student_login") {
-//		updateNumStudents_Request();
-//    }
-//	else if (state.change == "student_logout") {
-//		updateNumStudents_Request();
-//		updateStudents_Request();
-//    }
-//	else if (state.change == "student_search") {
-//		updateStudentActivities_Request();
-//		updateStudents_Request();
-//    }
-//	else if (state.change == "student_link_followed") {
-//		updateStudentActivities_Request();
-//		updateStudents_Request();
-//    }
-//	else if ('log' in state) {
-//        $("#log").append(state.log + "<br>");
-//    } 
-//}
-//
-//function updateWords() {
-//	var taskIdx = selectedTaskIdx();
-//	var wordOccurrenceDict = {};
-//	var queries = getQueriesSpaceNormalized(taskIdx);
-//	var numQueries = queries.length;
-//	for(var queryIdx=0; queryIdx<numQueries; queryIdx++) {
-//		var query = queries[queryIdx];
-//		var wordsInQuery = query.split(" ");
-//		var numWordsInQuery = wordsInQuery.length;
-//		for(var wordInQueryIdx=0; wordInQueryIdx<numWordsInQuery; wordInQueryIdx++) {
-//			var wordInQuery = wordsInQuery[wordInQueryIdx];
-//			if(!isStopWord(wordInQuery)) {
-//				var currentOccurrenceCount = wordOccurrenceDict[wordInQuery];
-//				if(currentOccurrenceCount==undefined) {
-//					currentOccurrenceCount = 0;
-//				}
-//				wordOccurrenceDict[wordInQuery] = currentOccurrenceCount + 1;
-//			}
-//		}
-//	}
-//
-//	var wordList = [];
-//	for(var word in wordOccurrenceDict) {
-//		wordList.push(word);
-//	}
-//	wordList.sort(function (a,b) {
-//		// Sort in DESCENDING order of occurrences.
-//		var aOccurrences = wordOccurrenceDict[a];
-//		var bOccurrences = wordOccurrenceDict[b];
-//		return (aOccurrences > bOccurrences ? -1 : (aOccurrences < bOccurrences ? 1 : 0));
-//	});
-//
-//	var lines = [];
-//	lines.push('<table class="occurrences_table">');
-//	for(var wordIdx in wordList) {
-//		var word = wordList[wordIdx];
-//		var occurrences = wordOccurrenceDict[word];
-//		row_html = '<tr><td class="occurences_num">' + occurrences + '</td><td class="occurrences_times_symbol">&times;</td><td class="occurrences_item">' + escapeForHtml(word) + '</td></tr>';
-//		lines.push(row_html);
-//	}
-//	lines.push('</table>');
-//
-//	var html = lines.join("");
-//	$("#words").html(html);
-//}
-
-//function initializeGraph() {
-////    var width = $(document).width() - 20;
-////    var height = $(document).height() - 60;
-//    var width = 811;
-//    var height = 334;
-//    g = new Graph();
-//    g.addNode("Marty");
-//    g.addNode("Allison");
-//    g.addNode("Tasha");
-//    g.addNode("Ben");
-//    g.addNode("Emma");
-//	g.addEdge("Marty",   "Allison", {label:"aardvark, pajamas, nighty, slippers"})
-//	g.addEdge("Allison", "Emma",    {label:"aardvark, pajamas, blanket"})
-//	g.addEdge("Emma", "Ben",    {label:"warm, night, cold"})
-//	g.addEdge("Ben", "Tasha",    {label:"animal, nightware, ants, warm"})
-//	g.addEdge("Tasha", "Marty",    {label:"aardvark, slippers, nighty, ants, warm, night"})
-//	g.addEdge("Ben", "Marty",    {label:"aardvark, warm, night, ants"})
-//
-//    /* layout the graph using the Spring layout implementation */
-//    var layouter = new Graph.Layout.Spring(g);
-//    
-//    /* draw the graph using the RaphaelJS draw implementation */
-//    var renderer = new Graph.Renderer.Raphael('canvas', g, width, height);
-//    
-//    redraw_graph = function() {
-//        layouter.layout();
-//        renderer.draw();
-//    };
-//}
-
-/*
-function updateStudents_OLD() {
-	var studentNames = getStudentNames();
-	var lines = [];
-	lines.push("<ol>");
-	$.each(g_students, function(studentNickname, studentInfo) {
-	});
-	var numStudents = studentNames.length;
-	for( var i=0; i<numStudents; i++ ) {
-		var student_nickname = studentNames[i];
-		var attribs = (g_students[student_nickname].logged_in ? '' : ' style="color:gray"');
-		var annotation = (g_students[student_nickname].logged_in ? '' : ' (logged out)');
-		lines.push("<li" + attribs + ">" + student_nickname + annotation + "</li>");
-	}
-	lines.push("</ol>");
-	var html = lines.join("");
-	$("#students").html(html);
-}
-
-
-function updateStudents_MESSY_TABLE() {
-	var maxLinkTitleLength = 30;
-	var taskIdx = selectedTaskIdx();
-	var lines=[];
-	var studentNames = getStudentNames();
-	var studentsLoggedIn=[], studentsLoggedOut=[];
-
-	// Put logged in students ahead of logged out students, but display both..
-	for(var studentIdx in studentNames) {
-		var studentNickname = studentNames[studentIdx];
-		if(g_students[studentNickname].logged_in) {
-			studentsLoggedIn.push(studentNickname);
-		}
-		else {
-			studentsLoggedOut.push(studentNickname);
-		}
-	}
-	studentNames.length = 0;
-	for(var studentIdx in studentsLoggedIn) {
-		studentNames.push(studentsLoggedIn[studentIdx]);
-	}
-	for(var studentIdx in studentsLoggedOut) {
-		studentNames.push(studentsLoggedOut[studentIdx]);
-	}
-	lines.push('<table id="student_table" border="1">');
-	lines.push('<thead>')
-	lines.push('<th>Name</th>')
-	lines.push('<th>Query</th>')
-	lines.push('<th>Link followed</th>')
-	lines.push('</thead>')
-	lines.push('<tbody>')
-	for(var studentIdx in studentNames) {
-		var studentNickname = studentNames[studentIdx];
-		var studentInfo = g_students[studentNickname];
-		var loggedIn = studentInfo.logged_in;
-		var loggedInOrOutClass = (loggedIn ? "" : " logged_out");
-		var taskInfo = studentInfo.tasks[taskIdx];
-		var searches = taskInfo.searches;
-		var answer = taskInfo.answer;
-
-		// Find rowspan for student name cell.
-		var rowSpanStudent = 0;
-		if(searches.length==0) {
-			rowSpanStudent = 1;
-		}
-		else {
-			rowSpanStudent = 0;
-			for(var searchIdx in searches) {
-				var searchInfo = searches[searchIdx];
-				var numLinksFollowed = searchInfo.links_followed.length;
-				rowSpanStudent += (numLinksFollowed==0 ? 1 : numLinksFollowed);
-			}
-		}
-		lines.push('<td class="st_student' + loggedInOrOutClass + '" rowspan="' + rowSpanStudent + '">' + studentNickname + "</td>");
-		if(searches.length==0) {
-			lines.push('<td class="st_query nothing_done" colspan="2">&empty;</td>')
-			lines.push("</tr>")
-		}
-		else {
-			for(var searchIdx in searches) {
-				var searchInfo = searches[searchIdx];
-				var query = searchInfo.query;
-				var linksFollowed = searchInfo.links_followed;
-				var numLinksFollowed = linksFollowed.length;
-				var rowSpanQuery = (numLinksFollowed <= 1 ? 1 : numLinksFollowed);
-				if(searchIdx > 0) {
-					lines.push("<tr>")
-				}
-				lines.push('<td class="st_query' + loggedInOrOutClass + '" rowspan="' + rowSpanQuery + '">' + query + "</td>");
-				if(linksFollowed.length==0) {
-					lines.push('<td class="st_link nothing_done' + loggedInOrOutClass + '">&empty;</td>')
-					lines.push('</tr>')
-				}
-				else {
-					for(var linkIdx in linksFollowed) {
-						if(linkIdx > 0) {
-							lines.push("<tr>")
-						}
-						var link = linksFollowed[linkIdx];
-						lines.push('<td class="st_link' + loggedInOrOutClass + '">' + makeLinkHTML(link, null) + '</td>');
-						lines.push("</tr>")
-					}
-				}
-			}
-		}
-		lines.push('</tr>')
-	}
-	lines.push('</tbody>')
-	lines.push("</table>")
-	var html = lines.join("");
-	$("#students").html(html);
-}
-*/
