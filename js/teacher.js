@@ -350,17 +350,19 @@ function QueryDataItem(query, studentNicknames, count) {
 			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
 			$.each(taskInfo.searches, function (i,searchInfo) {
 				var query = searchInfo.query;
-				studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
-//				var anyLinksHelpful = false;
-				$.each(searchInfo.links_followed, function (j,linkInfo) {
-					linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful,
-										query, studentNickname);
-//					anyLinksHelpful = anyLinksHelpful || linkInfo.is_helpful;
-				});
-				$.each(getWordsForQuery(query), function (j,word) {
-					wordAccumulator.add(word, query, studentNickname);
-				});
-				answerAccumulator.add(taskInfo.answer.text, studentNickname);
+				if( query==this.query ) {
+					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
+	//				var anyLinksHelpful = false;
+					$.each(searchInfo.links_followed, function (j,linkInfo) {
+						linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful,
+											query, studentNickname);
+	//					anyLinksHelpful = anyLinksHelpful || linkInfo.is_helpful;
+					});
+					$.each(getWordsForQuery(query), function (j,word) {
+						wordAccumulator.add(word, query, studentNickname);
+					});
+					answerAccumulator.add(taskInfo.answer.text, studentNickname);
+				}
 			});
 		});
 
@@ -511,6 +513,36 @@ function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, coun
 	this.studentNicknames = studentNicknames;
 	this.asHTML = function() {
 		return escapeForHtml(this.wordsStr) + ' &times; ' + this.count;
+	}
+	this.getAnnotationsItemLists = function() {
+		var studentAccumulator = new StudentAccumulator();
+		var queryAccumulator = new QueryAccumulator();
+//		var wordAccumulator = new WordAccumulator();
+		var answerAccumulator = new AnswerAccumulator();
+		var linkAccumulator = new LinkAccumulator();
+
+		$.each(g_students, function (studentNickname,studentInfo) {
+			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
+			$.each(taskInfo.searches, function (i,searchInfo) {
+				var query = searchInfo.query;
+				studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
+//				var anyLinksHelpful = false;
+				$.each(searchInfo.links_followed, function (j,linkInfo) {
+					linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful,
+										query, studentNickname);
+//					anyLinksHelpful = anyLinksHelpful || linkInfo.is_helpful;
+				});
+				$.each(getWordsForQuery(query), function (j,word) {
+					wordAccumulator.add(word, query, studentNickname);
+				});
+				answerAccumulator.add(taskInfo.answer.text, studentNickname);
+			});
+		});
+
+		return [studentAccumulator.getItems(),
+				wordAccumulator.getItems(),
+				linkAccumulator.getItems(),
+				answerAccumulator.getItems()];
 	}
 }
 

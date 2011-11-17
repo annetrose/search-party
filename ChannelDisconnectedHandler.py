@@ -25,9 +25,12 @@ class ChannelDisconnectedHandler(SearchPartyChannelHandler):
 				person.put()
 				log("Client ID removed for %s"%(self.person_type))
 			elif self.is_teacher:
+				log( "*************************************************************************")
 				log( "%s disconnected, but we will NOT remove the client ID ` ` ` ` ` ` ` ` ` `"%(self.person_type.title()) )
+				log( "*************************************************************************")
+
 
 			if self.is_student:
 				student = person
-				student.log_out(clear_session_sid=False)
+				student.log_out(clear_session_sid=settings.CLEAR_SESSION_ID_ON_STUDENT_DISCONNECT)
 				log("Student logged out")

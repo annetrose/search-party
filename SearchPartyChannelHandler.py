@@ -30,6 +30,14 @@ class SearchPartyChannelHandler(webapp.RequestHandler):
 		self.is_student = (person_type=="student")
 		self.is_teacher = (person_type=="teacher")
 		self.person_type = person_type
+
+	def log_status(self):
+		from helpers import log, smush
+		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
+		log( "...........  student="+repr(self.student) )
+		log( "...........  teacher="+repr(self.teacher) )
+		log( ".........  client_id="+repr(self.client_id) )
+		log( "........len(cookies)=%d"%(len(self.request.cookies)) )
 	
 	@property
 	def person(self):
