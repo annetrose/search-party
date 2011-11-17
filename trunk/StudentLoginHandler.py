@@ -84,6 +84,7 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 		except StudentLoginException, e:
 			e.log()
 			self.set_person(None)
-			self.session['msg'] = e.args[0]
+			msg = e.args[0]
+			self.session['msg'] = msg
 			self.response.out.write(json.dumps({"status":"logged_out"}))
-			log( "LOGIN FAILURE" )
+			log( "LOGIN FAILURE:  %s"%msg )

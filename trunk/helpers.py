@@ -81,3 +81,13 @@ def chop(s, to_length, num_dots=3):
 		front_len = to_length - num_dots
 		s = s[:front_len] + "."*num_dots
 	return s
+
+def get_one_or_none(iterable, default=None):
+	items = tuple(iterable)
+	if len(items)==1:
+		return items[0]
+	elif len(items)==0:
+		return default
+	else:
+		raise ValueError("Expected either 0 or 1 items.  Found %d items. : %r"%(len(items), items))
+

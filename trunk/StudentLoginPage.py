@@ -12,10 +12,13 @@ class StudentLoginPage(SearchPartyRequestHandler):
 		from helpers import log
 		log("STUDENTLOGIN")
 		self.load_search_party_context()
-		self.clear_session()
 		template_values = {
 			'header': self.gen_header("student"),
 		}
 		if self.session.has_key('msg'):
 			template_values['msg'] = self.session.pop('msg')  # only show the message once
+			log( "--------------------------------------------------------" )
+			log( "Popped msg:  %s"%template_values["msg"] )
+
+		self.clear_session()
 		self.write_response_with_template("student_login.html", template_values)
