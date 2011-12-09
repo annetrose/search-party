@@ -265,6 +265,24 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 		self.response.headers["Content-Type"] = "text/plain"
 		self.response.out.write(s)
 
+	def write_response_as_file(self, encoded_content, content_type, filename, encoding):
+		# Filename may consist of only letters, numbers, period, underscore, and hyphen.
+
+		import re
+		assert re.match(r"^[-_.a-zA-Z0-9]+$", filename) is not None, repr(filename)
+
+		if encoding is not None:
+			content_type += "; charset=%s"%encoding
+
+		self.response.headers["Content-Type"] = content_type
+		self.response.headers["Content-Disposition"] = 'attachment; filename="%s"'%filename
+		
+#		if encoding is not None:
+#			self.response.headers["Content-Transfer-Encoding"] = "encoding"
+
+		self.response.out.write(encoded_content)
+
+
 	def render_template(self, file, template_vals):
 		from google.appengine.ext.webapp import template
 		from helpers import prettify_html

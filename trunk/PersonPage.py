@@ -15,6 +15,7 @@ class PersonPage(SearchPartyRequestHandler):
 
 		from model import Student, StudentActivity
 		from helpers import log
+		import settings
 
 		if student is not None:
 			students = (student,)
@@ -44,9 +45,13 @@ class PersonPage(SearchPartyRequestHandler):
 
 			link_infos_and_ratings = {}  # (student_nickname,task_idx,link_url) -> ([link_info,...], is_helpful)
 
-			activities = StudentActivity.all().filter(filter_key, filter_value).fetch(10000) # PERFORMANCE: Generator might be inefficient
-			assert len(activities) < 10000, "Upper bound is apparently not big enough."
-			activities.sort(key=lambda sa:sa.timestamp)
+			activities = StudentActivity.fetch_all(filter_key, filter_value)
+#			activities = StudentActivity.all().filter(filter_key, filter_value).fetch(10000) # PERFORMANCE: Generator might be inefficient
+#			if settings.DEBUG:
+#				assert len(activities) < 10000, "Upper bound is apparently not big enough."
+#			else:
+#				activities = tuple( StudentActivity.all().filter(filter_key, filter_value) )
+#			activities.sort(key=lambda sa:sa.timestamp)
 
 			for activity in activities:
 				student_nickname = activity.student_nickname

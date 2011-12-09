@@ -50,6 +50,14 @@
   <p>
     # students logged in: <span id="num_students">__</span>
   </p>
+  <p id="data_dump_link_container">
+  <script type="text/javascript">
+  // <![CDATA[
+    var utc_offset_minutes = (new Date()).getTimezoneOffset();
+    document.write('<a href="/data_dump?lesson_code={{lesson.lesson_code}}&utc_offset_minutes=' + utc_offset_minutes + '" title="download">Download</a>')
+  // ]]>
+  </script>
+  </p>
 {% endblock %}
 
 

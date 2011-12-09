@@ -170,6 +170,9 @@ table.lesson, table.task {
 	margin-left: 12px;
 	margin-right: 12px;
 }
+table.lesson td {
+	vertical-align: top;
+}
 div.teacher_pane {
 	display: none;
 }
@@ -186,24 +189,24 @@ button.load_btn[disabled=true] {
 	color: ButtonShadow;
 	cursor: text;
 }
+td.task_title, td.lesson_title, td.class_name, td.task_description, td.lesson_description, td.task_number {
+	padding: 7px;
+}
 td.task_title {
 	width: 170px;
-	padding: 7px;
 }
 td.class_name {
 	width: 380px;
-	padding: 7px;
 }
-td.task_description_field {
+td.task_description, td.task_description_field {
 	width: 450px;
-	padding: 7px;
 }
 td.lesson_description {
 	width: 650px;
-	padding: 7px;
 }
 td.task_number {
 	width: 10px;
+	font-weight: bold;
 }
 td.task_title input, td.lesson_title input, td.lesson_password input, td.task_description_field textarea,
 					td.lesson_description textarea, td.class_name input {
@@ -216,7 +219,12 @@ h3 {
 table.occurrences_table td {
 	padding: 4pt;
 }
-
+#create_lesson_pane {
+	display: none;
+}
+#lesson_pane {
+	display: none;
+}
 #queries_list {
 }
 
@@ -254,8 +262,29 @@ h3 {
 .logged_out {
 	color: #888888;
 }
-#result_page_container h3 {
+#rate_result_to_continue {
 	margin: 0px;
+	margin-bottom: 12px;
+}
+#result_page_container {
+	border: 0px;
+}
+#result_page_title {
+	background-color: #F6F6CF;
+	padding: 8px;
+}
+#result_frame_container {
+	border: 5px ridge black;
+}
+
+#result_frame {
+	border: 1px;
+	width: 100%;
+	height: 10000px;
+}
+#custom_search_element {
+	width: 100%;
+	height: 600px;
 }
 /********  SCHEME0 ********/
 .query_history_links.scheme0 a {
@@ -450,6 +479,11 @@ tr.dbg_log.odd td {
 }
 .studentLoggedIn {
 	color: #000000;
+}
+
+#data_dump_link_container {
+	text-align: center;
+	margin-top: 48px;
 }
 /*
 ol.query_history_links {

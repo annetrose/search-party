@@ -1,11 +1,11 @@
 /*
 # SearchParty - Learning to Search in a Web-Based Classroom
-# Author: Ben Bederson - www.cs.umd.edu/~bederson
-#         University of Maryland, Human-Computer Interaction Lab - www.cs.umd.edu/hcil
+# Authors: Ben Bederson - www.cs.umd.edu/~bederson
+#          Alex Quinn -- www.alexquinn.org
+#          University of Maryland, Human-Computer Interaction Lab - www.cs.umd.edu/hcil
 # Date: Originally created July 2011
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 */
-
 
 ///////////////////////////////////////////////////////////
 // UPDATING UI
@@ -33,8 +33,6 @@ function updateUI() {
 			case "answers":
 				updateAnswers();
 				break;
-	//		case "common":
-	//			break;
 			default:
 				break;
 		}
@@ -45,104 +43,10 @@ function updateUI() {
 	}
 }
 
-function onTaskChanged(taskIdx) {
-	updateUI();
-}
-
 function updateSideBarInfo() {
 	// Number of students
 	var numStudents = calculateNumStudents();
 	$("#num_students").html(numStudents);
-}
-
-function countUnique(list) {
-	var set={};
-	var listLength=list.length;
-	for(var i=0; i < listLength; i++) {
-		set[list[i]] = true;
-	}
-	var numUnique = 0;
-	for(var item in set) {
-		numUnique += 1;
-	}
-	return numUnique;
-}
-
-function renderDataList(targetId, itemList) {
-	var dataItems = itemList.items;
-	var parts = [];
-	parts.push('<ol>');
-	$.each(itemList.items, function(idx,dataItem) {
-		parts.push('<li>');
-		parts.push(dataItem.asHTML());
-		parts.push('</li>');
-	});
-	parts.push('</ol>');
-	var html = parts.join("");
-	var selector = "#" + targetId;
-	$(selector).html(html)
-	$(selector).each( function(idx,displayItem) {
-		// CLOSURE:  Will this work right?  Will we have the right value of idx?
-		var data = {
-			item:dataItems[idx],
-			idx: idx,
-			displayItem: displayItem
-		};
-		$(this).click(data, onDataListItemClicked);
-	});
-}
-
-function onDataListItemClicked(eventObject) {
-	var target = eventObject.target;
-	var data = eventObject.data;
-	var type = data.type;
-	var $target = $(target);
-	var isSelected = $target.hasClass("selected");
-	deselectAnnotation();
-	if( isSelected ) {
-		hideAnnotations();
-		if( g_updatesAreWaiting ) {
-			updateUI();
-		}
-	}
-	else {
-		$target.addClass("selected");
-		showAnnotations(data.displayItem, data.item);
-	}
-}
-
-function deselectAnnotation() {
-	$(".data_display_item.selected").removeClass("selected");
-}
-
-function hideAnnotations(displayItem, item) {
-	deselectAnnotation();
-	var $data_display_annotation = $("#data_display_annotation");
-	$data_display_annotation.hide();
-	$data_display_annotation.html("");
-}
-function showAnnotations(displayItem, item) {
-	var $data_display_annotation = $("#data_display_annotation");
-	var $displayItem = $(displayItem);
-	var offset = $displayItem.offset();
-	var parts = [];
-	$.each(item.getAnnotationsItemLists(), function (i,itemList) {
-		parts.push(itemList.asHTML());
-	});
-	var html = parts.join("");
-	$data_display_annotation.html(html);
-	var minimumAnnotationDivHeight = 241;  // discovered experimentally in Opera
-	var top = (offset.top - minimumAnnotationDivHeight);
-	var scrollPosition = $("html").scrollTop();
-	var containerTop = $("#data_display_container").offset().top;
-	var minTop = Math.max(scrollPosition, containerTop);
-	top = Math.max(top, minTop);
-	$data_display_annotation.css({
-//		top: (offset.top - 260) + "px",
-		top: top + "px",
-		left: (offset.left + $displayItem.parent().width() - 10) + "px",
-	});
-	$data_display_annotation.show();
 }
 
 function updateButtonTitles() {
@@ -186,6 +90,81 @@ function updateButtonTitles() {
 	document.getElementById(loadButtonId("answers" )).innerHTML = "Answers ("  + numAnswers + ")";
 }
 
+function updateAnswers() {
+	var accumulator = new AnswerAccumulator();
+	$.each(g_students, function (studentNickname,studentInfo) {
+		var answerText = studentInfo.tasks[selectedTaskIdx()].answer.text;
+		accumulator.add(answerText, studentNickname)
+	});
+	updateAnyWithItems(accumulator.getItems());
+}
+
+function updateStudents() {
+	var accumulator = new StudentAccumulator();
+	var studentNames = keysOfObject(g_students);
+	$.each(studentNames, function(i, studentNickname) {
+		var isLoggedIn = g_students[studentNickname].logged_in;
+		accumulator.add(studentNickname, isLoggedIn);
+	});
+	updateAnyWithItems(accumulator.getItems());
+}
+
+function updateLinks() {
+	var accumulator = new LinkAccumulator();
+	$.each(g_students, function (studentNickname,studentInfo) {
+		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
+			var linksFollowed = searchInfo.links_followed;
+			$.each(linksFollowed, function(j, linkInfo) {
+				accumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, searchInfo.query, studentNickname);
+			});
+		});
+	});
+	updateAnyWithItems(accumulator.getItems());
+}
+
+function updateQueries() {
+	var accumulator = new QueryAccumulator();
+	$.each(g_students, function (studentNickname,studentInfo) {
+		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
+			var isHelpful = searchIsHelpful(searchInfo);
+			accumulator.add(searchInfo.query, studentNickname, isHelpful);
+		});
+	});
+	updateAnyWithItems(accumulator.getItems());
+}
+
+function updateWords() {
+	var accumulator = new WordAccumulator();
+	$.each(g_students, function (studentNickname,studentInfo) {
+		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
+			var query = searchInfo.query;
+			var isHelpful = searchIsHelpful(searchInfo);
+			var words = getWordsForQuery(query);
+			$.each(words, function(j, word) {
+				accumulator.add(word, query, studentNickname, isHelpful);
+			});
+		});
+	});
+	updateAnyWithItems(accumulator.getItems());
+}
+
+function updateAnyWithItems(itemList) {
+	var dataItems = itemList.items;
+	$("#data_display_content").html(itemList.asHTML());
+	$("#data_display_content .data_display_item").each( function(idx,displayItem) {
+		// CLOSURE:  Will this work right?  Will we have the right value of idx?
+		var data = {
+			item:dataItems[idx],
+			idx: idx,
+			displayItem: displayItem
+		};
+		$(this).click(data, onDataListItemClicked);
+	});
+}
+
+///////////////////////////////////////////////////////////
+// AGGREGATION
+//
 
 function DataItem(type, displayText, count, className) {
 // For info on JavaScript OOP, see:
@@ -211,8 +190,6 @@ function ItemList(items, type, title) {
 		}
 		else {
 			var parts = [];
-			var type = this.type;
-//			parts.push('<div>');
 			parts.push('<ol>');
 			$.each(items, function(idx,dataItem) {
 				parts.push('<li class="data_display_item">');
@@ -220,11 +197,6 @@ function ItemList(items, type, title) {
 				parts.push('</li>');
 			});
 			parts.push('</ol>');
-//			parts.push('<a href="#" onclick="$(this).parent().find(\'li + li + li + li + li + li li\')">Expand</a>')
-//			parts.push('</div>');
-	//		if(DEBUG_MODE) {
-	//			parts.push('<div><tt><pre>' + JSON.stringify(this) + '</pre></tt></div>');
-	//		}
 			html = parts.join("");
 		}
 		return html;
@@ -256,7 +228,6 @@ function AnswerAccumulator() {
 
 	this._answersByStudent = {};
 }
-
 
 function AnswerDataItem(answerText, studentNickname) {
 	this._super = DataItem;
@@ -430,7 +401,6 @@ function LinkDataItem(url, title, count, ratings) {
 	}
 }
 
-
 function QueryAccumulator() {
 	this.add = function(query, studentNickname, isHelpful) {
 		var uniquenessKey = studentNickname + "::" + query;
@@ -509,7 +479,6 @@ function QueryDataItem(query, studentNicknames, count, ratings) {
 				answerAccumulator.getItems()];
 	}
 }
-
 
 function StudentAccumulator() {
 	this.add = function(studentNickname, isLoggedIn) {
@@ -593,7 +562,6 @@ function StudentDataItem(studentNickname, isLoggedIn) {
 		return html;
 	}
 }
-
 
 function WordAccumulator() {
 	this.add = function(word, query, studentNickname, isHelpful) {
@@ -699,129 +667,9 @@ function WordDataItem(wordsStr, wordsDict, stem, queries, studentNicknames, coun
 	}
 }
 
-
-function assembleSupplementalInfo(studentItems, queryItems, wordItems, linkItems, answerItems) {
-	var info = [];
-	if( studentItems !== null )
-		info.push({items:studentItems, title:"Students"});
-	if( queryItems !== null )
-		info.push({items:queryItems, title:"Queries"});
-	if( wordItems !== null )
-		info.push({items:wordItems, title:"Words"});
-	if( linkItems !== null )
-		info.push({items:linkItems, title:"Links"});
-	if( answerItems !== null ) {
-		info.push({items:answerItems, title:"Answers"});
-	}
-}
-
-function copyOfArray(arr) {
-	var newArray = [];
-	var numItems = arr.length;
-	for(var i=0; i<numItems; i++) {
-		newArray.push( arr[i] );
-	}
-	return newArray;
-}
-
-function keysOfObjectSortedByValueDescending(o) {
-	var keys = keysOfObject(o);
-	keys.sort(function (a,b) {
-		var aValue = o[a];
-		var bValue = o[b];
-		return (a > b ? -1 : (a < b ? 1 : 0));
-	});
-	return keys;
-}
-
-function keysOfObject(o) {
-	var keys = [];
-	$.each(o, function (k,v) {
-		for(var k in o) {
-			keys.push(k);
-		}
-	});
-	return keys;
-}
-
-function sortInPlaceByCountDescending(occurrences, secondarySortKey) {
-	occurrences.sort(function (a,b) {
-		var aCount = a.count;
-		var bCount = b.count;
-		var result = (aCount > bCount ? -1 : (aCount < bCount ? 1 : 0));
-		if( result===0 && secondarySortKey ) {
-			var aKey = a[secondarySortKey];
-			aKey = (((typeof aKey)=="string") ? aKey.toLowerCase() : aKey);
-			var bKey = b[secondarySortKey];
-			bKey = (((typeof bKey)=="string") ? bKey.toLowerCase() : bKey);
-			result = (aKey > bKey ? 1 : (aKey < bKey ? -1 : 0));
-		}
-		return result;
-	});
-}
-function valuesOfObject(o) {
-	var values = [];
-	for(var k in o) {
-		values.push(o[k]);
-	};
-	return values;
-}
-
-function getWordsForQuery(query) {
-	query = normalizeSpacing(query);
-	words = query.split(" ");
-	return words;
-}
-
-function assert(condition, msg) {
-	if(!condition) {
-		var s = JSON.stringify(condition);
-		if( msg !== undefined ) {
-			s = msg + "\n\n" + s;
-		}
-		alert(msg);
-	}
-}
-
-function updateStudents() {
-	var accumulator = new StudentAccumulator();
-	var studentNames = keysOfObject(g_students);
-	$.each(studentNames, function(i, studentNickname) {
-		var isLoggedIn = g_students[studentNickname].logged_in;
-		accumulator.add(studentNickname, isLoggedIn);
-	});
-	updateAnyWithItems(accumulator.getItems());
-}
-
-function updateAnyWithItems(itemList) {
-	var dataItems = itemList.items;
-	$("#data_display_content").html(itemList.asHTML());
-//	renderDataList("data_display_content", accumulator.getItems());
-	$("#data_display_content .data_display_item").each( function(idx,displayItem) {
-		// CLOSURE:  Will this work right?  Will we have the right value of idx?
-		var data = {
-			item:dataItems[idx],
-			idx: idx,
-			displayItem: displayItem
-		};
-		$(this).click(data, onDataListItemClicked);
-	});
-}
-
-function updateQueries() {
-	// Include only queries for the currently selected task.
-	
-	var accumulator = new QueryAccumulator();
-	var taskIdx = selectedTaskIdx();
-	$.each(g_students, function (studentNickname,studentInfo) {
-		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
-			var isHelpful = searchIsHelpful(searchInfo);
-			accumulator.add(searchInfo.query, studentNickname, isHelpful);
-		});
-	});
-	updateAnyWithItems(accumulator.getItems());
-}
-
+///////////////////////////////////////////////////////////
+// STEMMING and LANGUAGE STUFF
+//
 
 function isStopWord(word) {
 	var stopWordsSet = isStopWord._stopWordsSet;
@@ -874,187 +722,18 @@ function getWordStem(word) {
 	return stem;
 }
 
-function aggregateWords(words) {
-	var numWords = words.length;
-
-	// Make a copy of the list of words, sorted case-insensitive
-	var wordsSorted = [];
-	for(var i=0; i<numWords; i++) {
-		wordsSorted.push(words[i]);
-	}
-	wordsSorted.sort(function (a,b) {
-		var aLower = a.toLowerCase();
-		var bLower = b.toLowerCase();
-		return (aLower < bLower ? -1 : (aLower > bLower ? 1 : 0)); // ASCENDING
-	});
-
-	var wordsByStem = {};
-	var stemInfos = [];
-	for(var i=0; i<numWords; i++) {
-		var word = wordsSorted[i];
-		var stem = getWordStem(word).toLowerCase();
-		var stemInfo = wordsByStem[stem];
-		if( stemInfo==undefined ) {
-			stemInfo = {
-				stem : stem,
-				totalWords : 0,
-				wordCounts : {},
-				words : []
-			};
-			wordsByStem[stem] = stemInfo;
-			stemInfos.push(stemInfo);
-		}
-		stemInfo.totalWords += 1;
-		var wordCount = stemInfo.wordCounts[word];
-		if( wordCount==undefined ) {
-			wordCount = 0;
-			stemInfo.words.push(word);
-		}
-		wordCount += 1;
-		stemInfo.wordCounts[word] = wordCount;
-	}
-	
-	stemInfos.sort( function (a,b) {
-		var aTotalWords = a.totalWords;
-		var bTotalWords = b.totalWords;
-		return (aTotalWords < bTotalWords ? 1 : (aTotalWords > bTotalWords ? -1 : 0)); // DESCENDING
-	});
-
-	var numStemInfos = stemInfos.length;
-	for(var i=0; i<numStemInfos; i++) {
-		var stemInfo = stemInfos[i];
-		var words = stemInfo.words;
-		var wordCounts = stemInfo.wordCounts;
-		words.sort( function (a,b) {
-			var aWordCount = wordCounts[a];
-			var bWordCount = wordCounts[b];
-			return (aWordCount < bWordCount ? 1 : (aWordCount > bWordCount ? -1 : 0));  // DESCENDING
-		});
-		stemInfo.mostFrequentWord = words[0];
-	}
-
-	return stemInfos;
-}
-
-function updateWords() {
-	var accumulator = new WordAccumulator();
-	var taskIdx = selectedTaskIdx();
-	$.each(g_students, function (studentNickname,studentInfo) {
-		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
-			var query = searchInfo.query;
-			var isHelpful = searchIsHelpful(searchInfo);
-			var words = getWordsForQuery(query);
-			$.each(words, function(j, word) {
-				accumulator.add(word, query, studentNickname, isHelpful);
-			});
-		});
-	});
-	updateAnyWithItems(accumulator.getItems());
-}
-
-function updateLinks() {
-	var accumulator = new LinkAccumulator();
-	var taskIdx = selectedTaskIdx();
-	$.each(g_students, function (studentNickname,studentInfo) {
-		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
-			var linksFollowed = searchInfo.links_followed;
-			$.each(linksFollowed, function(j, linkInfo) {
-				accumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, searchInfo.query, studentNickname);
-			});
-		});
-	});
-	updateAnyWithItems(accumulator.getItems());
-}
-
-function updateAnswers() {
-	var accumulator = new AnswerAccumulator();
-	var taskIdx = selectedTaskIdx();
-	$.each(g_students, function (studentNickname,studentInfo) {
-		var answerText = studentInfo.tasks[selectedTaskIdx()].answer.text;
-		accumulator.add(answerText, studentNickname)
-	});
-	updateAnyWithItems(accumulator.getItems());
-}
-
-function getQueriesSpaceNormalized(taskIdx) {
-	var queries = [];
-	for(var studentNickname in g_students) {
-		var searches = g_students[studentNickname].tasks[taskIdx].searches;
-		for(var searchIdx in searches) {
-			var query = searches[searchIdx].query;
-			query = normalizeSpacing(query);
-			queries.push(query);
-		}
-	}
-	return queries;
-}
-
-function sortAndDeDupeAsCopy(list) {
-	return _sortAndDeDupe(list, false);
-}
-function sortAndDeDupeInPlace(list) {
-	_sortAndDeDupe(list, true);
-}
-function _sortAndDeDupe(list, inPlace) {
-	var sortedList = [];
-	var numItems = list.length;
-
-	// Copy
-	for(var i=0; i<numItems; i++) {
-		sortedList.push(list[i]);
-	}
-
-	// Sort
-	sortedList.sort();
-
-	// Decide where to put the results
-	var sortedAndDeDupedList;
-	if(inPlace==true) {
-		list.length = 0;  // This will clear the array.  See section 15:4 in ECMAScript 5 standard.
-		                  // Thanks Matthew Crumley, http://stackoverflow.com/questions/1232040/how-to-empty-an-array-in-javascript
-		sortedAndDeDupedList = list;
-	}
-	else {
-		sortedAndDeDupedList = [];
-	}
-
-	// Dedupe
-	var lastItem = null;
-	for(var i=0; i<numItems; i++) {
-		var item = sortedList[i];
-		if(i==0 || item!=lastItem) {
-			sortedAndDeDupedList.push(item);
-		}
-		lastItem = item;
-	}
-
-	return sortedAndDeDupedList;
-}
-
 function normalizeSpacing(s) {
 	return s.replace(/\s+/g, " ").trim();
 }
 
-function sortCaseInsensitiveInPlace(list) {
-	function sortFn(a,b) {
-		var aLower = a.toLowerCase();
-		var bLower = b.toLowerCase();
-		if(a > b) {
-			return 1;
-		}
-		else if(a < b) {
-			return -1;
-		}
-		else {
-			return 0;
-		}
-	}
-	list.sort(sortFn);
-}
-
 ///////////////////////////////////////////////////////////
-// RECEIVING UPDATES
+// EVENT HANDLERS
 //
+
+function onTaskChanged(taskIdx) {
+	// onTaskChanged is called from js/task_chooser.js
+	updateUI();
+}
 
 function onSocketMessage(msg) {
 	// Note:  Messages are limited to 32K.  This is not an issue now, but it
@@ -1095,20 +774,11 @@ function onSocketMessage(msg) {
 	}
 }
 
-function onSocketOpen() {
-	alert("Socket opened");
-}
-function onSocketError() {
-	alert("Socket error");
-}
-function onSocketClose() {
-	alert("Socket closed");
-}
-
 function handle_update_query(student_nickname, task_idx, query) {
 	g_students[student_nickname].tasks[task_idx].searches.push({"query":query, "links_followed":[]});
 	updateUI();
 }
+
 function handle_update_link_rated(student_nickname, task_idx, url, is_helpful) {
 	var searches = g_students[student_nickname].tasks[task_idx].searches;
 	var num_searches = searches.length;
@@ -1191,7 +861,6 @@ function handle_update_answer(student_nickname, task_idx, text, explanation) {
 //
 
 var g_currentPaneName = null;
-// g_currentPaneName should be one of "students", "queries", "words", "links", "common", "answers"
 
 function loadPane(paneName) {
 	if(g_currentPaneName !== null) {
@@ -1201,19 +870,17 @@ function loadPane(paneName) {
 	g_currentPaneName = paneName;
 	$("#"+getPaneId(g_currentPaneName)).addClass("selected");
 	$("#"+loadButtonId(g_currentPaneName)).addClass("selected");
-	onPaneChanged(g_currentPaneName);
+	hideAnnotations();
+	updateUI();
 	window.location.hash = g_currentPaneName;
 }
+
 function getPaneId(paneName) {
 	return "pane_" + paneName;
 }
+
 function loadButtonId(paneName) {
 	return "load_" + paneName + "_btn";
-}
-
-function onPaneChanged(newPane) {
-	hideAnnotations();
-	updateUI();
 }
 
 ///////////////////////////////////////////////////////////
@@ -1231,16 +898,144 @@ function initialize() {
 //	socket.onclose = onSocketClose;
 
 	updateUI();
-	//initializeGraph();
 
 	loadPane(START_PANE);
 	window.status = "Loaded";
 }
 
+///////////////////////////////////////////////////////////
+// ANNOTATIONS
+//
+
+function onDataListItemClicked(eventObject) {
+	var target = eventObject.target;
+	var data = eventObject.data;
+	var type = data.type;
+	var $target = $(target);
+	var isSelected = $target.hasClass("selected");
+	deselectAnnotation();
+	if( isSelected ) {
+		hideAnnotations();
+		if( g_updatesAreWaiting ) {
+			updateUI();
+		}
+	}
+	else {
+		$target.addClass("selected");
+		showAnnotations(data.displayItem, data.item);
+	}
+}
+
+function deselectAnnotation() {
+	$(".data_display_item.selected").removeClass("selected");
+}
+
+function hideAnnotations(displayItem, item) {
+	deselectAnnotation();
+	var $data_display_annotation = $("#data_display_annotation");
+	$data_display_annotation.hide();
+	$data_display_annotation.html("");
+}
+
+function showAnnotations(displayItem, item) {
+	var $data_display_annotation = $("#data_display_annotation");
+	var $displayItem = $(displayItem);
+	var offset = $displayItem.offset();
+	var parts = [];
+	$.each(item.getAnnotationsItemLists(), function (i,itemList) {
+		parts.push(itemList.asHTML());
+	});
+	var html = parts.join("");
+	$data_display_annotation.html(html);
+	var minimumAnnotationDivHeight = 241;  // discovered experimentally in Opera
+
+	// Calculate vertical position.
+	var top = (offset.top - minimumAnnotationDivHeight);
+	var scrollPosition = $("html").scrollTop();
+	var containerTop = $("#data_display_container").offset().top;
+	var minTop = Math.max(scrollPosition, containerTop);
+	top = Math.max(top, minTop);
+
+	$data_display_annotation.css({
+		top: top + "px",
+		left: (offset.left + $displayItem.parent().width() - 10) + "px",
+	});
+
+	$data_display_annotation.show();
+}
 
 ///////////////////////////////////////////////////////////
 // HELPERS
 //
+
+function copyOfArray(arr) {
+	var newArray = [];
+	var numItems = arr.length;
+	for(var i=0; i<numItems; i++) {
+		newArray.push( arr[i] );
+	}
+	return newArray;
+}
+
+function keysOfObjectSortedByValueDescending(o) {
+	var keys = keysOfObject(o);
+	keys.sort(function (a,b) {
+		var aValue = o[a];
+		var bValue = o[b];
+		return (a > b ? -1 : (a < b ? 1 : 0));
+	});
+	return keys;
+}
+
+function keysOfObject(o) {
+	var keys = [];
+	$.each(o, function (k,v) {
+		for(var k in o) {
+			keys.push(k);
+		}
+	});
+	return keys;
+}
+
+function sortInPlaceByCountDescending(occurrences, secondarySortKey) {
+	occurrences.sort(function (a,b) {
+		var aCount = a.count;
+		var bCount = b.count;
+		var result = (aCount > bCount ? -1 : (aCount < bCount ? 1 : 0));
+		if( result===0 && secondarySortKey ) {
+			var aKey = a[secondarySortKey];
+			aKey = (((typeof aKey)=="string") ? aKey.toLowerCase() : aKey);
+			var bKey = b[secondarySortKey];
+			bKey = (((typeof bKey)=="string") ? bKey.toLowerCase() : bKey);
+			result = (aKey > bKey ? 1 : (aKey < bKey ? -1 : 0));
+		}
+		return result;
+	});
+}
+
+function valuesOfObject(o) {
+	var values = [];
+	for(var k in o) {
+		values.push(o[k]);
+	};
+	return values;
+}
+
+function getWordsForQuery(query) {
+	query = normalizeSpacing(query);
+	words = query.split(" ");
+	return words;
+}
+
+function assert(condition, msg) {
+	if(!condition) {
+		var s = JSON.stringify(condition);
+		if( msg !== undefined ) {
+			s = msg + "\n\n" + s;
+		}
+		alert(msg);
+	}
+}
 
 function calculateNumStudents() {
 	var numStudents = 0;
@@ -1250,31 +1045,6 @@ function calculateNumStudents() {
 		}
 	}
 	return numStudents;
-}
-
-function getStudentNames() {
-	var studentNames = [];
-	for( var student_nickname in g_students ) {
-		studentNames.push(student_nickname);
-	}
-	studentNames.sort();
-	return studentNames;
-}
-
-function asList(items, listType, shouldEscapeAsHTML) {
-	// listType should be either "ul" or "ol"
-	lines = [];
-	lines.push("<" + listType + ">");
-	var numItems = items.length;
-	for( var i=0; i<numItems; i++ ) {
-		var item = items[i];
-		if(shouldEscapeAsHTML) {
-			item = escapeForHtml(item);
-		}
-		lines.push("<li>" + item + "</li>");
-	}
-	lines.push("</" + listType + ">");
-	return lines.join("");
 }
 
 function searchIsHelpful(searchInfo) {
@@ -1290,14 +1060,212 @@ function searchIsHelpful(searchInfo) {
 	return isHelpful;
 }
 
-function arrayContainsItem(arr, item) {
-	var numItems = arr.length;
-	var isContained = false;
-	for( var i=0; i<numItems; i++ ) {
-		if(arr[i]==item) {
-			isContained = true;
-			break;
-		}
+function countUnique(list) {
+	var set={};
+	var listLength=list.length;
+	for(var i=0; i < listLength; i++) {
+		set[list[i]] = true;
 	}
-	return isContained;
+	var numUnique = 0;
+	for(var item in set) {
+		numUnique += 1;
+	}
+	return numUnique;
 }
+
+//function arrayContainsItem(arr, item) {
+//	var numItems = arr.length;
+//	var isContained = false;
+//	for( var i=0; i<numItems; i++ ) {
+//		if(arr[i]==item) {
+//			isContained = true;
+//			break;
+//		}
+//	}
+//	return isContained;
+//}
+
+//function getStudentNames() {
+//	var studentNames = [];
+//	for( var student_nickname in g_students ) {
+//		studentNames.push(student_nickname);
+//	}
+//	studentNames.sort();
+//	return studentNames;
+//}
+
+//function asList(items, listType, shouldEscapeAsHTML) {
+//	// listType should be either "ul" or "ol"
+//	lines = [];
+//	lines.push("<" + listType + ">");
+//	var numItems = items.length;
+//	for( var i=0; i<numItems; i++ ) {
+//		var item = items[i];
+//		if(shouldEscapeAsHTML) {
+//			item = escapeForHtml(item);
+//		}
+//		lines.push("<li>" + item + "</li>");
+//	}
+//	lines.push("</" + listType + ">");
+//	return lines.join("");
+//}
+
+//function sortAndDeDupeAsCopy(list) {
+//	return _sortAndDeDupe(list, false);
+//}
+//function sortAndDeDupeInPlace(list) {
+//	_sortAndDeDupe(list, true);
+//}
+//function _sortAndDeDupe(list, inPlace) {
+//	var sortedList = [];
+//	var numItems = list.length;
+//
+//	// Copy
+//	for(var i=0; i<numItems; i++) {
+//		sortedList.push(list[i]);
+//	}
+//
+//	// Sort
+//	sortedList.sort();
+//
+//	// Decide where to put the results
+//	var sortedAndDeDupedList;
+//	if(inPlace==true) {
+//		list.length = 0;  // This will clear the array.  See section 15:4 in ECMAScript 5 standard.
+//		                  // Thanks Matthew Crumley, http://stackoverflow.com/questions/1232040/how-to-empty-an-array-in-javascript
+//		sortedAndDeDupedList = list;
+//	}
+//	else {
+//		sortedAndDeDupedList = [];
+//	}
+//
+//	// Dedupe
+//	var lastItem = null;
+//	for(var i=0; i<numItems; i++) {
+//		var item = sortedList[i];
+//		if(i==0 || item!=lastItem) {
+//			sortedAndDeDupedList.push(item);
+//		}
+//		lastItem = item;
+//	}
+//
+//	return sortedAndDeDupedList;
+//}
+
+//function aggregateWords(words) {
+//	var numWords = words.length;
+//
+//	// Make a copy of the list of words, sorted case-insensitive
+//	var wordsSorted = [];
+//	for(var i=0; i<numWords; i++) {
+//		wordsSorted.push(words[i]);
+//	}
+//	wordsSorted.sort(function (a,b) {
+//		var aLower = a.toLowerCase();
+//		var bLower = b.toLowerCase();
+//		return (aLower < bLower ? -1 : (aLower > bLower ? 1 : 0)); // ASCENDING
+//	});
+//
+//	var wordsByStem = {};
+//	var stemInfos = [];
+//	for(var i=0; i<numWords; i++) {
+//		var word = wordsSorted[i];
+//		var stem = getWordStem(word).toLowerCase();
+//		var stemInfo = wordsByStem[stem];
+//		if( stemInfo==undefined ) {
+//			stemInfo = {
+//				stem : stem,
+//				totalWords : 0,
+//				wordCounts : {},
+//				words : []
+//			};
+//			wordsByStem[stem] = stemInfo;
+//			stemInfos.push(stemInfo);
+//		}
+//		stemInfo.totalWords += 1;
+//		var wordCount = stemInfo.wordCounts[word];
+//		if( wordCount==undefined ) {
+//			wordCount = 0;
+//			stemInfo.words.push(word);
+//		}
+//		wordCount += 1;
+//		stemInfo.wordCounts[word] = wordCount;
+//	}
+//	
+//	stemInfos.sort( function (a,b) {
+//		var aTotalWords = a.totalWords;
+//		var bTotalWords = b.totalWords;
+//		return (aTotalWords < bTotalWords ? 1 : (aTotalWords > bTotalWords ? -1 : 0)); // DESCENDING
+//	});
+//
+//	var numStemInfos = stemInfos.length;
+//	for(var i=0; i<numStemInfos; i++) {
+//		var stemInfo = stemInfos[i];
+//		var words = stemInfo.words;
+//		var wordCounts = stemInfo.wordCounts;
+//		words.sort( function (a,b) {
+//			var aWordCount = wordCounts[a];
+//			var bWordCount = wordCounts[b];
+//			return (aWordCount < bWordCount ? 1 : (aWordCount > bWordCount ? -1 : 0));  // DESCENDING
+//		});
+//		stemInfo.mostFrequentWord = words[0];
+//	}
+//
+//	return stemInfos;
+//}
+
+//function renderDataList(targetId, itemList) {
+//	var dataItems = itemList.items;
+//	var parts = [];
+//	parts.push('<ol>');
+//	$.each(itemList.items, function(idx,dataItem) {
+//		parts.push('<li>');
+//		parts.push(dataItem.asHTML());
+//		parts.push('</li>');
+//	});
+//	parts.push('</ol>');
+//	var html = parts.join("");
+//	var selector = "#" + targetId;
+//	$(selector).html(html)
+//	$(selector).each( function(idx,displayItem) {
+//		// CLOSURE:  Will this work right?  Will we have the right value of idx?
+//		var data = {
+//			item:dataItems[idx],
+//			idx: idx,
+//			displayItem: displayItem
+//		};
+//		$(this).click(data, onDataListItemClicked);
+//	});
+//}
+
+//function assembleSupplementalInfo(studentItems, queryItems, wordItems, linkItems, answerItems) {
+//	var info = [];
+//	if( studentItems !== null )
+//		info.push({items:studentItems, title:"Students"});
+//	if( queryItems !== null )
+//		info.push({items:queryItems, title:"Queries"});
+//	if( wordItems !== null )
+//		info.push({items:wordItems, title:"Words"});
+//	if( linkItems !== null )
+//		info.push({items:linkItems, title:"Links"});
+//	if( answerItems !== null ) {
+//		info.push({items:answerItems, title:"Answers"});
+//	}
+//}
+
+//function sortCaseInsensitiveInPlace(list) {
+//	function sortFn(a,b) {
+//		var aLower = a.toLowerCase();
+//		var bLower = b.toLowerCase();
+//		if(a > b) {
+//			return 1;
+//		}
+//		else if(a < b) {
+//			return -1;
+//		}
+//		else {
+//			return 0;
+//		}
+//	}
+//	list.sort(sortFn);
+//}

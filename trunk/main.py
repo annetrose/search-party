@@ -32,6 +32,7 @@ def main():
 	from TeacherLoginHandler        import TeacherLoginHandler
 	from UpdateDB                   import UpdateDB
 	from TeacherPage                import TeacherPage
+	from DataDump                   import DataDump
 
 	application = webapp.WSGIApplication(
 			[ ('/',                          MainPage),
@@ -48,6 +49,7 @@ def main():
 			  ('/teacher_login',             TeacherLoginHandler),
 			  ('/teacher_lessons',           TeacherLessons),
 			  ('/update_db',                 UpdateDB),
+			  ('/data_dump',                 DataDump),
 			  ('/_ah/channel/connected/',    ChannelConnectedHandler),
 			  ('/_ah/channel/disconnected/', ChannelDisconnectedHandler),
 			 ], debug=True)
