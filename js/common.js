@@ -8,7 +8,7 @@ function clipText(s, maxLength) {
 	return s;
 }
 
-function makeLinkHTML(linkInfo, maxLength, className) {
+function makeLinkHTML(linkInfo, maxLength, className, onclick) {
 	var url = linkInfo.url;
 	var title = linkInfo.title;
 	url = escapeForHtml(url);
@@ -23,7 +23,10 @@ function makeLinkHTML(linkInfo, maxLength, className) {
 	displayTitle = escapeForHtml( displayTitle );
 	var moreAttrs = "";
 	if(className) {
-		moreAttrs = ' class="' + className + '"';
+		moreAttrs += ' class="' + className + '"';
+	}
+	if(onclick) {
+		moreAttrs += ' onclick="' + onclick + '"';
 	}
 	var linkHTML = '<a href="' + url + '" title="' + title + '" target="_blank" ' + moreAttrs + '>' + displayTitle + '</a>';
 

@@ -66,17 +66,18 @@ Log:
 {% block content_area %}
 <div id="search_container">
   <!-- CUSTOM SEARCH -->
-  <!-- "cse" is referred to from js/student_custom_search.js -->
-  <div id="cse" style="width: 100%; height:600px;">Loading</div>
+  <!-- "custom_search_element" is referred to from js/student_custom_search.js, as well as css/main.css -->
+  <div id="custom_search_element">Loading...</div>
   <script type="text/javascript" src="/js/student_custom_search.js"></script>
 </div>
 <div id="result_page_container">
-  <h3>Rate this page to return to search
+  <h3 id="rate_result_to_continue">Rate this page to return to search
     <button id="helpful_button" type="button" value="Helpful"><img src="/imgs/thumbs-up-18x18.png" alt="helpful"/> Helpful</button>
         <button id="not_helpful_button" type="button" value="Not helpful"><img src="/imgs/thumbs-down-18x18.png" alt="helpful"/> Not helpful</button>
   </h3>
-  <hr/>
-  <div id="result_page_title">...</div>
-  <iframe id="result_frame" style="width:100%; height:10000px">Loading...<iframe>
+  <div id="result_frame_container">
+    <div id="result_page_title">...</div>
+    <iframe id="result_frame">Loading...<iframe>
+  </div>
 </div>
 {% endblock %}

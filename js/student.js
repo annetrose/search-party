@@ -27,8 +27,8 @@ function openChannel(token) {
 }
 
 function initEventHandlers() {
-	$("#cse").contents().find("input[name='search']").focus();
-	$("#cse").contents().find("input[value='Search']").click(function(event) {
+	$("#custom_search_element").contents().find("input[name='search']").focus();
+	$("#custom_search_element").contents().find("input[value='Search']").click(function(event) {
 		var searchTerms = $("input[name='search']").val();
 		onSearchExecuted(searchTerms);
 	});
@@ -42,7 +42,7 @@ function doSearch(searchStr) {
 
 function searchCompleteCallback() {  // called from js/student_custom_search.js
 	// Find result links and register click handler.
-	$("#cse").contents().find("a[class='gs-title']").click(function(event) {
+	$("#custom_search_element").contents().find("a[class='gs-title']").click(function(event) {
 		var href = $(this).attr("href");
         var title = $(this).text();
 		onLinkFollowed(href, title);
@@ -58,9 +58,9 @@ function searchCompleteCallback() {  // called from js/student_custom_search.js
 }
 
 function hideAds() {
-	$("#cse").contents().find(".gsc-adBlock").css("display", "none");
-	$("#cse").contents().find(".gsc-adBlockVertical").css("display", "none");
-	$("#cse").contents().find(".gsc-tabsArea").css("display", "none");			
+	$("#custom_search_element").contents().find(".gsc-adBlock").css("display", "none");
+	$("#custom_search_element").contents().find(".gsc-adBlockVertical").css("display", "none");
+	$("#custom_search_element").contents().find(".gsc-tabsArea").css("display", "none");			
 }
 
 function onSearchExecuted(query) {
@@ -81,6 +81,20 @@ function onSearchExecuted(query) {
 
 	// Update the rendering of the history list.
 	updateQueryHistory();
+}
+
+function onQueryLinkClicked(event) {
+	var url = event.target.href;
+	var title = event.target.title;
+
+	var href = url;
+	$("#result_frame").get(0).src = "";
+	$("#result_page_title").html("");
+	$("#result_page_title").html(title);
+	$("#result_frame").get(0).src = url;
+	g_current_result_url = url;
+	switchToResultPage();
+	return false;
 }
 
 function switchToResultPage() {
@@ -324,7 +338,7 @@ function updateQueryHistory() {
 							parts.push('<img src="' + THUMBS_DOWN_14X14_DATA_URL + '" width="14" height="14" alt="not helpful"/>')
 						}
 					}
-					linkHtml = makeLinkHTML(linkInfo, 14, className);
+					linkHtml = makeLinkHTML(linkInfo, 14, className, "return onQueryLinkClicked(event);");
 					//var linkHtml = makeLinkHTML(linkInfo, 0);
 					parts.push(linkHtml);
 					if( scheme==4 ) {

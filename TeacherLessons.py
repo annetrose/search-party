@@ -15,25 +15,63 @@ class TeacherLessons(SearchPartyRequestHandler):
 
 	def post(self):
 		self.get_or_post("post")
+	
+	def get_lessons_json(self):
+		from model import Lesson
+		from django.utils import simplejson as json
+		import datetime
+		from helpers import log
+		
+		def handler(o):
+			if isinstance(o, datetime.datetime):
+				return "(new Date(%d, %d, %d, %d, %d, %d))"%(
+						o.year,
+						o.month,
+						o.day,
+						o.hour,
+						o.minute,
+						o.second)
+			else:
+				raise TypeError(repr(o))
 
+		lessons = Lesson.fetch_all(filter_expr="teacher", filter_value=self.teacher)
+		lesson_infos = []
+		for lesson in lessons:
+			if not lesson.is_deleted:
+				lesson_infos.append({
+					"lesson_code" : lesson.lesson_code,
+					"title" : lesson.title,
+					"description" : lesson.description,
+					"class_name" : lesson.class_name,
+					"start_time" : lesson.start_time,
+					"stop_time" : lesson.stop_time,
+					"tasks" : lesson.tasks,
+					"is_active" : lesson.is_active
+				})
+		lessons_json = json.dumps(lesson_infos, default=handler)
+		return lessons_json
+
+
+	
 	def serve_create_lesson_form(self):
 		import helpers, settings
-		from model import Lesson
-		active_lessons = []
-		inactive_lessons = []
+#		from model import Lesson
+#		active_lessons = []
+#		inactive_lessons = []
 
-		for lesson in Lesson.all().filter("teacher =", self.teacher):
-			if lesson.is_active:
-				active_lessons.append(lesson)
-			else:
-				inactive_lessons.append(lesson)
+#		for lesson in Lesson.all().filter("teacher =", self.teacher):
+#			if lesson.is_active:
+#				active_lessons.append(lesson)
+#			else:
+#				inactive_lessons.append(lesson)
 
 		template_values = {
 			'header'        : self.gen_header("teacher"),
 			"task_nums"     : self.TASK_NUMS,
 			"dbg_timestamp" : (helpers.timestamp() if settings.ENABLE_FILLER_FORM_FILLING else ""),
-			"active_lessons": active_lessons,
-			"inactive_lessons" : inactive_lessons,
+#			"active_lessons": active_lessons,
+#			"inactive_lessons" : inactive_lessons,
+			"lessons_json"  : self.get_lessons_json()
 		}
 		if self.session.has_key('msg'):
 			template_values['msg'] = self.session.pop('msg')  # only show the message once
@@ -53,8 +91,11 @@ class TeacherLessons(SearchPartyRequestHandler):
 		log( "PAGE:  %s, is_teacher==%s, method==%s, session.sid==%s"%
 				(self.__class__.__name__, self.is_teacher, method, chop(self.session.sid, 20)) )
 
-		if method=="post":
-			form_item = lambda key:self.request.get(key, "").strip()
+		form_item = lambda key:self.request.get(key, "").strip()
+
+		if not self.is_teacher:
+			self.redirect_to_teacher_login()
+		elif method=="post":
 
 			lesson_title = form_item("lesson_title")
 			lesson_code = self.make_lesson_code()
@@ -79,10 +120,31 @@ class TeacherLessons(SearchPartyRequestHandler):
 #								start_time=now, stop_time=None, tasks_repr=tasks_repr)
 				lesson.put()
 
-		if self.is_teacher:
-			self.serve_create_lesson_form()
+				self.redirect("/teacher/%s"%lesson_code)
+			else:
+				self.serve_create_lesson_form()
 		else:
-			self.redirect_to_teacher_login()
+			action = form_item("action")
+			if action != "":
+				lesson_code = form_item("lesson_code")
+				log( action )
+				log( lesson_code )
+				lesson = Lesson.get_by_key_name(lesson_code)
+				now = datetime.now()
+				if action=="start":
+					lesson.stop_time = None
+				elif action=="stop":
+					lesson.stop_time = now
+				elif action=="delete":
+					lesson.delete_time = now
+					if lesson.stop_time is None:
+						lesson.stop_time = now
+				lesson.put()
+				self.write_response_plain_text("OK")
+			else:
+				log( "action not found" )
+				log( self.request.url )
+				self.serve_create_lesson_form()
 	
 	def make_lesson_code(self):
 		import random

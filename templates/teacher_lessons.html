@@ -5,6 +5,14 @@
 
 {% block head %}
   <title>Search Party - Teacher Lessons</title>
+  <script type="text/javascript" src="/js/common.js"></script>
+  <script type="text/javascript" src="/js/teacher_lessons.js"></script>
+  <script type="text/javascript">
+  // <![CDATA[
+  g_lessons = {{ lessons_json|safe }};
+  $(initialize);
+  // ]]>
+  </script>
 {% endblock %}
 
 
@@ -16,6 +24,15 @@
 
 
 
+{% block side_panel %}
+  <p id="create_lesson_link"><a href="#" onclick="switchToCreateLesson(); return true;">New lesson</a></p>
+  <h3>Active lessons</h3>
+  <div id="lessons_list_active">loading...</div>
+  <h3>Inactive lessons</h3>
+  <div id="lessons_list_inactive">loading...</div>
+{% endblock %}
+
+{% comment %}
 {% block side_panel %}
   <h3>Active lessons</h3>
   {% if active_lessons %}
@@ -34,10 +51,14 @@
     (None)
   {% endif %}
 {% endblock %}
+{% endcomment %}
+
 
 
 {% block content_area %}
-  <div id="pane_lesson">
+  <div id="lesson_pane">
+  </div>
+  <div id="create_lesson_pane">
     <form method="post" action="/teacher_lessons">
       <h3>Create lesson</h3>
       <table class="lesson">
@@ -65,7 +86,7 @@
         <table class="task">
           <tr>
             <td class="task_number">
-              <h4>{{ i }}</h4>
+              {{ i }}
             </td>
             <td class="task_title">
               Task #{{ i }} name<br/>

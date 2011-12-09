@@ -41,6 +41,9 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 			if lesson is None:
 				raise StudentLoginException("Please check the lesson code.",
 						"lesson retrieved from datastore with lesson_code %r is None"%lesson_code)
+			elif not lesson.is_active:
+				raise StudentLoginException("This lesson is finished.  You cannot work on it now.",
+						"lesson_code %r has is_active=False"%lesson_code)
 
 			login_timestamp = datetime.now()
 			key_name = Student.make_key_name(student_nickname=student_nickname, lesson_code=lesson_code)
