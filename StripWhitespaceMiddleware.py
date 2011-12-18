@@ -1,3 +1,11 @@
+# This file tightens up the whitespace in the output from the Django template engine.
+#
+# It is referred to from dummy_django_settings.py which is in turn referred
+# to from appengine_config.py.  (as of 12/17/2011)
+#
+# Source:
+# https://code.djangoproject.com/wiki/StripWhitespaceMiddleware
+
 """
 Tightens up response content by removed superflous line breaks and whitespace.
 By Doug Van Horn

@@ -7,7 +7,8 @@
 
 def _send_update(person, *updates):
 	from google.appengine.api import channel
-	from django.utils import simplejson as json
+#	from django.utils import simplejson as json
+	import json
 	from model import Student, Teacher
 	assert isinstance(person, (Student,Teacher)), repr(person)
 	from helpers import log

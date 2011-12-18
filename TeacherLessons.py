@@ -18,7 +18,8 @@ class TeacherLessons(SearchPartyRequestHandler):
 	
 	def get_lessons_json(self):
 		from model import Lesson
-		from django.utils import simplejson as json
+#		from django.utils import simplejson as json
+		import json
 		import datetime
 		from helpers import log
 		
@@ -85,7 +86,8 @@ class TeacherLessons(SearchPartyRequestHandler):
 		from helpers import log, chop
 		from datetime import datetime
 		from model import Lesson
-		from django.utils import simplejson as json
+#		from django.utils import simplejson as json
+		import json
 		assert method in ("get", "post")
 		self.load_search_party_context(user_type="teacher")
 		log( "PAGE:  %s, is_teacher==%s, method==%s, session.sid==%s"%

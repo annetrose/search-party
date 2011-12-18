@@ -1,7 +1,17 @@
+# "search-party" is the production application.  The main version is "1".
 #application: search-party
+#version: 1
+
+# "schpty" is a completely separate copy for development and testing.  The main version is "dev".
 application: schpty
 version: dev
-runtime: python
+
+# For Python 2.5:
+#runtime: python
+
+# For Python 2.7:
+runtime: python27
+
 api_version: 1
 
 inbound_services:
@@ -27,7 +37,10 @@ handlers:
 builtins:
 - appstats: on
 
+threadsafe: false
+
 skip_files:
+# File types to ignore
 - ^(.*/)?app\.yaml
 - ^(.*/)?app\.yml
 - ^(.*/)?index\.yaml
@@ -45,9 +58,13 @@ skip_files:
 - ^(.*/)?.*\.bat$
 - ^(.*/)?.*\.txt$
 - ^(.*[^a-zA-Z])?delme[^a-zA-Z].*
+- ^(.*/)?js/graph/.*\.html$
+# Specific files to ignore
+- ^(.*/)?js/graph/example\.js$
+# Directories to ignore
 - ^(.*/)?junk/.+
 - ^(.*/)?scripts/.+
+- ^(.*/)?backup/.+
+- ^(.*/)?doc/.+
 - ^(.*/)?templatetags/.*
-- ^(.*/)?js/graph/.*\.html$
-- ^(.*/)?js/graph/example\.js$
 - ^(.*/)?\.svn/.*

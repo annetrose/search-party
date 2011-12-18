@@ -100,7 +100,8 @@ class PersonPage(SearchPartyRequestHandler):
 		return student_structure
 
 	def make_student_structure_js(self, lesson, indent, student=None):
-		from django.utils.simplejson import JSONEncoder  # there's also a JSONEncoderForHTML that escapes &, <, >
+#		from django.utils.simplejson import JSONEncoder  # there's also a JSONEncoderForHTML that escapes &, <, >
+		from json import JSONEncoder
 		from helpers import log
 		lines = []
 		add = lines.append
