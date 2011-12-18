@@ -11,7 +11,8 @@ class StudentLoginHandler(SearchPartyRequestHandler):
 	INITIAL_TASK_IDX = 0
 
 	def post(self):
-		from django.utils import simplejson as json
+#		from django.utils import simplejson as json
+		import json
 		from model import Student, Lesson
 		from updates import send_update_log_in
 		from datetime import datetime

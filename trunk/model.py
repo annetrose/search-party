@@ -97,7 +97,8 @@ class Lesson(SearchPartyModel):
 
 	@property
 	def tasks(self):
-		from django.utils import simplejson as json
+#		from django.utils import simplejson as json
+		import json
 		return json.loads(self.tasks_json)
 
 	lesson_key = property(lambda self: self.key())

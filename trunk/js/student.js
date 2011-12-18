@@ -44,6 +44,19 @@ function searchCompleteCallback() {  // called from js/student_custom_search.js
 	// Find result links and register click handler.
 	$("#custom_search_element").contents().find("a[class='gs-title']").click(function(event) {
 		var href = $(this).attr("href");
+		if(href.indexOf("://www.google.com/url?") > 0) {
+			// For example:
+			// http://www.google.com/url?q=http://www.thefreedictionary.com/fawn&sa=U&ei=...&ved=...&client=internal-uds-cse&usg=...
+			var queryParts = href.slice(href.indexOf("?")+1).split("&");
+			alert( JSON.stringify(queryParts) );
+			for( var queryPartNum in queryParts ) {
+				var queryPart = queryParts[queryPartNum];
+				if( queryPart.substr(0,2)==="q=" ) {
+					href = queryPart.substr(2);
+					break;
+				}
+			}
+		}
         var title = $(this).text();
 		onLinkFollowed(href, title);
 
@@ -57,6 +70,35 @@ function searchCompleteCallback() {  // called from js/student_custom_search.js
 	setTimeout("hideAds()", 500);
 }
 
+function getSpecificURLParameter(url, theArgName) {
+	/* Thanks to  Eric Scheid ("ironclad") for this snippet, which was downloaded from ...
+	 * http://www.evolt.org/article/Javascript_to_Parse_URLs_in_the_Browser/17/14435/?format=print
+	 * ... on 4-27-2010 ...
+	 * ... and adapted by Alex Quinn.
+	 */
+
+	var queryString = url.slice(url.indexOf("?"));
+	var sArgs = queryString.slice(1).split('&');
+    var r = '';
+    for (var i = 0; i < sArgs.length; i++) {
+        if (sArgs[i].slice(0,sArgs[i].indexOf('=')) == theArgName) {
+            r = sArgs[i].slice(sArgs[i].indexOf('=')+1);
+            break;
+        }
+    }
+    r = (r.length > 0 ? unescape(r).split(',') : '');
+	if(r.length==1) {
+		r = r[0];
+	}
+	else if(r.length==0) {
+		r = '';
+	}
+	else {
+		// alert("ERROR 5610:  Please tell Alex Quinn at aq@cs.umd.edu.");
+		r = "";
+	}
+	return r;
+}
 function hideAds() {
 	$("#custom_search_element").contents().find(".gsc-adBlock").css("display", "none");
 	$("#custom_search_element").contents().find(".gsc-adBlockVertical").css("display", "none");

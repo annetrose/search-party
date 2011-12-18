@@ -13,7 +13,8 @@ class TeacherPage(PersonPage):
 
 		from helpers import log, smush
 		from model import Lesson, Teacher
-		from django.utils import simplejson as json
+#		from django.utils import simplejson as json
+		import json
 		import settings
 		self.load_search_party_context(user_type="teacher")
 #		log("<<< Teacher channels before TeacherPage.get(...)")
