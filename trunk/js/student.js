@@ -6,6 +6,8 @@
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 */
 
+NO_FRAME_DOMAINS = ["youtube.com", "google.com", "oprah.com", "facebook.com"];
+
 function onMessage(msg) {
     var state = JSON.parse(msg.data);
     if ("log" in state) {
@@ -18,6 +20,47 @@ function onMessage(msg) {
 			$("#status_header").html("Teacher is OFFLINE");
 		}
     }
+}
+
+function parseUrl(url) {
+	var urlRegExp = new RegExp("^([a-z]{3,5})"    // type
+			                 + "://"              // ://
+							 + "([^?/#:]+)"       // domain
+							 + "(:([0-9]{1,5}))?" // port
+							 + "(/[^?#:]*)?"      // path
+							 + "(\\?([^?/#:]+))?" // query string
+							 + "(#[^?/#:]*)?");   // hash locator
+	var parts = urlRegExp.exec(url);
+	return {
+		type: parts[1],
+		domain: parts[2],
+		port: parts[4] || null,
+		path: parts[5] || null,
+		queryString: (parts[7] || null)
+	};
+}
+
+function domainAllowsFraming(url) {
+	var domain = parseUrl(url).domain;
+	var urlParsed = parseUrl(url);
+	var domain = urlParsed.domain;
+	var noFrameDomains = NO_FRAME_DOMAINS;
+	var result = true;
+	for( var numNoFrameDomains=noFrameDomains.length, i=0; i<numNoFrameDomains; i++ ) {
+		var noFrameDomain = noFrameDomains[i];
+		if( noFrameDomain===domain ) {
+			result = false;
+			break;
+		}
+		else {
+			var pos = domain.lastIndexOf(noFrameDomain);
+			if((pos + noFrameDomain.length == domain.length) && (pos==0 || domain.charAt(pos-1)=="." ) ) {
+				result = false;
+				break;
+			}
+		}
+	}
+	return result;
 }
 
 function openChannel(token) {
@@ -43,31 +86,47 @@ function doSearch(searchStr) {
 function searchCompleteCallback() {  // called from js/student_custom_search.js
 	// Find result links and register click handler.
 	$("#custom_search_element").contents().find("a[class='gs-title']").click(function(event) {
-		var href = $(this).attr("href");
-		if(href.indexOf("://www.google.com/url?") > 0) {
+		var url = $(this).attr("href");
+		if(url.indexOf("://www.google.com/url?") > 0) {
 			// For example:
 			// http://www.google.com/url?q=http://www.thefreedictionary.com/fawn&sa=U&ei=...&ved=...&client=internal-uds-cse&usg=...
-			var queryParts = href.slice(href.indexOf("?")+1).split("&");
-			alert( JSON.stringify(queryParts) );
+			var queryParts = url.slice(url.indexOf("?")+1).split("&");
 			for( var queryPartNum in queryParts ) {
 				var queryPart = queryParts[queryPartNum];
 				if( queryPart.substr(0,2)==="q=" ) {
-					href = queryPart.substr(2);
+					url = queryPart.substr(2);
 					break;
 				}
 			}
 		}
         var title = $(this).text();
-		onLinkFollowed(href, title);
-
-		// Open the link in the IFRAME.  If we used the a.target attribute
-		// Firefox insisted on opening it in a new tab/window.
-		$("#result_frame").get(0).src = href;
+		onLinkFollowed(url, title);
+		openLink(url, title);
 		return false;
 	});
 	
 	// Ads seem to show up a bit later, so we wait a bit and then remove them
 	setTimeout("hideAds()", 500);
+}
+
+function openLink(url, title) {
+	$("#result_page_title").html("");
+	if( domainAllowsFraming(url) ) {
+		// Open the link in the IFRAME.  If we used the a.target attribute
+		// Firefox insisted on opening it in a new tab/window.
+		$("#result_frame").get(0).src = "";
+		$("#result_frame").get(0).src = url;
+		$("#result_frame").css("display", "block");
+		$("#no_frame_message").css("display", "none");
+	}
+	else {
+		$("#result_frame").css("display", "none");
+		$("#no_frame_message").css("display", "block");
+		window.open(url);
+	}
+	$("#result_page_title").html(title);
+	g_current_result_url = url;
+	switchToResultPage();
 }
 
 function getSpecificURLParameter(url, theArgName) {
@@ -129,13 +188,14 @@ function onQueryLinkClicked(event) {
 	var url = event.target.href;
 	var title = event.target.title;
 
-	var href = url;
-	$("#result_frame").get(0).src = "";
-	$("#result_page_title").html("");
-	$("#result_page_title").html(title);
-	$("#result_frame").get(0).src = url;
-	g_current_result_url = url;
-	switchToResultPage();
+	openLink(url, title);
+
+//	$("#result_frame").get(0).src = "";
+//	$("#result_page_title").html("");
+//	$("#result_page_title").html(title);
+//	$("#result_frame").get(0).src = url;
+//	g_current_result_url = url;
+//	switchToResultPage();
 	return false;
 }
 
@@ -173,9 +233,9 @@ function onLinkFollowed(url, title) {
 	updateQueryHistory();
 //	var onclick = "g_current_result_url = decodeURIComponent('" + encodeURIComponent(url) + "'); alert(g_current_result_url); return true;";
 //	var linkHTML = '<a href="' + url + '" title="' + title + '" target="_blank" onclick="' + onclick + '">' + displayTitle + '</a>';
-	g_current_result_url = url;
-	switchToResultPage();
-	$("#result_page_title").html(escapeForHtml(title))
+//	g_current_result_url = url;
+//	switchToResultPage();
+//	$("#result_page_title").html(escapeForHtml(title))
 }
 
 function onAnswerSubmitted(text, explanation) {
@@ -221,6 +281,22 @@ function initialize() {
 
 	$("#not_helpful_button").click(onLinkRated);
 
+	// TESING
+//	var u1 = "http://www.youtube.com/";
+//	var u2 = "http://www.youtube.com/?f=f&a=a";
+//	var u3 = "http://www.youtube.com?f=f&a=a";
+//	var u4 = "http://www.youtube.com#foo";
+//	var u5 = "http://www.youtube.com:1234#foo";
+//	console.log(JSON.stringify(parseUrl(u1)));
+//	console.log( domainAllowsFraming(u1) )
+//	console.log(JSON.stringify(parseUrl(u2)));
+//	console.log( domainAllowsFraming(u2) )
+//	console.log(JSON.stringify(parseUrl(u3)));
+//	console.log( domainAllowsFraming(u3) )
+//	console.log(JSON.stringify(parseUrl(u4)));
+//	console.log( domainAllowsFraming(u4) )
+//	console.log(JSON.stringify(parseUrl(u5)));
+//	console.log( domainAllowsFraming(u5) )
 };
 
 function onLinkRated() {
