@@ -49,7 +49,7 @@ function log(arg1, arg2) {
 	if((typeof console) != "undefined") {
 		console.log(s);
 	}
-	if(DEBUG_MODE) {
+	if(window.DEBUG_MODE) {
 		var numRows = log._numRows;
 		var style = "";
 		var cls = (numRows % 2 == 0 ? "even" : "odd");
