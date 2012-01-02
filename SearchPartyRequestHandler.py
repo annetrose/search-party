@@ -6,9 +6,9 @@
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
 
-from google.appengine.ext import webapp
+import webapp2
 
-class SearchPartyRequestHandler(webapp.RequestHandler):
+class SearchPartyRequestHandler(webapp2.RequestHandler):
 	def load_search_party_context(self, user_type=None, lesson_code=None, student_nickname=None):
 		from model import Teacher, Student
 		from gaesessions import get_current_session
@@ -62,7 +62,7 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 								# Stale student session ID?
 								_log( "~~~~~~~~~~~~~~   KILL STUDENT'S SESSION ~~~~~~~~~~~~~~~" )
 								if student.session_sid not in (None, ""):
-									_log( "Removingtale student session ID" )
+									_log( "Removing stale student session ID" )
 									self.session.clear()
 									self.session.regenerate_id()
 								if self.session.sid in (None, ""):
@@ -285,6 +285,8 @@ class SearchPartyRequestHandler(webapp.RequestHandler):
 
 	def render_template(self, file, template_vals):
 		from google.appengine.ext.webapp import template
+		# This page says "webapp" should still be used:
+		# http://webapp-improved.appspot.com/tutorials/gettingstarted/templates.html
 		from helpers import prettify_html
 		import os
 		path = os.path.join(os.path.dirname(__file__), 'templates', file)
