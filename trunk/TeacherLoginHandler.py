@@ -8,7 +8,7 @@
 from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class TeacherLoginHandler(SearchPartyRequestHandler):
-	from google.appengine.ext.webapp.util import login_required
+	from webapp2_extras.users import login_required
 
 	@login_required
 	def get(self):

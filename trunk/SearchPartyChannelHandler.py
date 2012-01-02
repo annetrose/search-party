@@ -5,9 +5,9 @@
 # Date: Originally created July 2011
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
-from google.appengine.ext import webapp
+import webapp2
 
-class SearchPartyChannelHandler(webapp.RequestHandler):
+class SearchPartyChannelHandler(webapp2.RequestHandler):
 	def load_search_party_context(self):
 		from helpers import log
 		import client_id_utils
