@@ -6,9 +6,6 @@
 application: schpty
 version: dev
 
-# For Python 2.5:
-#runtime: python
-
 # For Python 2.7:
 runtime: python27
 
