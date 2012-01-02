@@ -16,9 +16,9 @@ COOKIE_KEY = '1fedb8b8ea2f341b86eb5d8c15241d41c4b9d9776b96337cf927598eb1dda7fc5d
 
 # Silence warnings about Django
 # http://code.google.com/appengine/docs/python/tools/libraries.html#Django
-os.environ['DJANGO_SETTINGS_MODULE'] = 'dummy_django_settings'
-from google.appengine.dist import use_library
-use_library('django', '1.2')
+#os.environ['DJANGO_SETTINGS_MODULE'] = 'dummy_django_settings'
+#from google.appengine.dist import use_library
+#use_library('django', '1.2')
 
 def webapp_add_wsgi_middleware(app):
 	from gaesessions import SessionMiddleware
