@@ -62,7 +62,10 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 								 (student, student.session_sid, self.session.sid))
 
 							# Duplicate student?
-							if settings.PREVENT_MULTIPLE_STUDENT_LOGINS and student.logged_in and student.is_disconnected==False:
+							if settings.PREVENT_MULTIPLE_STUDENT_LOGINS and student.logged_in and not student.is_disconnected==True:
+								# Note:  is_disconnected might be True, False, or None.  If it is True, then
+								#        we will allow a new session to clobber the old one.  If it is False
+								#        or None, then we don't take it into account.
 								raise StudentLoginException("Someone is already logged into this lesson with that name.",
 										"Session ID doesn't match.", student.session_sid, self.session.sid,
 										student.latest_login_timestamp, student.latest_logout_timestamp)
