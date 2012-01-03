@@ -64,6 +64,9 @@ def prettify_html(html):
 		return html
 
 def smush(s, to_length, num_dots=3):
+	"""
+	Truncate a string from the middle.
+	"""
 	if not isinstance(s, basestring):
 		s = str(s)
 	s_len = len(s)
@@ -74,6 +77,9 @@ def smush(s, to_length, num_dots=3):
 	return s
 
 def chop(s, to_length, num_dots=3):
+	"""
+	Truncate a string from the end.
+	"""
 	if not isinstance(s, basestring):
 		s = str(s)
 	s_len = len(s)

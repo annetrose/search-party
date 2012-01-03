@@ -18,7 +18,8 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 		import settings
 
 		log_lines = []
-		def _log(s): log_lines.append(s)
+		def _log(s):
+			log_lines.append(s)
 
 		try:
 			_log( "____________________________________________________________________" )
@@ -33,8 +34,11 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 			assert self.session.sid is not None
 			self.user = users.get_current_user()
 
-			# PERFORMANCE:  Instead of fetching the Student or Teacher, you could just get the key and then fetch the real thing lazily in a property.
+			# PERFORMANCE:  Instead of fetching the Student or Teacher, you could just get
+			# the key and then fetch the real thing lazily in a property.
 			person = None
+
+			# Flag to indicate if person should be written back to the DB.
 			person_is_dirty = False
 
 			if user_type=="student":
@@ -44,17 +48,21 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 				# Check for duplicate students (same name, different session ID)
 				if lesson_code is not None and student_nickname is not None:
 					_log( "Found student by lesson_code + student_nickname" )
-					key_name = Student.make_key_name(student_nickname=student_nickname, lesson_code=lesson_code)
+					key_name = Student.make_key_name(
+							student_nickname=student_nickname, lesson_code=lesson_code)
 					student = Student.get_by_key_name(key_name)
 
 					if student is not None and student.session_sid not in (None, ""):
 
 						if (student.session_sid != self.session.sid):
-							_log("Student SID doesn't match:\n * student == %r\n * student.session_sid == %r\n * self.session.sid == %r"%
-									(student, student.session_sid, self.session.sid))
+							_log("Student SID doesn't match:\n"
+								 " * student == %r\n"
+								 " * student.session_sid == %r\n"
+								 " * self.session.sid == %r"%
+								 (student, student.session_sid, self.session.sid))
 
 							# Duplicate student?
-							if settings.PREVENT_MULTIPLE_STUDENT_LOGINS and (student.logged_in):
+							if settings.PREVENT_MULTIPLE_STUDENT_LOGINS and student.logged_in and student.is_disconnected==False:
 								raise StudentLoginException("Someone is already logged into this lesson with that name.",
 										"Session ID doesn't match.", student.session_sid, self.session.sid,
 										student.latest_login_timestamp, student.latest_logout_timestamp)
@@ -96,7 +104,6 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 			if user_type=="student" and student is not None and self.session.sid not in (None,"") and student.session_sid != self.session.sid:
 				student.session_sid = self.session.sid
 				assert student.session_sid is not None
-#				student.put()
 				person_is_dirty = True
 				_log( "Stored new session ID" )
 
@@ -107,7 +114,6 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 
 			if self.is_student and not self.student.logged_in:
 				self.student.logged_in = True
-#				self.student.put()
 				person_is_dirty = True
 
 			if person_is_dirty:
@@ -204,36 +210,14 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 		from google.appengine.api import channel
 		import client_id_utils
 		from helpers import log
-
-#		from model import Client
-#		client_id = self.session.sid  # same for teacher or student, for now.  may change later.
-#		client = Client(key_name=client_id)
-#		if self.is_teacher:
-#			client.user_type = "teacher"
-#			client.client_id = self.teacher.make_client_id(session_sid=self.session.sid)
-#		elif self.is_student:
-#			client.user_type = "student"
-#			client.client_id = self.student.make_client_id(session_sid=self.session.sid)
-#		client.student = self.student
-#		client.teacher = self.teacher
-#		client.put()
-
-		client_id = client_id_utils.create_client_id(session_sid=self.session.sid, lesson_code=lesson_code, person_type=self.person_type)
+		client_id = client_id_utils.create_client_id(session_sid=self.session.sid,
+												     lesson_code=lesson_code,
+													 person_type=self.person_type)
 		token = channel.create_channel(client_id)
 		self.person.add_client_id(client_id)
 		assert not self.is_student or self.student.session_sid is not None
 		self.person.put()
 		log( "Created channel for %r on %s."%(self.person, client_id) )
-#		if self.is_teacher:
-#			self.teacher.add_client_id(client_id)
-#			self.teacher.put()
-#			log( "Created channel for teacher %r on %s."%(self.teacher, client_id) )
-#		elif self.is_student:
-#			self.student.client_id = client_id
-#			self.student.put()
-#			log( "Created channel for student %r on %s."%(self.student, client_id) )
-#		else:
-#			assert False, "Neither Student nor Teacher"
 		return token
 
 
@@ -276,9 +260,6 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 
 		self.response.headers["Content-Type"] = content_type
 		self.response.headers["Content-Disposition"] = 'attachment; filename="%s"'%filename
-		
-#		if encoding is not None:
-#			self.response.headers["Content-Transfer-Encoding"] = "encoding"
 
 		self.response.out.write(encoded_content)
 
@@ -291,9 +272,7 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
 		import os
 		path = os.path.join(os.path.dirname(__file__), 'templates', file)
 		html = template.render(path, template_vals)
-#		html = prettify_html(html)
 		return html
-#		self.response.out.write(template.render(path, template_vals))
 
 	@property
 	def fragment_id(self):
