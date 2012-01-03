@@ -124,12 +124,14 @@ class Student(PersonModel):
 	is_disconnected = db.BooleanProperty()
 	client_id = db.StringProperty()
 
-	def log_out(self, clear_session_sid=False):
+	def log_out(self, clear_session_sid=False, also_disconnect=False):
 		from datetime import datetime
 		self.latest_logout_timestamp = datetime.now()
 		self.logged_in = False
 		if clear_session_sid:
 			self.session_sid = ""
+		if also_disconnect==True:
+			self.is_disconnected = True
 		self.put()
 
 	@property
