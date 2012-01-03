@@ -1,11 +1,18 @@
 google.load('search', '1', {language : 'en'});
 
 google.setOnLoadCallback(function() {
-	var customSearchControl = new google.search.CustomSearchControl('011823409747730989012:4citusfmkhu');
+	var customSearchId = '011823409747730989012:4citusfmkhu';
+
+	var customSearchOptions = {};
+	customSearchOptions[google.search.Search.RESTRICT_SAFESEARCH] = google.search.Search.SAFESEARCH_STRICT;
+
+	var customSearchControl = new google.search.CustomSearchControl(customSearchId, customSearchOptions);
+
+	// https://groups.google.com/a/googleproductforums.com/forum/#!msg/customsearch/Bp8MndGfn6M/AR8zQf5O3fIJ
+	// https://groups.google.com/a/googleproductforums.com/forum/#!topic/customsearch/OUpAUFbQ6-o/discussion
 	customSearchControl.setResultSetSize(5);
 	customSearchControl.draw('custom_search_element');
 	customSearchControl.setSearchCompleteCallback(null, searchCompleteCallback)
-	//customSearchControl.setLinkTarget("result_frame");
 	initEventHandlers();
 }, true);
 

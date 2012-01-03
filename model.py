@@ -121,6 +121,7 @@ class Student(PersonModel):
 	first_login_timestamp = db.DateTimeProperty(auto_now_add=True)
 	latest_login_timestamp = db.DateTimeProperty()
 	latest_logout_timestamp = db.DateTimeProperty()
+	is_disconnected = db.BooleanProperty()
 	client_id = db.StringProperty()
 
 	def log_out(self, clear_session_sid=False):

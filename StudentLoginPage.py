@@ -17,8 +17,6 @@ class StudentLoginPage(SearchPartyRequestHandler):
 		}
 		if self.session.has_key('msg'):
 			template_values['msg'] = self.session.pop('msg')  # only show the message once
-			log( "--------------------------------------------------------" )
-			log( "Popped msg:  %s"%template_values["msg"] )
 
 		self.clear_session()
 		self.write_response_with_template("student_login.html", template_values)

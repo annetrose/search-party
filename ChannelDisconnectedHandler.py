@@ -32,5 +32,6 @@ class ChannelDisconnectedHandler(SearchPartyChannelHandler):
 
 			if self.is_student:
 				student = person
+				student.is_disconnected = True
 				student.log_out(clear_session_sid=settings.CLEAR_SESSION_ID_ON_STUDENT_DISCONNECT)
 				log("Student logged out")
