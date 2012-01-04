@@ -24,7 +24,7 @@ from StudentPage                import StudentPage
 from TaskChangedHandler         import TaskChangedHandler
 from TeacherLessons             import TeacherLessons
 from TeacherLoginHandler        import TeacherLoginHandler
-from UpdateDB                   import UpdateDB
+#from UpdateDB                   import UpdateDB
 from TeacherPage                import TeacherPage
 from DataDump                   import DataDump
 
@@ -42,7 +42,7 @@ application = webapp2.WSGIApplication(
 		  ('/teacher/([-_A-Za-z0-9]+)',  TeacherPage),
 		  ('/teacher_login',             TeacherLoginHandler),
 		  ('/teacher_lessons',           TeacherLessons),
-		  ('/update_db',                 UpdateDB),
+#		  ('/update_db',                 UpdateDB),
 		  ('/data_dump',                 DataDump),
 		  ('/_ah/channel/connected/',    ChannelConnectedHandler),
 		  ('/_ah/channel/disconnected/', ChannelDisconnectedHandler),

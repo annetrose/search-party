@@ -11,7 +11,7 @@ class ChannelDisconnectedHandler(SearchPartyChannelHandler):
 	def post(self):
 		self.load_search_party_context()
 		from helpers import log
-		from all_exceptions import NoStudentForChannelError, NoTeacherForChannelError
+		from all_exceptions import NoPersonForChannelError#NoStudentForChannelError, NoTeacherForChannelError
 		import sys
 		import settings
 
