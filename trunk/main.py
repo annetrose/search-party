@@ -15,35 +15,39 @@ from ChannelConnectedHandler    import ChannelConnectedHandler
 from ChannelDisconnectedHandler import ChannelDisconnectedHandler
 from LinkFollowedHandler        import LinkFollowedHandler
 from LinkRatedHandler           import LinkRatedHandler
-from LogoutPage                 import LogoutPage
+#from LogoutPage                 import LogoutPage
 from MainPage                   import MainPage
 from SearchExecutedHandler      import SearchExecutedHandler
 from StudentLoginHandler        import StudentLoginHandler
 from StudentLoginPage           import StudentLoginPage
+from StudentLogout              import StudentLogout
 from StudentPage                import StudentPage
 from TaskChangedHandler         import TaskChangedHandler
 from TeacherLessons             import TeacherLessons
 from TeacherLoginHandler        import TeacherLoginHandler
-#from UpdateDB                   import UpdateDB
+from TeacherLogout              import TeacherLogout
 from TeacherPage                import TeacherPage
+#from UpdateDB                  import UpdateDB
 from DataDump                   import DataDump
 
 application = webapp2.WSGIApplication(
 		[ ('/',                          MainPage),
 		  ('/answer',                    AnswerHandler),
+		  ('/data_dump',                 DataDump),
 		  ('/link_followed',             LinkFollowedHandler),
 		  ('/link_rated',                LinkRatedHandler),
-		  ('/logout',                    LogoutPage),
+#		  ('/logout',                    LogoutPage),
 		  ('/search_executed',           SearchExecutedHandler),
 		  ('/student',                   StudentPage),
 		  ('/student_login',             StudentLoginPage),
 		  ('/student_login_handler',     StudentLoginHandler),
+		  ('/student_logout',            StudentLogout),
 		  ('/task_changed',              TaskChangedHandler),
 		  ('/teacher/([-_A-Za-z0-9]+)',  TeacherPage),
 		  ('/teacher_login',             TeacherLoginHandler),
+		  ('/teacher_logout',            TeacherLogout),
 		  ('/teacher_lessons',           TeacherLessons),
 #		  ('/update_db',                 UpdateDB),
-		  ('/data_dump',                 DataDump),
 		  ('/_ah/channel/connected/',    ChannelConnectedHandler),
 		  ('/_ah/channel/disconnected/', ChannelDisconnectedHandler),
 		 ], debug=True)

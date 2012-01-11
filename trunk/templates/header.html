@@ -5,7 +5,7 @@
     <td align="right" id="header_user_info">
 {% if is_logged_in %}
     {{ nickname }}
-    <a class="header_link" href='/logout' id="logout_link">Logout</a>
+    <a class="header_link" href='/{{ role }}_logout' id="logout_link">Logout</a>
   {% if role == "teacher" %}
     &nbsp; 
     <a class="header_link" href='/teacher_lessons' id="lessons_link">Lessons</a>

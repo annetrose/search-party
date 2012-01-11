@@ -17,10 +17,12 @@ class StudentPage(PersonPage):
 		else:
 			lesson = self.student.lesson
 			lesson_code = lesson.lesson_code
+			client_id = self.create_channel(lesson_code=lesson_code)
+			self.student.add_client_id(client_id)
 			template_values = {
 				'header' :     self.gen_header("student"),
 				'nickname' :   self.student.nickname,
-				"token" :      self.create_channel(lesson_code=lesson_code),
+				"token" :      client_id,
 				"lesson" :     lesson,
 				"student_js" : self.make_student_structure_js(lesson=lesson, indent="  ", student=self.student),
 			}

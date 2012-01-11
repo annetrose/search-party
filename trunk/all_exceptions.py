@@ -11,6 +11,3 @@ class SearchPartyException(Exception):
 
 class LoginException(SearchPartyException): pass
 class StudentLoginException(LoginException): pass
-class NoPersonForChannelError(SearchPartyException): pass
-class NoTeacherForChannelError(NoPersonForChannelError): pass
-class NoStudentForChannelError(NoPersonForChannelError): pass

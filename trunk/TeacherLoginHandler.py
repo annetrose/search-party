@@ -22,11 +22,13 @@ class TeacherLoginHandler(SearchPartyRequestHandler):
 
 		# Get the teacher's record
 		if not self.is_teacher:
-			teacher = Teacher(key_name=self.user.user_id())
+			teacher = Teacher(key_name=self.user.user_id()) # key is user ID of authenticated Google user
 			teacher.user = self.user
 			teacher.put()
 			self.set_person(teacher)
 
+		# Create a new session ID, for added security.
 		self.session.regenerate_id()
 
-		self.redirect_with_msg('Teacher Logged in. Hello: ' + self.teacher.user.nickname(), dst='/teacher_lessons')
+		# Greet with nickname of authenticated Google user.
+		self.redirect_with_msg('Teacher Logged in.  Hello, %s.'%self.teacher.user.nickname(), dst='/teacher_lessons')

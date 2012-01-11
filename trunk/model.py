@@ -13,6 +13,8 @@ class SearchPartyModel(db.Model):
 
 	@classmethod
 	def fetch_all(cls, filter_expr, filter_value):
+		# TODO: Make this use less resources.  Read options online and then use profiler to test each one.
+
 		expected_upper_bound = 10000
 
 		assert (filter_expr is None)==(filter_value is None)
@@ -51,7 +53,6 @@ class PersonModel(SearchPartyModel):
 	def _update_client_ids(self, client_id_to_add=None, client_id_to_remove=None):
 		from helpers import log
 
-#		log( "Before:  client_ids == %r"%self.client_ids )
 		client_ids = self.client_ids
 		if client_ids is None:
 			client_ids = []
@@ -70,11 +71,11 @@ class PersonModel(SearchPartyModel):
 
 class Teacher(PersonModel):
 	# FIELDS
-	user = db.UserProperty()
+	user = db.UserProperty()  # authenticated Google user
 	date = db.DateTimeProperty(auto_now_add=True)
 
 	# OTHER METHODS
-	nickname = property(lambda self: self.user.nickname())
+	nickname = property(lambda self: self.user.nickname())  # name of authenticated Google user
 
 	def __repr__(self):
 		from helpers import to_str_if_ascii

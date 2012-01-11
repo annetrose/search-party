@@ -10,35 +10,35 @@ import webapp2
 class SearchPartyChannelHandler(webapp2.RequestHandler):
 	def load_search_party_context(self):
 		from helpers import log
-		import client_id_utils
+		import client_id_utils, settings
 
-		# Note:  Apparently, you cannot get the user or session from here.
-		#        Both get_current_session() and get_current_user() return None
-		#        when called from this handler.
+		# Student and teacher objects are expensive to fetch, so we will use a property
+		# to fetch them lazily and use these member variables to cache the value if/when
+		# it has been cached.
+		self._student = None
+		self._teacher = None
 
-		log( "" )
-		log( "" )
-		log( "" )
-		log( "...................................................................." )
-		log( self.request.url )
-		log( "" )
+		# You cannot get the session info or google authenticated user info from a channel handler.
+		# Both get_current_session() and get_current_user() will return None.  All you get is the
+		# client ID, which comes via the "from" CGI parameter.
+
+		# Get the client ID for this channel from the CGI parameter.
 		self.client_id = self.request.get('from', None)
-		log( self.client_id )
 
-		person_type = client_id_utils.person_type_for_client_id(self.client_id)
-		assert person_type in ("student", "teacher")
-		self.is_student = (person_type=="student")
-		self.is_teacher = (person_type=="teacher")
-		self.person_type = person_type
+		# Determine whether this is a teacher or a student using the first character of the
+		# client ID (as of 1-10-2012, anyway).  See client_id_utils.py for more details.
+		self.person_type = client_id_utils.person_type_for_client_id(self.client_id)
+		assert self.person_type in ("student", "teacher")
 
-	def log_status(self):
-		from helpers import log, smush
-		log( "........  is_teacher=%s,  is_student=%s"%(self.is_teacher, self.is_student))
-		log( "...........  student="+repr(self.student) )
-		log( "...........  teacher="+repr(self.teacher) )
-		log( ".........  client_id="+repr(self.client_id) )
-		log( "........len(cookies)=%d"%(len(self.request.cookies)) )
-	
+		self.is_student = (self.person_type=="student")
+		self.is_teacher = (self.person_type=="teacher")
+
+		log("\n\n\n" + "."*68 + "\n" + self.request.url + "\n" + self.client_id)
+
+		if settings.DEBUG:
+		# This could conceivably cause an unnecessary crash, so only enforce when debugging.
+			assert self.person is not None, "Unidentified person !!!!!!!!!!!!!!! "
+
 	@property
 	def person(self):
 		if self.is_student:
@@ -50,45 +50,14 @@ class SearchPartyChannelHandler(webapp2.RequestHandler):
 
 	@property
 	def teacher(self):
-		from model import Teacher
-		from all_exceptions import NoTeacherForChannelError
-		try:
-			teacher = self._teacher
-		except AttributeError:
-			if self.is_teacher:
-				teacher = self._teacher = Teacher.all().filter("client_ids =", self.client_id).get()  # will match any
-				if teacher is None:
-					raise NoTeacherForChannelError("%r not in %r"%(self.client_id, [tuple(t.client_ids) for t in Teacher.all()]))
-			else:
-				teacher = self._teacher = None
-		return teacher
+		if self._teacher is None:
+			from model import Teacher
+			self._teacher = Teacher.all().filter("client_ids =", self.client_id).get()  # will match any
+		return self._teacher
 
 	@property
 	def student(self):
-		from model import Student
-		from all_exceptions import NoStudentForChannelError
-		try:
-			student = self._student
-		except AttributeError:
-			if self.is_student:
-				student = self._student = Student.all().filter("client_ids =", self.client_id).get()
-				if student is None:
-					raise NoStudentForChannelError("%r not in %r"%(self.client_id, [s.client_ids for s in Student.all()]))
-			else:
-				student = self._student = None
-		return student
-
-#
-#		from model import Client
-#		self.client = Client.get_by_key_name(self.client_id)
-#		if self.client is not None:
-#			user_type = self.client.user_type
-#			assert user_type in ("student", "teacher")
-#			if user_type=="teacher":
-#				self.teacher = self.client.teacher
-#				self.is_teacher = True
-#			elif user_type=="student":
-#				self.student = self.client.student
-#				self.is_student = True
-#		else:
-#			log( "Client ID not found! ... %s"%repr(self.client_id) )
+		if self._student is None:
+			from model import Student
+			self._student = Student.all().filter("client_ids =", self.client_id).get()
+		return self._student
