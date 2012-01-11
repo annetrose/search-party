@@ -11,26 +11,22 @@ class ChannelDisconnectedHandler(SearchPartyChannelHandler):
 	def post(self):
 		self.load_search_party_context()
 		from helpers import log
-		from all_exceptions import NoPersonForChannelError#NoStudentForChannelError, NoTeacherForChannelError
-		import sys
 		import settings
 
-		try:
-			person = self.person
-		except NoPersonForChannelError, e:
-			e.log()
-		else:
-			if settings.REMOVE_OLD_CLIENT_IDS:
-				person.remove_client_id(self.client_id)
-				person.put()
-				log("Client ID removed for %s"%(self.person_type))
-			elif self.is_teacher:
-				log( "*************************************************************************")
-				log( "%s disconnected, but we will NOT remove the client ID ` ` ` ` ` ` ` ` ` `"%(self.person_type.title()) )
-				log( "*************************************************************************")
+		person = self.person
+
+		if settings.REMOVE_OLD_CLIENT_IDS:
+			person.remove_client_id(self.client_id)
+			person.put()
+			log("Client ID removed for %s"%(self.person_type))
+
+		elif self.is_teacher:
+			log( "*************************************************************************")
+			log( "%s disconnected, but we will NOT remove the client ID ` ` ` ` ` ` ` ` ` `"%(self.person_type.title()) )
+			log( "*************************************************************************")
 
 
-			if self.is_student:
-				student = person
-				student.log_out(clear_session_sid=settings.CLEAR_SESSION_ID_ON_STUDENT_DISCONNECT, also_disconnect=True)
-				log("Student logged out")
+		if self.is_student:
+			student = person
+			student.log_out(clear_session_sid=settings.CLEAR_SESSION_ID_ON_STUDENT_DISCONNECT, also_disconnect=True)
+			log("Student logged out")
