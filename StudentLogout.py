@@ -8,19 +8,10 @@
 from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class StudentLogout(SearchPartyRequestHandler):
-	def get(self):
-		from helpers import log
-		from updates import send_update_log_out
-
-		self.load_search_party_context(user_type="student")
-
-		if self.is_student:
-			log("LOGOUT: student, sid=%s, student=%r"%(self.session.sid, self.student))
-			self.student.log_out(clear_session_sid=True)
-			send_update_log_out(teacher=self.student.teacher, student_nickname=self.student.nickname)
-
-		else:
-		# Not logged in
-			log("LOGOUT: student, not logged in, sid=%s"%(self.session.sid))
-
-		self.clear_session_and_redirect(dst="/")
+    def get(self):
+        self.load_search_party_context(user_type="student")
+        
+        if self.is_student and self.person.is_logged_in:
+            student = self.person
+            student.log_out(True)
+            self.clear_session_and_redirect(dst="/")

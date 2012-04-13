@@ -12,7 +12,7 @@ class MainPage(SearchPartyRequestHandler):
 		self.load_search_party_context(user_type="unknown")
 
 		if self.is_teacher:   # Teacher logged in
-			self.redirect_with_msg(msg="", dst="/teacher_lessons")
+			self.redirect_with_msg(msg="", dst="/teacher_dashboard")
 
 		elif self.is_student: # Student logged in
 			self.redirect_with_msg(msg="", dst="/student")

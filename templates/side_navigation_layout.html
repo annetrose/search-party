@@ -3,16 +3,16 @@
 
 {% block body %}
   {% block top %}{% endblock %}
-  {% if msg %}<div style="color:red">{% block msg %}{% endblock %}</div>{% endif %}
-  <table id="outer_container">
-    <tr>
-      <td id="side_panel">
+  {% if msg %}<div class="msg">{% block msg %}{% endblock %}</div>{% endif %}
+ 
+<div class="container_16 cntrbody">
+	<div class="grid_16">
+		<div class="grid_5">
         {% block side_panel %}{% endblock %}
-      </td>
-      <td id="content_area">
+	</div><!-- end grid_5 -->
+	<div class="grid_11">
         {% block content_area %}{% endblock %}
-      </td>
-    </tr>
-  </table>
+</div><!-- end grid_11 -->
+
   {% block bottom %}{% endblock %}
 {% endblock %}

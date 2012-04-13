@@ -8,22 +8,22 @@
 from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class TeacherLogout(SearchPartyRequestHandler):
-	def get(self):
-		from helpers import log
-		from google.appengine.api import users
+    def get(self):
+        from helpers import log
 
-		self.load_search_party_context(user_type="teacher")
+        self.load_search_party_context(user_type="teacher")
+        logout_url = "/"
+        
+        if self.is_teacher:
+            log("=> LOGOUT: teacher, sid=%s"%(self.session.sid))
 
-		if self.is_teacher:
-			if self.session.is_active():
-				log("LOGOUT: teacher, active session, sid=%s"%(self.session.sid))
-				self.session.terminate()
-			else:
-				log("LOGOUT: teacher, inactive session, sid=%s"%(self.session.sid))
-			logout_url = users.create_logout_url('/')
-			self.clear_session_and_redirect(dst=logout_url)
+            self.client_ids = []
+            self.person.put()
+        
+            if self.session.is_active():
+                self.session.terminate()
+                
+            from google.appengine.api import users
+            logout_url = users.create_logout_url('/')
 
-		else:
-		# Not logged in
-			log("LOGOUT: teacher, not logged in, sid=%s"%(self.session.sid))
-			self.clear_session_and_redirect(dst="/")
+        self.clear_session_and_redirect(dst=logout_url)

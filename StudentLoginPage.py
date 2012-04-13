@@ -9,8 +9,6 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class StudentLoginPage(SearchPartyRequestHandler):
 	def get(self):
-		from helpers import log
-		log("STUDENTLOGIN")
 		self.load_search_party_context(user_type="student")
 		template_values = {
 			'header': self.gen_header("student"),

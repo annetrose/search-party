@@ -8,25 +8,26 @@
 from PersonPage import PersonPage
 
 class StudentPage(PersonPage):
-	def get(self):
-		from helpers import log
-		self.load_search_party_context(user_type="student")
+    def get(self):
+        
+        self.load_search_party_context(user_type="student")
+        
+        if self.person is None or not self.is_student or not self.person.is_logged_in:
+            self.redirect_with_msg('Please log in again.')
+            
+        else:
+            student = self.person
+            token = self.create_channel(person_key=student.nickname, lesson_code=student.lesson.lesson_code)
+            
+            template_values = {
+                'header'        : self.gen_header("student"),
+                'nickname'      : student.nickname,
+                'token'         : token,
+                'lesson'        : student.lesson,
+                'lesson_json'   : self.get_lesson_json(student.lesson.lesson_code),
+                'student_js'    : self.make_student_structure_js2(lesson=student.lesson, indent="  ", student=student),
+            }
+            if self.session.has_key('msg'):
+                template_values['msg'] = self.session.pop('msg')  # only show the message once
 
-		if not self.is_student:
-			self.redirect_with_msg('Please log in again.')
-		else:
-			lesson = self.student.lesson
-			lesson_code = lesson.lesson_code
-			client_id = self.create_channel(lesson_code=lesson_code)
-			self.student.add_client_id(client_id)
-			template_values = {
-				'header' :     self.gen_header("student"),
-				'nickname' :   self.student.nickname,
-				"token" :      client_id,
-				"lesson" :     lesson,
-				"student_js" : self.make_student_structure_js(lesson=lesson, indent="  ", student=self.student),
-			}
-			if self.session.has_key('msg'):
-				template_values['msg'] = self.session.pop('msg')  # only show the message once
-
-			self.write_response_with_template("student.html", template_values)
+            self.write_response_with_template("student.html", template_values)

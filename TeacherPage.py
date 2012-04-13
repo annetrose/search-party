@@ -8,47 +8,52 @@
 from PersonPage import PersonPage
 
 class TeacherPage(PersonPage):
-	def get(self, lesson_code):
-		from model import Lesson
-		import json
-		import settings
-		self.load_search_party_context(user_type="teacher")
+    def get(self, lesson_code):
 
-		try:
-			if not self.is_teacher:
-				raise NotAnAuthenticatedTeacherError()
+        self.load_search_party_context(user_type="teacher")
 
-			lesson = Lesson.get_by_key_name(lesson_code)
+        try:
+            from model import Lesson
+            import json
+            import settings
+            
+            if not self.is_teacher:
+                raise NotAnAuthenticatedTeacherError()
 
-			if lesson is None:
-				raise LessonNotFoundError()
-			if lesson.teacher_key != self.teacher_key:
-				raise WrongTeacherError()
+            lesson = Lesson.get_by_key_name(lesson_code)
+            if lesson is None:
+                raise LessonNotFoundError()
+            if lesson.teacher_key != self.teacher_key:
+                raise WrongTeacherError()
 
-			default_start_pane = "students"
+            teacher = self.person
+            person_key = teacher.user.user_id();
+            token = self.create_channel(person_key=person_key, lesson_code=lesson_code)
+            default_start_pane = "students"
 
-			template_values = {
-				'header': self.gen_header("teacher"),
-				"lesson"     : lesson,  # needed for task chooser
-				"token"      : self.create_channel(lesson_code=lesson_code),
-				"students_js": self.make_student_structure_js(lesson=lesson, indent="  "),
-				"default_start_pane" : default_start_pane,
-				"debug_mode" : json.dumps(settings.DEBUG),
-			}
+            template_values = {
+                'header'             : self.gen_header("teacher"),
+                'token'              : token,
+                'lesson'             : lesson,
+                'lesson_json'        : self.get_lesson_json(lesson_code),
+                'students_js'        : self.make_student_structure_js2(lesson=lesson, indent="  "),
+                'default_start_pane' : default_start_pane,
+                'debug_mode'         : json.dumps(settings.DEBUG),
+            }
 
-			if self.session.has_key('msg'):
-				template_values['msg'] = self.session.pop('msg')  # only show the message once
+            if self.session.has_key('msg'):
+                template_values['msg'] = self.session.pop('msg')  # only show the message once
 
-			self.write_response_with_template("teacher.html", template_values)
+            self.write_response_with_template("teacher.html", template_values)
 
-		except NotAnAuthenticatedTeacherError:
-			self.redirect_to_teacher_login()
+        except NotAnAuthenticatedTeacherError:
+            self.redirect_to_teacher_login()
 
-		except LessonNotFoundError:
-			self.redirect_with_msg("There was an internal error.  Please choose your lesson to continue.", "/teacher_lessons")
+        except LessonNotFoundError:
+            self.redirect_with_msg("There was an internal error.  Please choose your lesson to continue.", "/teacher_dashboard")
 
-		except WrongTeacherError:
-			self.redirect_to_teacher_login()
+        except WrongTeacherError:
+            self.redirect_to_teacher_login()
 
 class WrongTeacherError(Exception): pass
 class LessonNotFoundError(Exception): pass

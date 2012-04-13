@@ -1,84 +1,87 @@
 {% extends "task_side_panel_layout.html" %}
 {# vim: set sw=2 ts=2 expandtab: #}
 
-
 {% block head %}
-<title>Search Party - Student Browser</title>
-<link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
-<link rel="stylesheet" href="css/custom-search.css" type="text/css" />
-<link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
-<style type="text/css">
-	.task_description {
-	}
-</style>
-<script type="text/javascript" src="/js/common.js"></script>
-<script type="text/javascript" src="/js/student.js"></script>
-<script type="text/javascript" src="/js/task_chooser.js"></script>
-<script src="http://www.google.com/jsapi" type="text/javascript"></script>
-<script type="text/javascript">
-// <![CDATA[
-  var TOKEN = "{{ token }}";
-  var g_lessonCode = "{{ lesson.lesson_code }}";
-  var g_lastQuery = null;
-  var g_studentNickname = "{{ nickname }}";
-  {{student_js|safe}}{# defines g_students, g_queryHistory #}
-  $(initialize);
-// ]]>
-</script>
-{% endblock %}
+  <title>Search Party - Student Browser</title>
+  <link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
+  <link rel="stylesheet" type="text/css" href="http://www.google.com/cse/style/look/default.css" />
+  <link rel="stylesheet" type="text/css" href="css/custom-search.css" />
+  <link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
 
+  <script type="text/javascript" src="/js/common.js"></script>
+  <script type="text/javascript" src="/js/student.js?version=041312"></script>
+  <script type="text/javascript" src="/js/task_chooser.js"></script>
+  <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+  
+  <script type="text/javascript">
+  // <![CDATA[
+    var TOKEN = "{{ token }}";
+    var g_studentNickname = "{{ nickname }}";
+    var g_lastQuery = null;
+    var g_lessons = {{ lesson_json|safe }};{# g_lessons is an array of length 1; an array is used since array used by functions in lesson.js #}
+    {{student_js|safe}}
+
+    $(document).ready(function() {
+        $(initializeStudent);
+    });
+  // ]]>
+  </script>
+{% endblock %}
 
 {% block top %}
-{{ header|safe }}
-{% if msg %}<div style="color:red">{{ msg }}</div>{% endif %}
-<div id="status_header"></div>
+<div id="logged_out_warning" title="Message" style="display:none">
+  <p>You have been logged out.  Please log in again to continue.</p>
+</div>
+<div class="container_16 cntrmain">
+	<div class="grid_16 branding">
+        {{ header|safe }}
+        <br/>
+        {% if msg %}<div class="msg"><p>{{ msg }}</p></div>{% endif %}
+        <div id="status_header"></div>
+	   <div class="clear"></div>
+	</div><!--- end grid_16 -->
+</div><!-- end container_16 -->
 {% endblock %}
 
-
 {% block side_panel_lower %}
-
-<form action="/task_changed" method="post" id="answer_form">
-  <p>
-    Response:
-    <textarea rows="2" cols="19" name="answer_text" id="answer_text"></textarea>
-  </p>
-
-  <p>
-    Note:
-    <textarea rows="2" cols="19" name="answer_explanation" id="answer_explanation"></textarea>
-  </p>
-  <div>
-    <input type="button" id="answer_button" value="Save" disabled="true"></input>
-  </div>
-  <div id="answer_msg"></div>
+<form action="/task_changed" method="post" id="answer_form" class="wufoo">
+<ul>
+	<li>
+		<span>
+			<label class="lesson_title desc">Response</label>
+            <textarea rows="2" cols="19" name="answer_text" id="answer_text" class="field textarea small flwid"></textarea>
+        </span>
+    </li>
+    <li>
+		<span>
+			<label class="lesson_title desc">Note</label>
+            <textarea rows="2" cols="19" name="answer_explanation" id="answer_explanation" class="field textarea small flwid"></textarea>
+        </span>
+    </li>
+</ul>
+<div><input type="button" id="answer_button" value="Save" disabled="true" class="cssbtn"></input></div>
+<div id="answer_msg"></div>
 </form>
-
 
 <h3>Search History</h3>
 <div id="query_history">....</div>
-{% comment %}
-Log:
-<div id="log"></div>
-{% endcomment %}
 {% endblock %}
-
 
 {% block content_area %}
 <div id="search_container">
-  <!-- CUSTOM SEARCH -->
-  <!-- "custom_search_element" is referred to from js/student_custom_search.js, as well as css/main.css -->
-  <div id="custom_search_element">Loading...</div>
-  <script type="text/javascript" src="/js/student_custom_search.js"></script>
+    <!-- CUSTOM SEARCH -->
+    <!-- "custom_search_element" is referred to from js/student_custom_search.js, as well as css/main.css -->
+    <div id="custom_search_element">Loading...</div>
+    <script type="text/javascript" src="/js/student_custom_search.js"></script>
 </div>
 <div id="result_page_container">
-  <h3 id="rate_result_to_continue">Rate this page to return to search
-    <button id="helpful_button" type="button" value="Helpful"><img src="/imgs/thumbs-up-18x18.png" alt="helpful"/> Helpful</button>
+    <h3 id="rate_result_to_continue">Rate this page to <a href="#" onclick="switchToSearch(); return false;">return to search</a>
+        <button id="helpful_button" type="button" value="Helpful"><img src="/imgs/thumbs-up-18x18.png" alt="helpful"/> Helpful</button>
         <button id="not_helpful_button" type="button" value="Not helpful"><img src="/imgs/thumbs-down-18x18.png" alt="helpful"/> Not helpful</button>
-  </h3>
-  <div id="result_frame_container">
+    </h3>
+    <div id="result_frame_container">
     <div id="result_page_title">...</div>
-    <p id="no_frame_message">Can't display this page inside Search Party<p>
+    <p id="no_frame_message">Can't display this page inside Search Party</p>
     <iframe id="result_frame">Loading...<iframe>
-  </div>
 </div>
 {% endblock %}

@@ -22,7 +22,7 @@ class DataDump(PersonPage):
 			self._send_tab_delimited_report(lesson_code=lesson_code, utc_offset=utc_offset)
 	
 	def _send_tab_delimited_report(self, lesson_code, utc_offset):
-		import StringIO, csv
+		import StringIO
 		from model import Student, StudentActivity, Lesson
 		import helpers
 		encoding = "UTF-8"
@@ -43,7 +43,7 @@ class DataDump(PersonPage):
 			excel_writer = UnicodeWriter(report_buffer, "excel-tab", "utf8")
 
 			headers = (
-#						"Lesson_Code",
+#					"Lesson_Code",
 					"Timestamp",
 					"Student",
 					"Task_Number",
@@ -66,7 +66,7 @@ class DataDump(PersonPage):
 				task_title = task_titles[task_idx]
 				task_num = task_idx + 1
 				line_parts = (
-#							lesson_code,
+#						lesson_code,
 						timestamp,
 						student_nickname,
 						task_num,

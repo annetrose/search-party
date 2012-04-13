@@ -8,16 +8,15 @@
 from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class TaskChangedHandler(SearchPartyRequestHandler):
-	def post(self):
-		from helpers import log
-		from updates import send_update_task
+    def post(self):
+        from helpers import log
+        from updates import send_update_task
 
-		self.load_search_party_context(user_type="student")
-		if self.is_student:
-			student = self.student
-			student_nickname = student.nickname
-			task_idx = int(self.request.get("task_idx"))
-			teacher = student.lesson.teacher
-			log( "TaskChangedHandler:  task_idx=%r"%task_idx )
-			send_update_task(teacher=teacher, student_nickname=student_nickname, task_idx=task_idx)
-			log( "                  :  sent update" )
+        self.load_search_party_context(user_type="student")
+        
+        if self.is_student:
+            student = self.person
+            task_idx = int(self.request.get("task_idx"))
+            teacher = student.lesson.teacher
+            log( "TaskChangedHandler:  task_idx=%r"%task_idx )
+            send_update_task(student=student, teacher=teacher, task_idx=task_idx)

@@ -25,7 +25,7 @@ handlers:
 
 - url: /css
   static_dir: css
-
+  
 - url: /imgs
   static_dir: imgs
 
@@ -35,8 +35,8 @@ handlers:
 - url: .*
   script: main.py
  
-builtins:
-- appstats: on
+#builtins:
+#- appstats: on
 
 threadsafe: false
 

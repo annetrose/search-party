@@ -2,66 +2,76 @@
 {# vim: set sw=2 ts=2 expandtab: #}
 
 {% block head %} 
-  <title>Search Party - Student Login</title>
+<title>Search Party - Student Login</title>
 {% endblock %}
-
-
 
 {% block body %} 
-  <script type="text/javascript">
-    $(function() {
-      $("#student_nickname").focus();
-    });
-  </script>
-  
-  {{ header|safe }}
-  <p>
-  {% if msg %}<div style="color:red">{{ msg }}</div>{% endif %}
 
-  <h2>Student login</h2>
+    <div class="container_16 cntrmain">
+	   <div class="grid_16 branding">
+		  {{ header|safe }}
+		  {% if msg %}<div class="msg"><p>{{ msg }}</p></div>{% endif %}
+	      <div class="clear"></div>
+	   </div><!--- end grid_16 -->
+    </div><!-- end container_16 -->
 
-  <table style="td">
-    <tr>
-      <td align="right">Student name:</td>
-      <td><input type="text" id="student_nickname" value="" class="login_box" name="student_nickname"></td>
-    </tr>
-    <tr>
-      <td align="right">Lesson code:</td>
-      <td><input type="text" id="lesson_code_field" value="" class="login_box" name="lesson_code"></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td><input type="button" id="login_button" value="Login"></td>
-    </tr>
-  </table>
-  <script type="text/javascript">
-    $(".login_box").keyup(function(event) {
-      if (event.which == 13) {   // Enter key
-            login(event);
-      }    
-    });
-    $('#login_button').click(function(event) {
-      login(event);
-    });
-  
-    function login(event) {
-      $.post("/student_login_handler", 
-        {
-         "lesson_code": $('#lesson_code_field').val(),
-         "student_nickname": $('#student_nickname').val()
-        }, 
-        login_callback, 'json');
-    }
-    
-    function login_callback(data) {
-      terms = data;
-      status = terms['status'];
-      if (status == 'logged_in') {
-        window.location.replace("/student");
-      }
-      else if (status == 'logged_out') {
-        window.location.replace("/student_login");
-      }
-    }
-  </script>  
-{% endblock %}
+    <div class="container_16">
+	   <div class="grid_16 main">
+		  <form>
+            <header class="info">
+                <h2>Student login</h2>
+			</header>
+		    <ul>
+                <li>
+				    <span>
+						<label class="desc">Student name:</label>
+						<input type="text" id="student_nickname" value="" class="login_box field text fn" name="student_nickname">
+					</span>
+				</li>
+				<li>
+					<span>
+					   <label class="desc">Activity code:</label>
+					   <input type="text" id="lesson_code_field" value="" class="login_box field text fn" name="lesson_code">
+					</span>
+				</li>
+				<li>
+					<div class="frmtxt"><input type="button" id="login_button" class="cssbtn" value="Login"></div>
+				</li>
+			</ul>
+		  </form>
+       </div><!--- end grid_16 -->
+    </div><!--- end container_16-->
+	
+	<script type="text/javascript">
+	   $(".login_box").keyup(function(event) {
+	       if (event.which == 13) {   // Enter key
+		      login(event);
+		   }    
+	   });
+	   
+	   $('#login_button').click(function(event) {
+	       login(event);
+	   });
+
+	   function login(event) {
+	       $.post("/student_login_handler", 
+	          {
+		          "lesson_code": $('#lesson_code_field').val(),
+			      "student_nickname": $('#student_nickname').val()
+              }, 
+		      login_callback, 'json');
+	   }
+
+       function login_callback(data) {
+           terms = data;
+		   status = terms['status'];
+		   if (status == 'logged_in') {
+		      window.location.replace("/student");
+		   }
+		   else if (status == 'logged_out') {
+		      window.location.replace("/student_login");
+		  }
+	   }
+	</script>  
+
+	{% endblock %}
