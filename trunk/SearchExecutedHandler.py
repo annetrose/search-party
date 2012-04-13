@@ -8,33 +8,32 @@
 from SearchPartyRequestHandler import SearchPartyRequestHandler
 
 class SearchExecutedHandler(SearchPartyRequestHandler):
-	def post(self):		   
-#		from helpers import send_update_msg
-		from helpers import log
-		from model import StudentActivity
-#		from datetime import datetime
-		from updates import send_update_query
+    def post(self):           
+        from model import StudentActivity
+        from updates import send_update_query
 
+        self.load_search_party_context(user_type="student")
 
-		self.load_search_party_context(user_type="student")
-
-
-		if self.is_student:
-			lesson = self.student.lesson
-			teacher = lesson.teacher
-			student = self.student
-			query = self.request.get("query")
-			task_idx = int(self.request.get("task_idx"))
-			student_nickname = student.nickname
-			activity = StudentActivity(
-				student = student,
-				student_nickname = student_nickname,
-				lesson = lesson,
-				task_idx = task_idx,
-				activity_type = 'search',
-				search = query,
-			)
-			activity.put()
-			send_update_query(teacher=teacher, student_nickname=student_nickname, task_idx=task_idx, query=query)
-		else:
-			log( "Not a student" )
+        if self.is_student and self.person.is_logged_in:
+            student = self.person
+            lesson = student.lesson
+            teacher = lesson.teacher
+            query = self.request.get("query")
+            task_idx = int(self.request.get("task_idx"))
+            activity = StudentActivity(
+                student = student,
+                lesson = lesson,
+                task_idx = task_idx,
+                activity_type = 'search',
+                search = query,
+            )
+            activity.put()
+            send_update_query(student=student, teacher=teacher, task_idx=task_idx, query=query)
+            response_data = { "status":1 }
+            
+        else:
+            response_data = { "status":0, "msg":"Student not logged in" }
+         
+        import json
+        self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
+        self.response.out.write(json.dumps(response_data))

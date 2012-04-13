@@ -5,198 +5,222 @@
 # Date: Originally created July 2011
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
+EXPECTED_UPPER_BOUND = 10000
 
 from google.appengine.ext import db
 
 class SearchPartyModel(db.Model):
-	default_sort_key_fn = None
+    default_sort_key_fn = None
 
-	@classmethod
-	def fetch_all(cls, filter_expr, filter_value):
-		# TODO: Make this use less resources.  Read options online and then use profiler to test each one.
+    @classmethod
+    def fetch_all(cls, filter_expr, filter_value):
+        # TODO: Make this use less resources.  Read options online and then use profiler to test each one.
 
-		expected_upper_bound = 10000
+        assert (filter_expr is None)==(filter_value is None)
+        import settings, helpers
 
-		assert (filter_expr is None)==(filter_value is None)
-		import settings, helpers
+        def get_query():
+            query = cls.all()
+            if filter_expr is not None:
+                assert filter_value is not None
+                query = query.filter(filter_expr, filter_value)
+            return query
 
-		def get_query():
-			query = cls.all()
-			if filter_expr is not None:
-				assert filter_value is not None
-				query = query.filter(filter_expr, filter_value)
-			return query
+        items = get_query().fetch(EXPECTED_UPPER_BOUND)
+        
+        if len(items) >= EXPECTED_UPPER_BOUND:
+            if settings.DEBUG:
+                assert False, "Upper bound is apparently not big enough."
+            else:
+                helpers.log("ERROR: Upper bound is apparently not big enough.")
+                items = list( get_query() )
 
-		items = get_query().fetch(expected_upper_bound)
-		
-		if len(items) >= expected_upper_bound:
-			if settings.DEBUG:
-				assert False, "Upper bound is apparently not big enough."
-			else:
-				helpers.log("ERROR:  Upper bound is apparently not big enough.")
-				items = list( get_query() )
+        if cls.default_sort_key_fn is not None:
+            items.sort(key=cls.default_sort_key_fn)
 
-		if cls.default_sort_key_fn is not None:
-			items.sort(key=cls.default_sort_key_fn)
-
-		return tuple(items)
+        return tuple(items)
 
 class PersonModel(SearchPartyModel):
-	client_ids = db.StringListProperty()
+    client_ids = db.StringListProperty()
 
-	def add_client_id(self, client_id):
-		self._update_client_ids(client_id_to_add=client_id)
-	
-	def remove_client_id(self, client_id):
-		self._update_client_ids(client_id_to_remove=client_id)
-	
-	def _update_client_ids(self, client_id_to_add=None, client_id_to_remove=None):
-		from helpers import log
+    def add_client_id(self, client_id):
+        self._update_client_ids(client_id_to_add=client_id)
+    
+    def remove_client_id(self, client_id):
+        self._update_client_ids(client_id_to_remove=client_id)
+    
+    def _update_client_ids(self, client_id_to_add=None, client_id_to_remove=None):
+        client_ids = self.client_ids
+        if client_ids is None:
+            client_ids = []
 
-		client_ids = self.client_ids
-		if client_ids is None:
-			client_ids = []
+        if client_id_to_add is not None:
+            client_ids.append(client_id_to_add)
+        
+        if client_id_to_remove is not None:
+            client_ids.remove(client_id_to_remove)
 
-		if client_id_to_add is not None:
-			client_ids.append(client_id_to_add)
-		
-		if client_id_to_remove is not None:
-			client_ids.remove(client_id_to_remove)
+        self.client_ids = client_ids
 
-		self.client_ids = client_ids
-
-	@classmethod
-	def all_client_ids(cls):
-		return tuple(c for p in cls.all() for c in p.client_ids)
+    @classmethod
+    def all_client_ids(cls):
+        return tuple(c for p in cls.all() for c in p.client_ids)
 
 class Teacher(PersonModel):
-	# FIELDS
-	user = db.UserProperty()  # authenticated Google user
-	date = db.DateTimeProperty(auto_now_add=True)
-
-	# OTHER METHODS
-	nickname = property(lambda self: self.user.nickname())  # name of authenticated Google user
-
-	def __repr__(self):
-		from helpers import to_str_if_ascii
-		return "%s(%r)"%(self.__class__.__name__, to_str_if_ascii(self.user.email()))
+    # FIELDS
+    user = db.UserProperty()  # authenticated Google user
+    date = db.DateTimeProperty(auto_now_add=True)
+    nickname = property(lambda self: self.user.nickname())  # name of authenticated Google user
+    admin = db.BooleanProperty(default=False)
+    
+    def __repr__(self):
+        from helpers import to_str_if_ascii
+        return "%s(%r)"%(self.__class__.__name__, to_str_if_ascii(self.user.email()))
 
 class Lesson(SearchPartyModel):
-	# FIELDS
-	teacher = db.ReferenceProperty(Teacher)
-	title = db.StringProperty()
-	description = db.StringProperty(multiline=True)
-	lesson_code = db.StringProperty()
-	class_name = db.StringProperty()
-	start_time = db.DateTimeProperty()
-	stop_time = db.DateTimeProperty()
-	tasks_json = db.TextProperty()
-	deleted_time = db.DateTimeProperty()
+    # FIELDS
+    teacher = db.ReferenceProperty(Teacher)
+    title = db.StringProperty()
+    description = db.StringProperty(multiline=True)
+    lesson_code = db.StringProperty()
+    class_name = db.StringProperty()
+    start_time = db.DateTimeProperty()
+    stop_time = db.DateTimeProperty()
+    tasks_json = db.TextProperty()
+    deleted_time = db.DateTimeProperty()
+    is_active = property(lambda self: (self.start_time is not None) and (self.stop_time is None))
+    lesson_key = property(lambda self: self.key())
+    teacher_key = property(lambda self: Lesson.teacher.get_value_for_datastore(self))
+    is_deleted = property(lambda self: self.deleted_time is not None)
+    
+    @property
+    def tasks(self):
+        import json
+        return json.loads(self.tasks_json)
 
-	# OTHER METHODS
-	is_active = property(lambda self: (self.start_time is not None) and (self.stop_time is None))
-
-	@property
-	def tasks(self):
-#		from django.utils import simplejson as json
-		import json
-		return json.loads(self.tasks_json)
-
-	lesson_key = property(lambda self: self.key())
-	teacher_key = property(lambda self: Lesson.teacher.get_value_for_datastore(self))
-	is_deleted = property(lambda self: self.deleted_time is not None)
-
-	def __repr__(self):
-		from helpers import to_str_if_ascii
-		return "%s(%r)"%(self.__class__.__name__, to_str_if_ascii(self.key().name()))
+    def __repr__(self):
+        from helpers import to_str_if_ascii
+        return "%s(%r)"%(self.__class__.__name__, to_str_if_ascii(self.key().name()))
 
 
 class Student(PersonModel):
-	# FIELDS
-	logged_in = db.BooleanProperty()
-	nickname = db.StringProperty()
-	session_sid = db.StringProperty()
-	lesson = db.ReferenceProperty(Lesson)
-	teacher = db.ReferenceProperty(Teacher)
-	task_idx = db.IntegerProperty()
-	first_login_timestamp = db.DateTimeProperty(auto_now_add=True)
-	latest_login_timestamp = db.DateTimeProperty()
-	latest_logout_timestamp = db.DateTimeProperty()
-	is_disconnected = db.BooleanProperty()
-	client_id = db.StringProperty()
+    # FIELDS
+    nickname = db.StringProperty()
+    lesson = db.ReferenceProperty(Lesson)
+    teacher = db.ReferenceProperty(Teacher)
+    task_idx = db.IntegerProperty()
+    first_login_timestamp = db.DateTimeProperty(auto_now_add=True)
+    latest_login_timestamp = db.DateTimeProperty()
+    latest_logout_timestamp = db.DateTimeProperty()
+    teacher_key = property(lambda self: Student.teacher.get_value_for_datastore(self))
+    session_sid = db.StringProperty()
+    default_sort_key_fn = (lambda item: item.nickname)
 
-	def log_out(self, clear_session_sid=False, also_disconnect=False):
-		from datetime import datetime
-		self.latest_logout_timestamp = datetime.now()
-		self.logged_in = False
-		if clear_session_sid:
-			self.session_sid = ""
-		if also_disconnect==True:
-			self.is_disconnected = True
-		self.put()
+    @property
+    def is_logged_in(self):
+    # TODO: Check to make sure everything works if computer clock is wrong
+    
+        login = self.latest_login_timestamp
+        logout = self.latest_logout_timestamp
 
-	@property
-	def is_logged_in(self):
-		login = self.latest_login_timestamp
-		logout = self.latest_logout_timestamp
+        assert login is not None
+        assert login != logout
 
-		assert login is not None
-		assert login != logout
+        if logout is None:
+            return True
+        elif logout < login:
+            return True
+        elif logout > login:
+            return False
+        else:
+            assert False, "unexpected, login=%r, logout=%r"%(login, logout)
+            
+    def log_out(self, clear_session_sid=False):
+        from datetime import datetime
+        # ChannelDisconnectHandler will be called for passive log outs, and the
+        # corresponding client_id will be deleted but when a user explicitly logs out 
+        # (i.e., clicks logout) all the client_ids should be removed
+        self.client_ids = []
+        self.latest_logout_timestamp = datetime.now()
+        if clear_session_sid:
+            self.session_sid = None
+        self.put()
+        from updates import send_update_log_out
+        send_update_log_out(student=self, teacher=self.teacher)
+            
+    @classmethod
+    def make_key_name(cls, student_nickname, lesson_code):
+        assert "::" not in lesson_code
+        return "::".join((student_nickname, lesson_code))
 
-		if logout is None:
-			return True
-		elif logout < login:
-			return True
-		elif logout > login:
-			return False
-		else:
-			assert False, "unexpected, login=%r, logout=%r"%(login, logout)
-
-	default_sort_key_fn = (lambda item: item.nickname)
-	
-	@classmethod
-	def make_key_name(cls, student_nickname, lesson_code):
-		assert "::" not in lesson_code
-		return "::".join((student_nickname, lesson_code))
-
-	teacher_key = property(lambda self: Student.teacher.get_value_for_datastore(self))
-
-	def __repr__(self):
-		from helpers import to_str_if_ascii
-		return "%s(%r)"%(self.__class__.__name__, to_str_if_ascii(self.key().name()))
+    def __repr__(self):
+        from helpers import to_str_if_ascii
+        return "%s(%r)"%(self.__class__.__name__, to_str_if_ascii(self.key().name()))
 
 class StudentActivity(SearchPartyModel):
-	ACTIVITY_TYPE_LINK = "link"
-	ACTIVITY_TYPE_SEARCH = "search"
-	ACTIVITY_TYPE_LINK_RATING = "link_rating"
-	ACTIVITY_TYPE_ANSWER = "answer"
+    ACTIVITY_TYPE_LINK = "link"
+    ACTIVITY_TYPE_SEARCH = "search"
+    ACTIVITY_TYPE_LINK_RATING = "link_rating"
+    ACTIVITY_TYPE_ANSWER = "answer"
 
-	# FIELDS
-	student = db.ReferenceProperty(Student)  # all
-	student_nickname = db.StringProperty()   # all
-	lesson = db.ReferenceProperty(Lesson)    # all
-	task_idx = db.IntegerProperty()          # all
-	activity_type = db.StringProperty()      # all
-	search = db.StringProperty()             # search or link only
-	link = db.LinkProperty()                 # link or link_rating only
-	link_title = db.StringProperty()         # link only
-	is_helpful = db.BooleanProperty()        # link_rating only
-	answer_text = db.StringProperty(multiline=True) # answer only
-	answer_explanation = db.StringProperty(multiline=True) # answer only
-	timestamp = db.DateTimeProperty(auto_now_add=True) # all
+    # FIELDS
+    student = db.ReferenceProperty(Student)  # all
+    #student_nickname = db.StringProperty()   # all
+    lesson = db.ReferenceProperty(Lesson)    # all
+    task_idx = db.IntegerProperty()          # all
+    activity_type = db.StringProperty()      # all
+    search = db.StringProperty()             # search or link only
+    link = db.LinkProperty()                 # link or link_rating only
+    link_title = db.StringProperty()         # link only
+    is_helpful = db.BooleanProperty()        # link_rating only
+    answer_text = db.StringProperty(multiline=True) # answer only
+    answer_explanation = db.StringProperty(multiline=True) # answer only
+    timestamp = db.DateTimeProperty(auto_now_add=True) # all
 
-	lesson_key = property(lambda self: StudentActivity.lesson.get_value_for_datastore(self))
-	student_key = property(lambda self: StudentActivity.student.get_value_for_datastore(self))
+    lesson_key = property(lambda self: StudentActivity.lesson.get_value_for_datastore(self))
+    student_key = property(lambda self: StudentActivity.student.get_value_for_datastore(self))
 
-	default_sort_key_fn = (lambda item: item.timestamp)
+    default_sort_key_fn = (lambda item: item.timestamp)
+    
+    def __repr__(self):
+        params_to_show = [
+            self.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            self.lesson_key.name(),
+            self.student.nickname,
+            self.activity_type,
+        ]
+        return self.__class__.__name__ + repr(tuple(params_to_show))
+    
+def fetch_student_activities_for_task(self, student, lesson, task_idx):
+    query = StudentActivity.all()
+    query = query.filter('lesson =', lesson).filter('task_idx =', task_idx)
+    query.order('timestamp')
+    items = query.fetch(EXPECTED_UPPER_BOUND)
+    return tuple(items)
 
-	def __repr__(self):
-		from helpers import to_str_if_ascii
-		params_to_show = [
-			self.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-			self.lesson_key.name(),
-			self.student_nickname,
-			self.activity_type,
-		]
-		return self.__class__.__name__ + repr(tuple(params_to_show))
-
+#def to_dict(model):
+#        import datetime
+#        import time
+#        SIMPLE_TYPES = (int, long, float, bool, dict, basestring, list)
+#        
+#        output = {}
+#        
+#        for key, prop in model.properties().iteritems():
+#            value = getattr(model, key)
+#
+#            if value is None or isinstance(value, SIMPLE_TYPES):
+#                output[key] = value
+#            elif isinstance(value, datetime.date):
+#                # Convert date/datetime to ms-since-epoch ("new Date()").
+#                ms = time.mktime(value.utctimetuple())
+#                ms += getattr(value, 'microseconds', 0) / 1000
+#                output[key] = int(ms)
+#            elif isinstance(value, db.GeoPt):
+#                output[key] = {'lat': value.lat, 'lon': value.lon}
+#            elif isinstance(value, db.Model):
+#                #output[key] = to_dict(value)
+#                output[key] = str(value)
+#            else:
+#                raise ValueError('Cannot encode ' + repr(prop))
+#
+#        return output  

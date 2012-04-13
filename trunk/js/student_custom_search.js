@@ -10,10 +10,10 @@ google.setOnLoadCallback(function() {
 
 	// https://groups.google.com/a/googleproductforums.com/forum/#!msg/customsearch/Bp8MndGfn6M/AR8zQf5O3fIJ
 	// https://groups.google.com/a/googleproductforums.com/forum/#!topic/customsearch/OUpAUFbQ6-o/discussion
-	customSearchControl.setResultSetSize(5);
+	customSearchControl.setResultSetSize(10);
 	customSearchControl.draw('custom_search_element');
-	customSearchControl.setSearchCompleteCallback(null, searchCompleteCallback)
-	initEventHandlers();
+	customSearchControl.setSearchCompleteCallback(null, onSearchComplete)
+	//initEventHandlers();
 }, true);
 
 

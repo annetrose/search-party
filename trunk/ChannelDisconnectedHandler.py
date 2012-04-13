@@ -8,25 +8,20 @@
 from SearchPartyChannelHandler import SearchPartyChannelHandler
 
 class ChannelDisconnectedHandler(SearchPartyChannelHandler):
-	def post(self):
-		self.load_search_party_context()
-		from helpers import log
-		import settings
+    def post(self):    
+        from helpers import log
+        self.load_user()
+        if self.client_id not in self.person.client_ids:
+            log("=> CLIENT ID NOT FOUND: {0}".format(self.client_id))
+        else:
+            self.person.remove_client_id(self.client_id)
+            self.person.put()
+            
+        log("=> CHANNEL DISCONNECTED: {0} ({1})".format(str(self.client_id),len(self.person.client_ids)))
 
-		person = self.person
-
-		if settings.REMOVE_OLD_CLIENT_IDS:
-			person.remove_client_id(self.client_id)
-			person.put()
-			log("Client ID removed for %s"%(self.person_type))
-
-		elif self.is_teacher:
-			log( "*************************************************************************")
-			log( "%s disconnected, but we will NOT remove the client ID ` ` ` ` ` ` ` ` ` `"%(self.person_type.title()) )
-			log( "*************************************************************************")
-
-
-		if self.is_student:
-			student = person
-			student.log_out(clear_session_sid=settings.CLEAR_SESSION_ID_ON_STUDENT_DISCONNECT, also_disconnect=True)
-			log("Student logged out")
+        # do not check if self.person.is_logged_in since this may already return false
+        # in some browsers before ChannelDisconnectHandler is called
+        # e.g., cause implicit logout by closing Firefox browser
+        if self.person_type=="student" and len(self.person.client_ids)==0:
+            self.person.log_out()
+            log("=> STUDENT LOGGED OUT (PASSIVELY)")
