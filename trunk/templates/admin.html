@@ -1,0 +1,46 @@
+{% extends "side_navigation_layout.html" %}
+{# vim: set sw=2 ts=2 expandtab: #}
+
+{% block head %}
+  <title>Search Party - Admin</title>
+  <script type="text/javascript" src="/js/common.js"></script>
+  <script type="text/javascript" src="/js/admin.js"></script>
+
+  <script type="text/javascript">
+    // <![CDATA[
+    $(document).ready(function() {
+    }); 
+    // ]]>
+  </script>
+{% endblock %}
+
+{% block top %}
+<div id="warning" title="Message" style="display:none"></div>
+<div class="container_16 cntrmain">
+  <div class="grid_16 branding">
+      {{ header|safe }}
+      <br/>
+      {% if msg %}<div class="msg"><p>{{ msg }}</p></div>{% endif %}
+      <div class="clear"></div>
+  </div><!--- end grid_16 -->
+</div><!-- end container_16 -->
+{% endblock %}
+
+{% block side_panel %}
+&nbsp;
+{% endblock %}
+
+{% block content_area %}
+  <div id="data_display_container">
+	<header class="info">
+		<h2>Admin</h2>
+	</header>
+    <div id="content">
+    <button class="cssbtn" id="logout_students_btn" onclick="logoutAllStudents(); return false;">Logout All Students</button><br/>
+    <!--<button class="cssbtn" id="update_values_btn" onclick="updateValues(); return false;">Update Values</button>-->
+    </div>
+  </div>
+{% endblock %}
+
+{% block bottom %}
+{% endblock %}

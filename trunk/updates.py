@@ -16,7 +16,11 @@ def _send_update(from_person, to_person, *updates):
 
     assert isinstance(to_person, (Student,Teacher)), repr(to_person)
 
-    updates_json = json.dumps(list(updates))
+    import datetime
+    timestamp = datetime.datetime.now()
+    updates_list = list(updates)
+    updates_list[0]['timestamp'] = timestamp.strftime('%B %d, %Y %H:%M:%S')
+    updates_json = json.dumps(updates_list)
 
     # Sort and dedupe client_ids by timestamp, descending
     client_ids = set(to_person.client_ids)
