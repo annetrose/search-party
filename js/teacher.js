@@ -49,16 +49,16 @@ function onSocketMessage(msg) {
 				handle_update_task(update.student_nickname, update.task_idx);
 				break;
 			case "query":
-				handle_update_query(update.student_nickname, update.task_idx, update.query);
+				handle_update_query(update.student_nickname, update.task_idx, update.query, update.timestamp);
 				break;
 			case "link_followed":
-				handle_update_link_followed(update.student_nickname, update.task_idx, update.query, update.url, update.title);
+				handle_update_link_followed(update.student_nickname, update.task_idx, update.query, update.url, update.title, update.timestamp);
 				break;
 			case "link_rated":
-				handle_update_link_rated(update.student_nickname, update.task_idx, update.url, update.is_helpful);
+				handle_update_link_rated(update.student_nickname, update.task_idx, update.url, update.is_helpful, update.timestamp);
 				break;
 			case "answer":
-				handle_update_answer(update.student_nickname, update.task_idx, update.text, update.explanation);
+				handle_update_answer(update.student_nickname, update.task_idx, update.text, update.explanation, update.timestamp);
 				break;
 			default:
 				break;
@@ -104,11 +104,14 @@ function handle_update_log_in(student_nickname, task_idx) {
 	if( student_info==undefined ) {
 		student_info = {};
 		student_info.logged_in = true;
-		student_info.task_idx = task_idx;
+		student_info.task_idx = task_idx;		
+		var task_history = [];
+		student_info.task_history = task_history;
 		var tasks_list = [];
 		student_info.tasks = tasks_list;
 		var numTasks = numberOfTasks();
 		for(var i=0; i<numTasks; i++) {
+			task_history.push([]);
 			tasks_list.push({"searches":[], answer:{text:"", explanation:""}});
 		}
 		g_students[student_nickname] = student_info;
@@ -132,12 +135,14 @@ function handle_update_task(student_nickname, task_idx) {
 	updateUI();
 }
 
-function handle_update_query(student_nickname, task_idx, query) {
+function handle_update_query(student_nickname, task_idx, query, timestamp) {
+	g_students[student_nickname].task_history[task_idx].push({activity_type:"search", search:query, link:null, link_title:null, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp});
 	g_students[student_nickname].tasks[task_idx].searches.push({"query":query, "links_followed":[]});
 	updateUI();
 }
 
-function handle_update_link_followed(student_nickname, task_idx, query, url, title) {
+function handle_update_link_followed(student_nickname, task_idx, query, url, title, timestamp) {
+	g_students[student_nickname].task_history[task_idx].push({activity_type:"link", search:query, link:url, link_title:title, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp});
 	var searches = g_students[student_nickname].tasks[task_idx].searches;
 	var num_searches = searches.length;
 	var search_info = null;
@@ -156,7 +161,8 @@ function handle_update_link_followed(student_nickname, task_idx, query, url, tit
 	updateUI();
 }
 
-function handle_update_link_rated(student_nickname, task_idx, url, is_helpful) {
+function handle_update_link_rated(student_nickname, task_idx, url, is_helpful, timestamp) {	
+	g_students[student_nickname].task_history[task_idx].push({activity_type:"link_rating", search:null, link:url, link_title:null, is_helpful:is_helpful, answer_text:null, answer_explanation:null, timestamp:timestamp});
 	var searches = g_students[student_nickname].tasks[task_idx].searches;
 	var num_searches = searches.length;
 	for(var i=0; i<num_searches; i++) {
@@ -174,7 +180,8 @@ function handle_update_link_rated(student_nickname, task_idx, url, is_helpful) {
 	updateUI();
 }
 
-function handle_update_answer(student_nickname, task_idx, text, explanation) {
+function handle_update_answer(student_nickname, task_idx, text, explanation, timestamp) {
+	g_students[student_nickname].task_history[task_idx].push({activity_type:"answer", search:null, link:null, link_title:null, is_helpful:null, answer_text:answer, answer_explanation:null, timestamp:timestamp});
 	var answer_info = g_students[student_nickname].tasks[task_idx].answer;
 	answer_info.text = text;
 	answer_info.explanation = explanation;
@@ -259,11 +266,6 @@ function updateUI() {
 	    		g_activeSessionIndex = control.options.active;
 	    		var activeSection = $(".accordion_section:eq("+g_activeSessionIndex+")");
 	    		g_activeSessionName = activeSection.attr("id");
-
-	    		// TESTING
-//	    		if (g_currentPaneName == "students" && g_activeSessionName != undefined) {
-//	    			showTaskHistoryForStudent(g_activeSessionName, selectedTaskIdx()+1);
-//	    		}
 	    	}
 	    });
 		g_updatesAreWaiting = false;
@@ -286,12 +288,14 @@ function updateSideBarInfo() {
 
 function updateStudents() {
 	var accumulator = new StudentAccumulator();
-	var studentNames = keysOfObject(g_students);
+	// TODO / FIX: Returning duplicate student names (2x number expected); not sure why
+	//var studentNames = keysOfObject(g_students);
+	var studentNames = Object.keys(g_students);
 	$.each(studentNames, function(i, studentNickname) {
 		var isLoggedIn = g_students[studentNickname].logged_in;
 		accumulator.add(studentNickname, isLoggedIn);
 	});
-	
+		
 	accumulator.setSort(g_currentPaneSort);
 	var itemList = accumulator.getItems();
 	updateAnyWithItems(itemList);
@@ -508,7 +512,7 @@ function ItemList(items, type, title) {
 			html = '<div id="task_activity" class="accordion2">';
 			$.each(items, function(idx,dataItem) {
 				if (dataItem.getKey) {
-					html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + '</a></div>';
+					html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + '</a></div>';						
 				}
 				else {
 					html += '<div><a href="#">' + dataItem.asHTML() + '</a></div>';
@@ -568,7 +572,7 @@ function StudentAccumulator() {
 		var occurrenceDict = this._occurrenceDict;
 		var occurrenceKey = studentNickname;
 		var counterItem = occurrenceDict[occurrenceKey];
-		if(counterItem===undefined) {
+		if (counterItem===undefined) {
 			counterItem = new StudentDataItem(studentNickname, isLoggedIn);
 			occurrenceDict[occurrenceKey] = counterItem;
 		}
@@ -1183,52 +1187,6 @@ function AnswerDataItem(answerText, studentNicknames, count) {
 	}
 }
 
-// TESTING
-function showTaskHistoryForStudent(studentName, task) {
-   var student = g_students[studentName];
-   var history = student.task_history[task-1];
-   
-   var html = 'Student: '+studentName+'<br/>\n';
-   html += 'Task: '+task+'<br/>\n';
-   html += '<br/>\n';
-   if (history.length==0) {
-       html += 'No actions';
-   }
-   else {
-       html += '<table style="width:100%">\n';
-       for (var i=0; i<history.length; i++) {
-           var action = history[i];
-           var timestamp = getLocalTime(new Date(action.timestamp));
-           var type = action.activity_type;
-           var details = '';
-           if (type=='search') {
-               details += action.search;
-           }
-           else if (type=='link') {
-               if (action.link_title) details += action.link_title + ' (';
-               details += '<a href="'+action.link+'" target="_blank">'+action.link+'</a>';
-               if (action.link_title) details + ')';
-           }
-           else if (type=='link_rating') {             
-               if (action.is_helpful) details += 'Helpful';
-               else details += 'Unhelpful';    
-           }
-           else if (type=='answer') {
-               details += action.answer_text;
-               if (action.answer_explanation) details += '<br/>'+action.answer_explanation;
-           }
-       
-           html += '<tr>\n';
-           html += '<td style="padding:3px">'+getFormattedTimestamp(timestamp)+'</td>\n';
-           html += '<td style="padding:3px">'+type+'</td>\n';
-           html += '<td style="padding:3px">'+details+'</td>\n';
-           html += '</tr>\n';
-       }
-       html += '</table>\n';
-   }
-   showMessageDialogWithOptions(html, 900);
-}
-
 function getLocalTime(gmt)  {
    var min = gmt.getTime() / 1000 / 60; // convert gmt date to minutes
    var localNow = new Date().getTimezoneOffset(); // get the timezone offset in minutes            
@@ -1236,6 +1194,7 @@ function getLocalTime(gmt)  {
    return new Date(localTime * 1000 * 60); // convert it into a date
 }
 
+var g_months = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ]
 function getFormattedTimestamp(ts) {
     var month = ''+(ts.getMonth()+1);
     if (month.length==1) month = '0' + month;
@@ -1247,6 +1206,19 @@ function getFormattedTimestamp(ts) {
     if (mins.length == 1) mins = '0' + mins;
     var time = hours + ':' + mins;
     return date + '&nbsp;' + time;
+}
+
+function getTimestamp() {
+	var ts = new Date();
+    var month = g_months[ts.getMonth()];
+    var date =  g_months[ts.getMonth()] + ' ' + ts.getDate() + ', '+ ts.getFullYear();
+    var hours = ''+ts.getHours();
+    var mins = ''+ts.getMinutes();
+    if (mins.length == 1) mins = '0' + mins;
+    var secs = ''+ts.getSeconds();
+    if (secs.length == 1) mins = '0' + mins;
+    var time = hours + ':' + mins + ':' + secs;
+    return date + ' ' + time;
 }
 
 //=================================================================================
@@ -1532,7 +1504,7 @@ function getWordsForQuery(query) {
 }
 
 function assert(condition, msg) {
-	if(!condition) {
+	if (!condition) {
 		var s = JSON.stringify(condition);
 		if( msg !== undefined ) {
 			s = msg + "\n\n" + s;
@@ -1560,7 +1532,7 @@ function searchIsHelpful(searchInfo) {
 	var numLinksFollowed = linksFollowed.length;
 	var helpfulLinkCount = 0;
 	var unhelpfulLinkCount = 0;
-	for( var i=0; i<numLinksFollowed; i++ ) {
+	for (var i=0; i<numLinksFollowed; i++) {
 		if (linksFollowed[i].is_helpful != null) {
 		    if (linksFollowed[i].is_helpful) {
 			    helpfulLinkCount++;

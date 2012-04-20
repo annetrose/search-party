@@ -74,7 +74,7 @@ h6 {font-size:16px; font-size: 1.6rem; margin:0 0 .4rem 0;}
 /* Overlays */
 .ui-widget-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 /* Interaction states------*/
-.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { /*border: 1px solid #cccccc;*/ background: #d5d3cb !important; font-weight: bold; color: #454c45; }
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { background: #d5d3cb !important; font-weight: bold; color: #454c45; }
 .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited { color: #454c45; text-decoration: none; }
 .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { background: #e8e6dd !important; font-weight: bold; color: #444; cursor: pointer !important; }
 .ui-state-hover a, .ui-state-hover a:hover { color: #444; text-decoration: none; }

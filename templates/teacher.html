@@ -22,7 +22,8 @@
     {{ students_js|safe }}
     
     // Load the visualization API and the corechart package
-    google.load('visualization', '1.0', {'packages':['corechart']});
+    //google.load('visualization', '1.0', {'packages':['corechart']});
+    google.load('visualization', '1.1', {'packages':['corechart', 'controls']});
     google.setOnLoadCallback(loadUIData);
     
     $(document).ready(function() { 
