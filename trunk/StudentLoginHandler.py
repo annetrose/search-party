@@ -18,7 +18,7 @@ class StudentLoginHandler(SearchPartyRequestHandler):
         from helpers import log
 
         try:
-            self.load_search_party_context(user_type="student")  # This might raise StudentLoginException
+            self.load_search_party_context(user_type="student")
 
             # Get CGI form fields.
             lesson_code = self.request.get("lesson_code")

@@ -14,7 +14,8 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
         from updates import send_update_link_followed
 
         self.load_search_party_context(user_type="student")
-        if self.is_student:
+        
+        if self.is_student and self.person.is_logged_in:
             student = self.person
             task_idx = int(self.request.get("task_idx"))
             teacher = student.teacher
@@ -32,6 +33,13 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
                 link_title = title,
             )
             link.put()
-            
-            log( "LinkFollowedHandler:  activity=%r"%link )
+            log("LinkFollowedHandler:  activity=%r"%link)
             send_update_link_followed(student=student, teacher=teacher, task_idx=task_idx, query=query, url=url, title=title)
+            response_data = { "status":1 }
+            
+        else:
+            response_data = { "status":0, "msg":"Student not logged in" }
+         
+        import json
+        self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
+        self.response.out.write(json.dumps(response_data))

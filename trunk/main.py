@@ -29,6 +29,7 @@ from TeacherLogout              import TeacherLogout
 from TeacherPage                import TeacherPage
 #from UpdateDB                  import UpdateDB
 from DataDump                   import DataDump
+from StudentsTimeoutHandler     import StudentsTimeoutHandler
 
 application = webapp2.WSGIApplication(
 		[ ('/',                          MainPage),
@@ -51,6 +52,7 @@ application = webapp2.WSGIApplication(
 		  ('/_ah/channel/connected/',    ChannelConnectedHandler),
 		  ('/_ah/channel/disconnected/', ChannelDisconnectedHandler),
           ('/channel_expired/([-_A-Za-z0-9]+)', ChannelExpiredHandler),
+          ('/students_timeout',          StudentsTimeoutHandler)
 		 ], debug=True)
 
 def main():

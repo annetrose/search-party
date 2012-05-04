@@ -3,9 +3,9 @@
 
 {% block side_panel %}
   <h3>Task</h3>
-  <select id="task_chooser" class="task_title" style="display:none">
+  <select id="task_chooser" class="task_title" style="display:none;">
   {% for task in lesson.tasks %}
-  <option class="task_title" id="task_title_{{forloop.counter}}" value="{{forloop.counter}}">{{forloop.counter}}. {{task.0}}</option>
+  <option class="task_title" id="task_title_{{forloop.counter}}" value="{{forloop.counter}}">{{forloop.counter}}.&nbsp;{{task.0}}</option>
   {% endfor %}
   </select>
 

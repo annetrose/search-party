@@ -16,6 +16,7 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
         try:
             # Get the current browser session, if any.  Otherwise, create one.
             self.session = get_current_session()
+                            
             if self.session.sid is None:
                 self.session.start()
                 log("=> CREATE NEW SESSION: {0}".format(self.session.sid))

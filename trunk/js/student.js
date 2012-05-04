@@ -35,13 +35,25 @@ function initUI() {
 	$("#answer_button").click(function() {
 			var answerText = document.getElementById("answer_text").value;
 			var answerExplanation = document.getElementById("answer_explanation").value;
-			$.post("/answer", {
-				task_idx: selectedTaskIdx(),
-				student_nickname : g_studentNickname,
-				lesson_code : g_lessons[0].lesson_code,
-				answer_text: answerText,
-				answer_explanation: answerExplanation
+			$.ajax({
+				type: 'POST',
+				url: "/answer", 
+				dataType: "json",
+				data: {
+					task_idx: selectedTaskIdx(),
+					student_nickname : g_studentNickname,
+					lesson_code : g_lessons[0].lesson_code,
+					answer_text: answerText,
+					answer_explanation: answerExplanation
+				},
+				cache: false,
+				success: function(data) {
+					if (data.status==0) {
+		            	showLoggedOutWarning();
+		            }
+				}
 			});
+			
 			document.getElementById("answer_msg").innerHTML = "Saved (" + ((new Date()).toLocaleTimeString()) + ")";
 			onAnswerSubmitted(answerText, answerExplanation);
 			return false;
@@ -191,21 +203,25 @@ function onSearchComplete() {  // called from js/student_custom_search.js
             	setTimeout("hideAds()", 500);
             }
             else {
-                $('#logged_out_warning').dialog({
-                    autoOpen: true,
-                    modal: true,
-                    buttons: {
-                      Ok: function() {
-                        $(this).dialog("close");
-                        window.location.reload(true);
-                      }
-                    }
-                });
+                showLoggedOutWarning();
            }
         },
         error: function() {
         }
 	});
+}
+
+function showLoggedOutWarning() {
+	$('#logged_out_warning').dialog({
+        autoOpen: true,
+        modal: true,
+        buttons: {
+          Ok: function() {
+            $(this).dialog("close");
+            window.location.reload(true);
+          }
+        }
+    });
 }
 
 function onQueryLinkClicked(event) {
@@ -216,14 +232,24 @@ function onQueryLinkClicked(event) {
 }
 
 function onLinkFollowed(url, title) {
-	var query = g_lastQuery;
-	$.post("/link_followed", {
-		url : url,
-		title : title,
-		query : query,
-		student_nickname : g_studentNickname,
-		lesson_code : g_lessons[0].lesson_code,
-		task_idx : selectedTaskIdx()
+	$.ajax({
+		type: 'POST',
+		url: "/link_followed", 
+		dataType: "json",
+		data: {
+			url : url,
+			title : title,
+			query : g_lastQuery,
+			student_nickname : g_studentNickname,
+			lesson_code : g_lessons[0].lesson_code,
+			task_idx : selectedTaskIdx(),		
+		},
+		cache: false,
+		success: function(data) {
+			if (data.status==0) {
+            	showLoggedOutWarning();
+            }
+		}
 	});
 
 	// Add this followed link to the list.
@@ -275,12 +301,23 @@ function onLinkRated() {
 	}
 
 	updateQueryHistory();
-
-	$.post("/link_rated", {
-		url : g_current_result_url,task_idx : selectedTaskIdx(),
-		is_helpful : is_helpful_str,
-		student_nickname : g_studentNickname,
-		lesson_code : g_lessons[0].lesson_code,
+	
+	$.ajax({
+		type: 'POST',
+		url: "/link_rated", 
+		dataType: "json",
+		data: {
+			url : g_current_result_url,task_idx : selectedTaskIdx(),
+			is_helpful : is_helpful_str,
+			student_nickname : g_studentNickname,
+			lesson_code : g_lessons[0].lesson_code,
+		},
+		cache: false,
+		success: function(data) {
+			if (data.status==0) {
+            	showLoggedOutWarning();
+            }
+		}
 	});
 }
 

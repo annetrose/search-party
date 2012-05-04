@@ -1,6 +1,6 @@
 # "search-party" is the production application.  The main version is "1".
 #application: search-party
-#version: 1
+#version: 2
 
 # "schpty" is a completely separate copy for development and testing.  The main version is "dev".
 application: schpty
