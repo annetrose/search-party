@@ -64,8 +64,6 @@ function createLessonList() {
 
 function getLessonHtml(lesson) {
 	var lessonCode = lesson.lesson_code;
-	var startDate = getShortFormattedDate(lesson.start_time);
-//    var html = '<h3 id="'+lessonCode+'"><div class="right" style="margin-top:5px;margin-right:5px;"> #'+lessonCode+'<br/><span style="font-size:8px;"><em>'+startDate+'</em></span></div><a href="#" style="margin:0px;">'+lesson.title+'</a></h3>'
     var html = '<h3 id="'+lessonCode+'"><div class="right" style="margin-top:5px;margin-right:5px;"> #'+lessonCode+'</div><a href="#" style="margin:0px;">'+lesson.title+'</a></h3>'
     html += '<div>';
     if (lesson.class_name) {
