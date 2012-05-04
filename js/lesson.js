@@ -33,10 +33,9 @@ function createLessonList() {
     $('#lessons_list_active').accordion('destroy');
     $('#lessons_list_inactive').accordion('destroy');
       
-    var html = '<h3>Active activities</h3>';
-    html += '<div id="lessons_list_active" class="accordion2">'+activeHtml+'</div>';
+    var html = '<div id="lessons_list_active" class="accordion2">'+activeHtml+'</div>';
     html += '<br/>';
-    html += '<h3>Inactive activities</h3>';
+    html += '<h3>Stopped Activities</h3>';
     html += '<div id="lessons_list_inactive" class="accordion2">'+inactiveHtml+'</div>';  
     
     $('#content_title').html('Activities');
@@ -65,7 +64,9 @@ function createLessonList() {
 
 function getLessonHtml(lesson) {
 	var lessonCode = lesson.lesson_code;
-    var html = '<h3 id="'+lessonCode+'"><div class="right" style="margin-top:5px;margin-right:5px;">#'+lessonCode+'</div><a href="#" style="margin:0px;">'+lesson.title+'</a></h3>'
+	var startDate = getShortFormattedDate(lesson.start_time);
+//    var html = '<h3 id="'+lessonCode+'"><div class="right" style="margin-top:5px;margin-right:5px;"> #'+lessonCode+'<br/><span style="font-size:8px;"><em>'+startDate+'</em></span></div><a href="#" style="margin:0px;">'+lesson.title+'</a></h3>'
+    var html = '<h3 id="'+lessonCode+'"><div class="right" style="margin-top:5px;margin-right:5px;"> #'+lessonCode+'</div><a href="#" style="margin:0px;">'+lesson.title+'</a></h3>'
     html += '<div>';
     if (lesson.class_name) {
         html += '<h5>'+lesson.class_name + '</h5>';
@@ -83,34 +84,64 @@ function getLessonHtml(lesson) {
     });
     html += '</ol>';
 
-    html += '<ul>';
-    html += '<li class="left" style="padding-left:0px; margin-left:0px;">';
-    html += '<button id="view_lesson_btn_'+lessonCode+'" onclick="viewLesson(\'' + lessonCode + '\')" class="cssbtn smallest">View activity</button>';
-    html += '</li>';
-    html += '<li class="left" style="margin-left:5px">';
+    html += '<div style="margin-top:8px">';
+    html += '<button id="view_lesson_btn_'+lessonCode+'" onclick="viewLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-bottom:6px; margin-right:6px">View Activity</button>';
     if (lesson.is_active) {
-        html += '<button id="stop_lesson_btn_'+lessonCode+'" onclick="stopLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Stop activity</button>';
+        html += '<button id="stop_lesson_btn_'+lessonCode+'" onclick="stopLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-bottom:6px; margin-right:6px">Stop Activity</button>';
     }
     else {
-    	html += '<button id="start_lesson_btn_'+lessonCode+'" onclick="startLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Start activity</button>';
+        html += '<button id="start_lesson_btn_'+lessonCode+'" onclick="startLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-bottom:6px; margin-right:6px">Start Activity</button>';
     }
-    html += '</li>';
-//    html += '<li class="left" style="margin-left:5px">';
-//    html += '<button id="edit_lesson_btn_'+lessonCode+'" onclick="editLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Edit</button>';
-//    html += '</li>';
-    html += '<li class="left" style="margin-left:5px">';
     var utc_offset_minutes = (new Date()).getTimezoneOffset();
-    html += '<button id="download_data_btn_'+lessonCode+'" onclick="window.location=\'/data_dump?lesson_code='+lessonCode+'&utc_offset_minutes='+utc_offset_minutes+'\'; return false;" class="cssbtn smallest">Download data</button>';
-    html += '</li>';
-    html += '<li class="left" style="margin-left:5px">';
-    html += '<button id="clear_data_btn_'+lessonCode+'" onclick="clearLesson(\'' + lessonCode + '\', true);" class="cssbtn smallest">Clear data</button>';
-    html += '</li>';
-    html += '<li class="left" style="margin-left:5px; padding-right:0px; margin-right:0px">';
-    html += '<button id="delete_lesson_btn_'+lessonCode+'" onclick="deleteLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Delete activity</button>';
-    html += '</li>';
-    html += '</ul>';
-    html += '<div style="clear:both"></div>';
-    //html += '<p class="small"; style="color:red">#todo ***** edit not implemented *****</p>';
+    html += '<button id="clear_data_btn_'+lessonCode+'" onclick="clearLesson(\'' + lessonCode + '\', true);" class="cssbtn smallest" style="margin-bottom:6px; margin-right:6px">Clear Data</button>';
+    html += '<button id="download_data_btn_'+lessonCode+'" onclick="window.location=\'/data_dump?lesson_code='+lessonCode+'&utc_offset_minutes='+utc_offset_minutes+'\'; return false;" class="cssbtn smallest" style="margin-bottom:6px; margin-right:6px">Download Data</button>';
+    html += '<button id="delete_lesson_btn_'+lessonCode+'" onclick="deleteLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-bottom:6px; margin-right:6px">Delete Activity</button>';
+    html += '</div>';
+    
+//    html += '<div style="margin-top:8px; float:left">'
+//    html += '<div class="cssbtnlabel smallest" style="width:55px; float:left; margin-right:5px;">Activity:</div>';
+//    html += '<button id="view_lesson_btn_'+lessonCode+'" onclick="viewLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-right:6px">View</button>';
+//    if (lesson.is_active) {
+//        html += '<button id="stop_lesson_btn_'+lessonCode+'" onclick="stopLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-right:6px">Stop</button>';
+//    }
+//    else {
+//  	  html += '<button id="start_lesson_btn_'+lessonCode+'" onclick="startLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-right:6px">Start</button>';
+//    }
+//    html += '<button id="delete_lesson_btn_'+lessonCode+'" onclick="deleteLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-right:6px">Delete</button>';
+//    html += '</div>';
+//    html += '<div style="clear:both"></div>';
+//
+//    var utc_offset_minutes = (new Date()).getTimezoneOffset();
+//    html += '<div style="margin-top:8px; float:left">'
+//    html += '<div class="cssbtnlabel smallest" style="width:55px; float:left; margin-right:5px;">Data:</div>';
+//    html += '<button id="clear_data_btn_'+lessonCode+'" onclick="clearLesson(\'' + lessonCode + '\', true);" class="cssbtn smallest" style="margin-right:6px">Clear</button>';
+//    html += '<button id="download_data_btn_'+lessonCode+'" onclick="window.location=\'/data_dump?lesson_code='+lessonCode+'&utc_offset_minutes='+utc_offset_minutes+'\'; return false;" class="cssbtn smallest" style="margin-right:6px">Download</button>';
+//    html += '</div>';
+//    html += '<div style="clear:both"></div>';
+    
+//    html += '<div class="cssbtngroup" style="float:left">';
+//    html += '<div class="cssbtnlabel smallest" style="float: left">Activity:&nbsp;</div>';
+//    html += '<button id="view_lesson_btn_'+lessonCode+'" onclick="viewLesson(\'' + lessonCode + '\')" class="cssbtn smallest">View</button> ';
+//    if (lesson.is_active) {
+//        html += '<button id="stop_lesson_btn_'+lessonCode+'" onclick="stopLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Stop</button> ';
+//    }
+//    else {
+//  	  html += '<button id="start_lesson_btn_'+lessonCode+'" onclick="startLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Start</button> ';
+//    }
+//    html += '<button id="delete_lesson_btn_'+lessonCode+'" onclick="deleteLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Delete</button> ';
+//    html += '</div>';
+
+//    html += '<div class="cssbtngroup" style="float:left">';
+//    html += '<div class="cssbtnlabel smallest" style="float:left" >Data:&nbsp;</div>';
+//    html += '<button id="clear_data_btn_'+lessonCode+'" onclick="clearLesson(\'' + lessonCode + '\', true);" class="cssbtn smallest">Clear</button> ';
+//    var utc_offset_minutes = (new Date()).getTimezoneOffset();
+//    html += '<button id="download_data_btn_'+lessonCode+'" onclick="window.location=\'/data_dump?lesson_code='+lessonCode+'&utc_offset_minutes='+utc_offset_minutes+'\'; return false;" class="cssbtn smallest">Download</button>';
+//    html += '</div>';
+//
+//    html += '<div class="cssbtngroup" style="float:left">';
+//    html += '<button id="student_login_btn_'+lessonCode+'" onclick="alert(\'Not implemented yet\');" class="cssbtn smallest">Login as Student</button> ';
+//    html += '</div>';
+//    html += '<div style="clear:both"></div>';
     
     html += '</div>';
     return html;
@@ -445,6 +476,17 @@ function downloadAllLessons() {
 //  for (var i=0; i<g_lessons.length; i++) {
 //	   downloadLesson(g_lessons[i].lesson_code);
 //  }
+}
+
+function logoutStudent(studentNickname, lessonCode) {
+	$.ajax("/teacher_dashboard", {
+		async: false,
+		data: {
+			action: "logoutstudent",
+			student_nickname: studentNickname,
+			lesson_code: lessonCode,
+		}
+	});
 }
 
 function showMessageDialog(msg) {

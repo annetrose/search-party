@@ -14,7 +14,8 @@ class LinkRatedHandler(SearchPartyRequestHandler):
         from updates import send_update_link_rated
 
         self.load_search_party_context(user_type="student")
-        if self.is_student:
+        
+        if self.is_student and self.person.is_logged_in:
             student = self.person
             task_idx = int(self.request.get("task_idx"))
             teacher = student.teacher
@@ -30,6 +31,13 @@ class LinkRatedHandler(SearchPartyRequestHandler):
                 is_helpful = is_helpful
             )
             link.put()
-            
             log( "LinkRatedHandler:  activity=%r"%link )
-            send_update_link_rated(student=student, teacher=teacher, task_idx=task_idx, url=url, is_helpful=is_helpful)
+            send_update_link_rated(student=student, teacher=teacher, task_idx=task_idx, url=url, is_helpful=is_helpful)            
+            response_data = { "status":1 }
+            
+        else:
+            response_data = { "status":0, "msg":"Student not logged in" }
+         
+        import json
+        self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
+        self.response.out.write(json.dumps(response_data))

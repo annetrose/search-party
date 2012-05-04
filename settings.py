@@ -5,6 +5,8 @@
 # Date: Originally created July 2011
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
+import datetime
+
 DEBUG = False
 try:
 	# Set to debug mode only when running in the development server.
@@ -16,11 +18,7 @@ except:
 
 #DEBUG = True
 
-ENABLE_DEBUG_LOGGING = True # DEBUG
-ENABLE_UPDATE_LOGGING = DEBUG
+ENABLE_DEBUG_LOGGING = DEBUG
 ENABLE_FILLER_FORM_FILLING = DEBUG
-REMOVE_OLD_CLIENT_IDS = True  # Alex changed to True on 1-10-2012.  Set back to False if problems arise.
 CHANNEL_LIMIT_PER_STUDENT = 1
-PREVENT_MULTIPLE_STUDENT_LOGINS = True
-ENABLE_LOGOUT_WHOOPS_ERROR = False
-CLEAR_SESSION_ID_ON_STUDENT_DISCONNECT = False
+STUDENT_SESSION_TIMEOUT = datetime.timedelta(days = 1);

@@ -95,24 +95,24 @@ function updateTaskDescription(taskIdx) {
 
 function onTaskChanged(taskIdx) {
 	// onTaskChanged is called from js/task_chooser.js
+	g_minTaskTime = null;
+	g_maxTaskTime = null;
 	updateTaskDescription(taskIdx);
 	updateUI();
 }
 
 function handle_update_log_in(student_nickname, task_idx) {
 	var student_info = g_students[student_nickname];
-	if( student_info==undefined ) {
+	if (student_info==undefined ) {
 		student_info = {};
 		student_info.logged_in = true;
 		student_info.task_idx = task_idx;		
-		var task_history = [];
-		student_info.task_history = task_history;
-		var tasks_list = [];
-		student_info.tasks = tasks_list;
+		student_info.task_history = [];
+		student_info.tasks = [];
 		var numTasks = numberOfTasks();
-		for(var i=0; i<numTasks; i++) {
-			task_history.push([]);
-			tasks_list.push({"searches":[], answer:{text:"", explanation:""}});
+		for (var i=0; i<numTasks; i++) {
+			student_info.task_history.push([]);
+			student_info.tasks.push({"searches":[], answer:{text:"", explanation:""}});
 		}
 		g_students[student_nickname] = student_info;
 	}
@@ -124,68 +124,98 @@ function handle_update_log_in(student_nickname, task_idx) {
 }
 
 function handle_update_log_out(student_nickname) {
-	var student_info = g_students[student_nickname];
-	student_info.logged_in = false;
-	student_info.task_idx = null;
-	updateUI();
+	if (g_students[student_nickname]!=undefined) {
+		var student_info = g_students[student_nickname];
+		student_info.logged_in = false;
+		student_info.task_idx = null;
+		updateUI();
+	}
 }
 
 function handle_update_task(student_nickname, task_idx) {
-	g_students[student_nickname].task_idx = task_idx;
-	updateUI();
+	if (g_students[student_nickname]!=undefined) {
+		g_students[student_nickname].task_idx = task_idx;
+		updateUI();
+	}
 }
 
 function handle_update_query(student_nickname, task_idx, query, timestamp) {
-	g_students[student_nickname].task_history[task_idx].push({activity_type:"search", search:query, link:null, link_title:null, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp});
-	g_students[student_nickname].tasks[task_idx].searches.push({"query":query, "links_followed":[]});
-	updateUI();
+	if (g_students[student_nickname]!=undefined) {
+		g_students[student_nickname].task_history[task_idx].push({activity_type:"search", search:query, link:null, link_title:null, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp});
+		g_students[student_nickname].tasks[task_idx].searches.push({"query":query, "links_followed":[]});
+		updateMinMaxTaskTimes(timestamp);
+		updateUI();
+	}
 }
 
 function handle_update_link_followed(student_nickname, task_idx, query, url, title, timestamp) {
-	g_students[student_nickname].task_history[task_idx].push({activity_type:"link", search:query, link:url, link_title:title, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp});
-	var searches = g_students[student_nickname].tasks[task_idx].searches;
-	var num_searches = searches.length;
-	var search_info = null;
-	for(var i=(num_searches-1); i>=0; i--) {
-		var _search_info = searches[i];
-		if(_search_info.query==query) {
-			search_info = _search_info;
-			break;
+	if (g_students[student_nickname]!=undefined) {
+		g_students[student_nickname].task_history[task_idx].push({activity_type:"link", search:query, link:url, link_title:title, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp});
+		var searches = g_students[student_nickname].tasks[task_idx].searches;
+		var num_searches = searches.length;
+		var search_info = null;
+		for (var i=(num_searches-1); i>=0; i--) {
+			var _search_info = searches[i];
+			if(_search_info.query==query) {
+				search_info = _search_info;
+				break;
+			}
 		}
+		if (search_info==null ) {
+			search_info = {"query":query, "links_followed":[]};
+			searches.push(search_info);
+		}
+		search_info.links_followed.push({"url":url, "title":title});
+		updateMinMaxTaskTimes(timestamp);
+		updateUI();
 	}
-	if( search_info==null ) {
-		search_info = {"query":query, "links_followed":[]};
-		searches.push(search_info);
-	}
-	search_info.links_followed.push({"url":url, "title":title});
-	updateUI();
 }
 
 function handle_update_link_rated(student_nickname, task_idx, url, is_helpful, timestamp) {	
-	g_students[student_nickname].task_history[task_idx].push({activity_type:"link_rating", search:null, link:url, link_title:null, is_helpful:is_helpful, answer_text:null, answer_explanation:null, timestamp:timestamp});
-	var searches = g_students[student_nickname].tasks[task_idx].searches;
-	var num_searches = searches.length;
-	for(var i=0; i<num_searches; i++) {
-		var search_info = searches[i];
-		var links_followed = search_info.links_followed;
-		var num_links = links_followed.length;
-		for(var j=0; j<num_links; j++) {
-			var link_info = links_followed[j];
-			var link_url = link_info.url;
-			if(link_url==url) {
-				link_info.is_helpful = is_helpful;
+	if (g_students[student_nickname]!=undefined) {
+		g_students[student_nickname].task_history[task_idx].push({activity_type:"link_rating", search:null, link:url, link_title:null, is_helpful:is_helpful, answer_text:null, answer_explanation:null, timestamp:timestamp});
+		var searches = g_students[student_nickname].tasks[task_idx].searches;
+		var num_searches = searches.length;
+		for (var i=0; i<num_searches; i++) {
+			var search_info = searches[i];
+			var links_followed = search_info.links_followed;
+			var num_links = links_followed.length;
+			for (var j=0; j<num_links; j++) {
+				var link_info = links_followed[j];
+				var link_url = link_info.url;
+				if (link_url==url) {
+					link_info.is_helpful = is_helpful;
+				}
 			}
 		}
+		updateMinMaxTaskTimes(timestamp);
+		updateUI();
 	}
-	updateUI();
 }
 
 function handle_update_answer(student_nickname, task_idx, text, explanation, timestamp) {
-	g_students[student_nickname].task_history[task_idx].push({activity_type:"answer", search:null, link:null, link_title:null, is_helpful:null, answer_text:answer, answer_explanation:null, timestamp:timestamp});
-	var answer_info = g_students[student_nickname].tasks[task_idx].answer;
-	answer_info.text = text;
-	answer_info.explanation = explanation;
-	updateUI();
+	if (g_students[student_nickname]!=undefined) {
+		g_students[student_nickname].task_history[task_idx].push({activity_type:"answer", search:null, link:null, link_title:null, is_helpful:null, answer_text:text, answer_explanation:explanation, timestamp:timestamp});
+		var answer_info = g_students[student_nickname].tasks[task_idx].answer;
+		answer_info.text = text;
+		answer_info.explanation = explanation;
+		updateMinMaxTaskTimes(timestamp);
+		updateUI();
+	}
+}
+
+function updateMinMaxTaskTimes(timestamp) {
+	var localTime = getLocalTime(new Date(timestamp));
+	if (!g_minTaskTime) {
+		g_minTaskTime = localTime;
+		g_maxTaskTime = localTime;
+	}
+	else if (localTime < g_minTaskTime) {
+		g_minTaskTime = localTime;
+	}
+	else if (localTime > g_maxTaskTime) {
+		g_maxTaskTime = localTime;
+	}
 }
 
 //=================================================================================
@@ -302,6 +332,8 @@ function updateStudents() {
 	if (itemList.hasItems()) {
 		updateSort("student", accumulator);
 		drawStudentChartArea(itemList);
+		// TESTING
+		drawStudentHistories(itemList);
 	}
 }
 
@@ -391,6 +423,13 @@ function updateAnyWithItems(itemList) {
 			displayItem: displayItem
 		};
 	});
+	
+	$(".logout_btn").click(function(event) {
+		event.stopPropagation();
+	    var lesson = g_lessons[0];
+	    var lessonCode = lesson.lesson_code;
+		logoutStudent($(this).val(), lessonCode);
+	});
 }
 
 function updateSort(type, accumulator) {
@@ -474,7 +513,7 @@ function updateButtons() {
 	document.getElementById(loadButtonId("queries" )).innerHTML = "Queries ("  + numQueries + ")";
 	document.getElementById(loadButtonId("words"   )).innerHTML = "Words ("    + numWords + ")";
 	document.getElementById(loadButtonId("links"   )).innerHTML = "Links ("    + numLinks + ")";
-	document.getElementById(loadButtonId("answers" )).innerHTML = "Answers ("  + numAnswers + ")";
+	document.getElementById(loadButtonId("answers" )).innerHTML = "Responses ("  + numAnswers + ")";
 
 	var lesson_code = g_lessons[0].lesson_code;
     $('#stop_lesson_btn_'+lesson_code).toggle(g_lessons[0].is_active);
@@ -509,10 +548,26 @@ function ItemList(items, type, title) {
 			html = '<div style="margin-bottom:18px;">(none)</div>'
 		}
 		else {
-			html = '<div id="task_activity" class="accordion2">';
+			var customStyle = '';
+			
+			// set min width when displaying students to partially accomodate task history display
+			if (type == "student") {
+				customStyle = 'style="min-width:400px"';
+			}
+			html = '<div id="task_activity" class="accordion2" '+customStyle+'>';
 			$.each(items, function(idx,dataItem) {
 				if (dataItem.getKey) {
-					html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + '</a></div>';						
+					// TESTING
+					if (type == "student") {
+					    var button = '';
+					    if (dataItem.isLoggedIn) {
+					    	button = ' <button class="logout_btn" value="'+dataItem.studentNickname+'" title="Logout student">X</button>';
+					    }
+					    html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + button + '<div id="'+dataItem.getKey()+'_history" style="width:250px; float:right; margin-right:5px"></div></a></div>';
+					}
+					else {
+						html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + '</a></div>';						
+					}
 				}
 				else {
 					html += '<div><a href="#">' + dataItem.asHTML() + '</a></div>';
@@ -1116,7 +1171,7 @@ function AnswerAccumulator() {
 		else {
 			sortInPlaceAlphabetically(items, 'answerText');
 		}
-		return new ItemList(items, "answer", "Answers");
+		return new ItemList(items, "answer", "Responses");
 	}
 	
 	this.getSort = function() {
@@ -1186,6 +1241,141 @@ function AnswerDataItem(answerText, studentNicknames, count) {
 				linkAccumulator.getItems()];
 	}
 }
+    
+function drawStudentHistories(itemList) {
+	var taskDim = 6; // pixels
+	var taskMargin = 1; // pixels
+	var historyHeight = 20; // pixels
+	var historyWidth = 250; // pixels
+	var ellipsesWidth = 20; // pixels
+	var largeGap = 15 * 60 * 1000; // 15 min (in ms)
+	var topMargin = Math.floor((historyHeight/2)-(taskDim/2));
+	var colors = { search:'#888888', link:'#454C45', link_helpful:'#719C95', link_unhelpful:'#F94B19', answer:'blue' };
+    var maxNumTasksToDraw = Math.floor((historyWidth-ellipsesWidth)/(taskDim+taskMargin))-1;
+
+    var task = selectedTaskIdx()+1;
+    $.each(itemList.items, function(i, item) {
+    	var taskHistoryHtml = [];
+		var student = g_students[item.studentNickname];
+	    var taskHistory = student.task_history[task-1];
+	    var numTasksDrawn = 0;
+    	for (var j=0; j<taskHistory.length; j++) {
+    		var taskHtml = '';
+    		var taskItem = taskHistory[j];
+    		var type = taskItem.activity_type;
+    		
+        	var skip = (j<taskHistory.length-1) && (type=='link') && (taskHistory[j+1].activity_type=='link_rating');
+        	if (skip) continue;
+
+        	if (j>0) {
+    			var taskTime = getLocalTime(new Date(taskItem.timestamp));
+    			var prevTaskTime = getLocalTime(new Date(taskHistory[j-1].timestamp));
+    			var isLargeGap =  (taskTime.getTime()-prevTaskTime.getTime())>=largeGap;
+        		if (isLargeGap) {
+    				taskHtml += '<div style="width:1px;height:20px !important;background:grey;float:left;margin-right:'+taskMargin+'px;"></div>';
+    			}
+    		}
+    		
+    		if (type=='link_rating') {
+    			if (taskItem.is_helpful) type = 'link_helpful';
+    			else type = 'link_unhelpful';
+    		}
+    		
+    		var title = '';
+    		if (type=='search') {
+    			title = 'Query: '+taskItem.search;
+    		}
+    		else if (type=='link') {
+    			title = "Unrated Link: "+taskItem.link_title+' ('+taskItem.link+')';
+    		}
+    		else if (type=='link_helpful') {
+    			title = "Helpful Link: "+taskHistory[j-1].link_title+' ('+taskItem.link+')';
+    		}
+    		else if (type=='link_unhelpful') {
+    			title = "Unhelpful Link: "+taskHistory[j-1].link_title+' ('+taskItem.link+')';
+    		}
+    		else if (type=='answer') {
+    			title = "Response: "+taskItem.answer_text;
+    			if (taskItem.answer_explanation) title += ' ('+taskItem.answer_explanation+')';
+    		}
+    		
+    		taskHtml += '<div title="'+title+'" style="width:'+taskDim+'px;height:'+taskDim+'px !important;background:'+colors[type]+';float:left;margin-right:'+taskMargin+'px;margin-top:'+topMargin+'px;">&nbsp;</div>';
+    		taskHistoryHtml.push(taskHtml);
+    	}
+
+    	// show up to maxNumTasksToDraw of most recent tasks
+    	// and show ellipses (...) at beginning if more than maxNumTasksToDraw
+    	var numTasksToRemove = 0;
+    	if (taskHistoryHtml.length > maxNumTasksToDraw) {
+    		numTasksToRemove = taskHistoryHtml.length - maxNumTasksToDraw;
+    	}
+
+    	for (var i=0; i<numTasksToRemove; i++) {
+    		taskHistoryHtml.shift();
+    	}
+    	
+    	var html = taskHistoryHtml.join('');
+    	if (numTasksToRemove > 0) {
+    		html = '<div style="width:'+ellipsesWidth+'px;height:'+taskDim+'px !important;float:left;margin-top:-4px">...</div>' + html;
+    	}
+    	else {
+    		html = '<div style="width:'+ellipsesWidth+'px;height:'+taskDim+'px !important;float:left">&nbsp;</div>' + html;
+    	}
+    	
+        $('#'+item.getKey()+'_history').html(html);
+    });
+}
+
+//bin data into bins of x minutes, where x = binInterval
+function binData(data, binInterval) {
+	var binnedData = [];
+	var binCounts = [];
+	var minTime = null;
+	var maxTime = null;	
+		
+	for (var i=0; i<data.length; i++) {
+		var dataType = data[i].activity_type;
+		var skip = (i<data.length-1) && (dataType=='link') && (data[i+1].activity_type=='link_rating');
+		if (skip) continue;
+		
+		if (dataType=='link_rating') {
+			if (data[i].is_helpful) dataType='link_helpful';
+			else dataType='link_unhelpful';
+		}
+		var dataTime = getLocalTime(new Date(data[i].timestamp));
+		if (minTime==null) {
+			minTime = dataTime;
+			maxTime = new Date(minTime.getTime()+(binInterval*60*1000));	
+		}
+
+		if (dataTime >= maxTime) {
+			// save previous bin
+			if (Object.keys(binCounts).length>0) {
+				for (var binType in binCounts) {
+					binnedData.push({activity_type:binType, timestamp:minTime, count:binCounts[binType]});
+				}
+			}
+
+			// initialize bin
+			binCounts = [];
+			var minTime = dataTime;
+			var maxTime = new Date(minTime.getTime()+(binInterval*60*1000));	
+		}
+	
+		// increment bin counts
+		if (binCounts[dataType] == undefined) binCounts[dataType] = 1;
+		else binCounts[dataType]++;
+	}
+	
+	// save last bin
+	if (Object.keys(binCounts).length>0) {
+		for (var binType in binCounts) {
+			binnedData.push({activity_type:binType, timestamp:minTime, count:binCounts[binType]});
+		}
+	}
+	
+	return binnedData;
+}
 
 function getLocalTime(gmt)  {
    var min = gmt.getTime() / 1000 / 60; // convert gmt date to minutes
@@ -1225,7 +1415,7 @@ function getTimestamp() {
 // Charts
 //=================================================================================
 
-function drawChart(chart_div, data, customOptions) {
+function drawChart(chart_div, data, customOptions, defaultSelectAction) {
 	var chart = null;
 	if (g_chartApiLoaded) {
 		// Need to recreate chart unless div has not been deleted/re-created
@@ -1240,33 +1430,168 @@ function drawChart(chart_div, data, customOptions) {
         }
         chart.draw(data, options);
 	
-        google.visualization.events.addListener(chart, 'select', function() {
-            var selection = chart.getSelection();
-            var item = selection[0];
-            if (item != undefined) {
-           		var active = $('#task_activity').accordion("option", "active");
-            	if (active===false || active != item.row) {
-            		$('#task_activity').accordion("option", "active", item.row);
+        if (defaultSelectAction) {
+        	google.visualization.events.addListener(chart, 'select', function() {
+            	var selection = chart.getSelection();
+            	var item = selection[0];
+            	if (item != undefined) {
+           			var active = $('#task_activity').accordion("option", "active");
+           			if (active===false || active != item.row) {
+            			$('#task_activity').accordion("option", "active", item.row);
+            		}
             	}
-            }
-            else {
-           		$('#task_activity').accordion("option", "active", false);
-            }
-        });
+            	else {
+           			$('#task_activity').accordion("option", "active", false);
+            	}
+        	});
+        }
 	}
 	
 	return chart;
 }
 
+// TODO: Display multi-line custom tooltip; data.addColumn({type:'string', role:'tooltip}) did not work
+// TODO: Reduce space between columns
 function drawStudentChartArea(itemList) {
-	var data = getStudentChartData(itemList);	
-	var options = {
-			'vAxis' : { title: '# queries', baseline: 0 },
-			'legend' : { position: 'none' },
-			'colors' : [ '#454C45', '#888888' ],
-			'isStacked' : true
-	};
-	var chart = drawChart('student_chart', data, options);
+//	var data = getStudentChartData(itemList);	
+//	var options = {
+//			'vAxis' : { title: '# queries', baseline: 0 },
+//			'legend' : { position: 'none' },
+//			'colors' : [ '#454C45', '#888888' ],
+//			'isStacked' : true
+//	};
+//	var chart = drawChart('student_chart', data, options, true);
+		
+	var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Bin');
+    data.addColumn('number', 'Query');
+    data.addColumn('number', 'Helpful Link');
+    data.addColumn('number', 'Unhelpful Link');
+    data.addColumn('number', 'Unrated Link');
+    data.addColumn('number', 'Response');
+    
+    var maxCount = 0;
+    var binnedData = binStudentChartData();		
+    
+    if (binnedData.length > 0) {
+    	for (var i=0; i<binnedData.length; i++) {
+			var count = binnedData[i].queryCount + binnedData[i].unratedCount + binnedData[i].helpfulCount + binnedData[i].unhelpfulCount + binnedData[i].answerCount;
+			if (count > maxCount) maxCount = count;
+			var binStart = ((binnedData[i].start.getTime()-g_minTaskTime.getTime())/1000)/60;
+			var binTimeSpan = ((binnedData[i].end.getTime()-binnedData[i].start.getTime())/1000)/60;
+			data.addRow(['Interval '+(i+1), binnedData[i].queryCount, binnedData[i].helpfulCount, binnedData[i].unhelpfulCount, binnedData[i].unratedCount, binnedData[i].answerCount]);
+		}
+		if (maxCount<10) maxCount = 10;
+	
+		var hAxisTitle = parseFloat(binTimeSpan.toFixed(1)) + ' min intervals';
+		if (binTimeSpan >= 60*24) {
+			var daySpan = binTimeSpan/(60*24);
+			hAxisTitle = parseFloat(daySpan.toFixed(1)) + ' day intervals';
+		}
+		else if (binTimeSpan >= 60) {
+			var hourSpan = binTimeSpan/60;
+			hAxisTitle = parseFloat(hourSpan.toFixed(1)) + ' hour intervals';
+		}
+	
+		var options = {
+			'vAxis' : { title: '# actions', baseline: 0, maxValue: maxCount },
+			'hAxis' : { title: hAxisTitle, textPosition: 'none' },
+			'legend' : { position: 'top' },
+			'colors' : [ '#888888', '#739C95', '#F54B27', '#454C45', 'blue' ],
+			'isStacked' : true,
+			'backgroundColor': { fill: 'transparent' }
+		};
+	    
+		var chart = drawChart('student_chart', data, options, false);
+    }
+}
+
+var g_minTaskTime = null;
+var g_maxTaskTime = null;
+
+function binStudentChartData() {
+	var minBinCount = 25;
+	var maxBinCount = 50;
+	var minBinInterval = 1*1000*60; // ms
+
+	var studentNames = Object.keys(g_students);
+	var taskNum = selectedTaskIdx()+1;
+
+    // first time, find min/max timestamps for selected task by looping through data
+	// other times, min/max timestamps updated via functions that handle incoming socket messages
+	if (g_minTaskTime==null) {
+		$.each(studentNames, function(i, studentNickname) {
+			var student = g_students[studentNickname];
+			var taskHistory = student.task_history[taskNum-1];
+		    for (var j=0; j<taskHistory.length; j++) {
+		        var task = taskHistory[j];
+		        var taskTime = getLocalTime(new Date(task.timestamp));
+		        if (!g_minTaskTime) {
+		            g_minTaskTime = taskTime;
+		            g_maxTaskTime = taskTime;
+		        }
+		        else {
+		            if (taskTime < g_minTaskTime) g_minTaskTime = taskTime;
+		            if (taskTime > g_maxTaskTime) g_maxTaskTime = taskTime;
+		        }
+		    }
+		});
+	}	
+		
+	var binnedData = [];
+	if (g_minTaskTime!=null) {
+		var minTaskTime = g_minTaskTime;
+		var maxTaskTime = g_maxTaskTime;
+
+		var timeSpan = maxTaskTime.getTime()-minTaskTime.getTime();
+		var binCount = Math.ceil(timeSpan/minBinInterval);
+		if (binCount < minBinCount) {
+			binCount = minBinCount;
+			maxTaskTime = new Date(minTaskTime.getTime()+(minBinCount*minBinInterval));
+		}
+		else if (binCount > maxBinCount) {
+			binCount = maxBinCount;
+		}
+		var binTimeSpan = (maxTaskTime.getTime()-minTaskTime.getTime())/binCount;
+	
+		// initialize bin data
+		for (var i=1; i<=binCount; i++) {
+			var binStart = new Date(minTaskTime.getTime()+((i-1)*binTimeSpan));
+			var binEnd = new Date(binStart.getTime()+binTimeSpan);
+			binnedData.push({ start:binStart, end:binEnd, queryCount:0, helpfulCount:0, unhelpfulCount:0, unratedCount:0, answerCount:0 })
+		}
+	
+		$.each(studentNames, function(i, studentNickname) {
+			var student = g_students[studentNickname];
+			var taskHistory = student.task_history[taskNum-1];
+			for (var j=0; j<taskHistory.length; j++) {
+				var task = taskHistory[j];
+				var taskType = task.activity_type;
+				var skip = (j<taskHistory.length-1) && (taskType=='link') && (taskHistory[j+1].activity_type=='link_rating');
+				if (skip) continue;
+    		
+				var taskTime = getLocalTime(new Date(task.timestamp)).getTime();
+				var binIndex = Math.ceil((taskTime-minTaskTime.getTime())/binTimeSpan);
+				if (binIndex==0) binIndex = 1;
+			
+				if (taskType=='search') {
+					binnedData[binIndex-1].queryCount++;
+				}
+				else if (taskType=='link') {
+					binnedData[binIndex-1].unratedCount++;
+				}
+				else if (taskType=='link_rating') {             
+					if (task.is_helpful) binnedData[binIndex-1].helpfulCount++;
+					else binnedData[binIndex-1].unhelpfulCount++;    
+				}
+				else if (taskType=='answer') {
+					binnedData[binIndex-1].answerCount++;
+				}
+			}
+		});
+	}
+	
+	return binnedData;
 }
 
 function getStudentChartData(itemList) {
@@ -1291,15 +1616,15 @@ function drawQueryChartArea(itemList) {
 			'colors' : [ '#739C95', '#F54B27', '#454C45' ],
 			'isStacked' : true
 	};
-	var chart = drawChart('query_chart', data, options);
+	var chart = drawChart('query_chart', data, options, true);
 }
 
 function getQueryChartData(itemList) {
 	var data = new google.visualization.DataTable();
     data.addColumn('string', 'Query');
-    data.addColumn('number', 'Helpful');
-    data.addColumn('number', 'Unhelpful');    
-    data.addColumn('number', 'Unrated');
+    data.addColumn('number', 'Helpful Link');
+    data.addColumn('number', 'Unhelpful Link');    
+    data.addColumn('number', 'Unrated Link');
     $.each(itemList.items, function(i, item) {
 		data.addRow([item.query, item.ratings.helpful, item.ratings.unhelpful, item.count-item.ratings.helpful-item.ratings.unhelpful]);
 	});
@@ -1314,15 +1639,15 @@ function drawWordChartArea(itemList) {
 			'colors' : [ '#739C95', '#F54B27', '#454C45' ],
 			'isStacked' : true
 	};
-	var chart = drawChart('word_chart', data, options);
+	var chart = drawChart('word_chart', data, options, true);
 }
 
 function getWordChartData(itemList) {
 	var data = new google.visualization.DataTable();
     data.addColumn('string', 'Words');
-    data.addColumn('number', 'Helpful');
-    data.addColumn('number', 'Unhelpful');    
-    data.addColumn('number', 'Unrated');
+    data.addColumn('number', 'Helpful Link');
+    data.addColumn('number', 'Unhelpful Link');    
+    data.addColumn('number', 'Unrated Link');
     $.each(itemList.items, function(i, item) {
 		data.addRow([item.wordsStr, item.ratings.helpful, item.ratings.unhelpful, item.count-item.ratings.helpful-item.ratings.unhelpful]);
 	});
@@ -1337,15 +1662,15 @@ function drawLinkChartArea(itemList) {
 			'colors' : [ '#739C95', '#F54B27', '#454C45' ],
 			'isStacked' : true
 	};
-	var chart = drawChart('link_chart', data, options);
+	var chart = drawChart('link_chart', data, options, true);
 }
 
 function getLinkChartData(itemList) {
 	var data = new google.visualization.DataTable();
     data.addColumn('string', 'Link');
-    data.addColumn('number', 'Helpful');
-    data.addColumn('number', 'Unhelpful');    
-    data.addColumn('number', 'Unrated'); 
+    data.addColumn('number', 'Helpful Link');
+    data.addColumn('number', 'Unhelpful Link');    
+    data.addColumn('number', 'Unrated Link'); 
 	$.each(itemList.items, function(i, item) {
 		data.addRow([item.title, item.ratings.helpful, item.ratings.unhelpful, item.count-item.ratings.helpful-item.ratings.unhelpful]);
 	});
@@ -1359,12 +1684,12 @@ function drawAnswerChartArea(itemList) {
 			'legend' : { position: 'none' },
 			'colors' : [ '#454C45' ],
 	};
-	var chart = drawChart('answer_chart', data, options);
+	var chart = drawChart('answer_chart', data, options, true);
 }
 
 function getAnswerChartData(itemList) {
 	var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Answer');
+    data.addColumn('string', 'Response');
     data.addColumn('number', 'Total'); 
 	$.each(itemList.items, function(i, item) {
 		data.addRow([item.answerText, item.count]);

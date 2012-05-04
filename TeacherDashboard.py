@@ -38,6 +38,12 @@ class TeacherDashboard(SearchPartyRequestHandler):
                     self.delete_lesson(lesson)
                 elif action=="deleteall":
                     self.delete_all_lessons()
+                elif action=="logoutstudent":
+                    from model import Student
+                    student_nickname = form_item("student_nickname")
+                    student_key = "::".join((student_nickname, lesson_code))
+                    student = Student.get_by_key_name(student_key)
+                    self.log_out_student(student)
                 else:
                     self.show_dashboard()
 
@@ -84,7 +90,7 @@ class TeacherDashboard(SearchPartyRequestHandler):
             now = datetime.now()
             lesson = Lesson(key_name=lesson_code,
                 teacher=self.person, title=lesson_title, lesson_code=lesson_code,
-                description=lesson_description, class_name=class_name,
+                description=lesson_description, class_name=class_name, 
                 start_time=now, stop_time=None, tasks_json=tasks_json)
             lesson.put()
             self.response.out.write(self.get_lessons_json())
@@ -119,6 +125,13 @@ class TeacherDashboard(SearchPartyRequestHandler):
         from google.appengine.ext import db
         db.delete(StudentActivity.fetch_all("lesson =", lesson))
         db.delete(Student.fetch_all("lesson =", lesson))
+        
+#        # should the start time be reset whenever the data is cleared (i.e., lesson is started over)
+#        from datetime import datetime
+#        now = datetime.now()
+#        lesson.start_time = now
+#        lesson.put()
+            
         if write_response:
             self.write_response_plain_text("OK")
                 
@@ -138,7 +151,11 @@ class TeacherDashboard(SearchPartyRequestHandler):
         for lesson in lessons:
             self.delete_lesson(lesson, False)
         self.write_response_plain_text("OK")
-                        
+             
+    def log_out_student(self, student):
+        student.log_out(True)
+        self.write_response_plain_text("OK")
+                   
     def make_lesson_code(self):
         import random
         from model import Lesson
