@@ -65,7 +65,7 @@ class TeacherDashboard(SearchPartyRequestHandler):
 
             if self.session.has_key('msg'):
                 template_values['msg'] = self.session.pop('msg')
-                
+                    
             self.write_response_with_template("teacher_dashboard.html", template_values)
             
     def create_lesson(self, form_item):

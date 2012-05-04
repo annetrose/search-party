@@ -563,7 +563,8 @@ function ItemList(items, type, title) {
 					    if (dataItem.isLoggedIn) {
 					    	button = ' <button class="logout_btn" value="'+dataItem.studentNickname+'" title="Logout student">X</button>';
 					    }
-					    html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + button + '<div id="'+dataItem.getKey()+'_history" style="width:250px; float:right; margin-right:5px"></div></a></div>';
+//					    html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + button + '<div id="'+dataItem.getKey()+'_history" style="width:250px; float:right; margin-right:5px"></div></a></div>';
+					    html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + button + '<div id="student'+(idx+1)+'_history" style="width:250px; float:right; margin-right:5px"></div></a></div>';
 					}
 					else {
 						html += '<div id="'+dataItem.getKey()+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + '</a></div>';						
@@ -1254,7 +1255,7 @@ function drawStudentHistories(itemList) {
     var maxNumTasksToDraw = Math.floor((historyWidth-ellipsesWidth)/(taskDim+taskMargin))-1;
 
     var task = selectedTaskIdx()+1;
-    $.each(itemList.items, function(i, item) {
+    $.each(itemList.items, function(idx, item) {
     	var taskHistoryHtml = [];
 		var student = g_students[item.studentNickname];
 	    var taskHistory = student.task_history[task-1];
@@ -1322,7 +1323,42 @@ function drawStudentHistories(itemList) {
     		html = '<div style="width:'+ellipsesWidth+'px;height:'+taskDim+'px !important;float:left">&nbsp;</div>' + html;
     	}
     	
-        $('#'+item.getKey()+'_history').html(html);
+    	// Meta-characters not allowed in jquery selectors
+    	// "#anne\\.bob_history" works but var key = "anne\\.bob"; var selector = "#" + key + "_history"; does not work
+//    	var key = item.getKey();
+//    	key = key.replace(/\\/gi, "\\\\\\");
+//    	key = key.replace(/@/gi, "\\\\@");
+//    	key = key.replace(/#/gi, "\\\\#");
+//    	key = key.replace(/&/gi, "\\\\&");
+//    	key = key.replace(/;/gi, "\\\\;");
+//    	key = key.replace(/:/gi, "\\\\:");
+//    	key = key.replace(/\(/gi, "\\\\(");
+//    	key = key.replace(/\)/gi, "\\\\)");
+//    	key = key.replace(/\[/gi, "\\\\[");
+//    	key = key.replace(/\]/gi, "\\\\]");
+//    	key = key.replace(/=/gi, "\\\\=");
+//    	key = key.replace(/>/gi, "\\\\>");
+//    	key = key.replace(/</gi, "\\\\<");
+//    	key = key.replace(/~/gi, "\\\\~");
+//    	key = key.replace(/,/gi, "\\\\,");
+//    	key = key.replace(/\$/gi, "\\\\$");
+//    	key = key.replace(/\+/gi, "\\\\+");
+//    	key = key.replace(/\|/gi, "\\\\|");
+//    	key = key.replace(/\*/gi, "\\\\*");
+//    	key = key.replace(/\./gi, "\\\\.");
+//    	key = key.replace(/!/gi, "\\\\!");
+//    	key = key.replace(/\?/gi, "\\\\?");
+//    	key = key.replace(/'/gi, "\\\\'");
+//    	key = key.replace(/\^/gi, "\\\\^");
+//    	key = key.replace(/%/gi, "\\\\%");
+//    	key = key.replace(/\//gi, "\\\\/");
+//    	key = key.replace(/\{/gi, "\\\\{");
+//    	key = key.replace(/\}/gi, "\\\\}");
+//    	var selector = "#"+key+"_history";
+//    	alert (key+','+$('#'+key+'_history').length+','+$("#anne\\.bob_history").length+','+selector+','+$(""+selector).length);
+//      $('#'+key+'_history').html(html);
+    	
+    	$('#student'+(idx+1)+'_history').html(html);
     });
 }
 
