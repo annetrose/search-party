@@ -6,7 +6,7 @@
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 */
 
-NO_FRAME_DOMAINS = ["youtube.com", "google.com", "oprah.com", "facebook.com"];
+NO_FRAME_DOMAINS = ["youtube.com", "google.com", "oprah.com", "facebook.com", "urbandictionary.com"];
 
 function initializeStudent() {
 	openChannel();
@@ -370,25 +370,25 @@ function updateQueryHistory() {
 					parts.push('<li class="' + className + '">');
 					if (scheme==3 && is_helpful!=null) {
 						if( is_helpful ) {
-							parts.push('<img src="/imgs/star-on.png" width="23" height="23" alt="helpful"/>')
+							parts.push('<img src="/imgs/check.png" width="12" height="12" alt="helpful" class="h" />')
 						}
 						else {
-							parts.push('<img src="/imgs/star-off5.png" width="23" height="23" alt="not helpful"/>')
+							parts.push('<img src="/imgs/no.png" width="12" height="12" alt="not helpful" class="nh" />')
 						}
 					}
 					linkHtml = makeLinkHTML(linkInfo, 20, className, "return onQueryLinkClicked(event);");
 					parts.push(linkHtml+'&nbsp;');
 					if (scheme==4 && is_helpful!=null) {
 						if( is_helpful ) {
-							parts.push('<img src="/imgs/star-on.png" width="23" height="23" alt="helpful"/>')
+							parts.push('<img src="/imgs/check.png" width="12" height="12" alt="helpful" class="h" />')
 						}
 					}
 					else if (scheme==5 && is_helpful!=null) {
 						if( is_helpful ) {
-							parts.push('<img src="' + THUMBS_UP_14X14_DATA_URL + '" width="14" height="14" alt="helpful"/>')
+							parts.push('<img src="' + THUMBS_UP_URL + '" width="12" height="12" alt="helpful" class="h" />')
 						}
 						else {
-							parts.push('<img src="' + THUMBS_DOWN_14X14_DATA_URL + '" width="14" height="14" alt="not helpful"/>')
+							parts.push('<img src="' + THUMBS_DOWN_URL + '" width="12" height="12" alt="not helpful" class="nh" />')
 						}
 					}
 					parts.push('</li>');

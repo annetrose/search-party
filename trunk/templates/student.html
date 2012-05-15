@@ -1,4 +1,4 @@
-{% extends "task_side_panel_layout.html" %}
+{% extends "student_task_side_panel_layout.html" %}
 {# vim: set sw=2 ts=2 expandtab: #}
 
 {% block head %}
@@ -9,7 +9,7 @@
   <link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
 
   <script type="text/javascript" src="/js/common.js"></script>
-  <script type="text/javascript" src="/js/student.js?version=050412"></script>
+  <script type="text/javascript" src="/js/student.js?version=050912"></script>
   <script type="text/javascript" src="/js/task_chooser.js"></script>
   <script src="http://www.google.com/jsapi" type="text/javascript"></script>
   
@@ -75,13 +75,16 @@
     <script type="text/javascript" src="/js/student_custom_search.js"></script>
 </div>
 <div id="result_page_container">
-    <h3 id="rate_result_to_continue">Rate this page to <a href="#" onclick="switchToSearch(); return false;">return to search</a>
-        <button id="helpful_button" type="button" value="Helpful"><img src="/imgs/thumbs-up-18x18.png" alt="helpful"/> Helpful</button>
-        <button id="not_helpful_button" type="button" value="Not helpful"><img src="/imgs/thumbs-down-18x18.png" alt="helpful"/> Not helpful</button>
-    </h3>
+    <h5 id="rate_result_to_continue">Rate this page to <a href="#" onclick="switchToSearch(); return false;">return to search</a>
+	<span style="white-space:nowrap">
+	<button id="helpful_button" class="cssbtn smallest" value="Helpful"><img src="/imgs/check.png" alt="helpful" class="h" width="12" height="12" /> Helpful</button>
+	<button id="not_helpful_button" class="cssbtn smallest" value="Not helpful"><img src="/imgs/no.png" alt="not helpful" class="nh"  width="12" height="12" /> Not helpful</button>
+    </span>
+    </h5>
     <div id="result_frame_container">
-    <div id="result_page_title">...</div>
-    <p id="no_frame_message">Can't display this page inside Search Party</p>
-    <iframe id="result_frame">Loading...<iframe>
+        <div id="result_page_title">...</div>
+        <p id="no_frame_message">Can't display this page inside Search Party</p>
+        <iframe id="result_frame">Loading...</iframe>
+    </div>
 </div>
 {% endblock %}

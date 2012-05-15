@@ -167,7 +167,8 @@
 
 .container_16 .grid_11
 {
-	width: 66.75%;
+	/*width: 66.75%;*/
+	width: 66%;
 }
 
 .container_16 .grid_13
