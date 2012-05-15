@@ -59,9 +59,10 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
         student_nickname = self.request.get("student_nickname", None)
         if lesson_code is not None and student_nickname is not None:
         # 1. Fetch student by nickname+lesson
+            student_nickname = self.htmlunquote(student_nickname)
             key_name = Student.make_key_name(student_nickname=student_nickname, lesson_code=lesson_code)
             student = Student.get_by_key_name(key_name)
-            log("=> SEARCHING BY NAME AND LESSON CODE")
+            log("=> SEARCHING BY NAME AND LESSON CODE: {0}, {1}, {2}".format(student_nickname, lesson_code, key_name))
                 
             if student is not None and self.session.sid != student.session_sid:
                 if student.is_logged_in:
@@ -227,3 +228,11 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
     def redirect_with_msg(self, msg, dst='/'):
         self.session['msg'] = msg
         self.redirect(dst)
+        
+    def htmlunquote(self, html):
+        html = html.replace("&quot;", '"')
+        html = html.replace("&#39;", "'")
+        html = html.replace("&gt;", ">")
+        html = html.replace("&lt;", "<")
+        html = html.replace("&amp;", "&")
+        return html

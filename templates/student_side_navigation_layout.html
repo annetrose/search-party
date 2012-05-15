@@ -7,12 +7,12 @@
  
 <div class="container_16 cntrbody">
 	<div class="grid_16">
-		<div class="grid_5">
-        {% block side_panel %}{% endblock %}
-	    </div><!-- end grid_5 -->
-	    <div class="grid_11">
+		<div class="grid_11" style="float:right">
         {% block content_area %}{% endblock %}
         </div><!-- end grid_11 -->
+        <div class="grid_5">
+        {% block side_panel %}{% endblock %}
+        </div><!-- end grid_5 -->
         {% block bottom %}{% endblock %}
     </div>
 </div>

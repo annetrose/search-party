@@ -18,7 +18,7 @@ class StudentPage(PersonPage):
         else:
             student = self.person
             token = self.create_channel(person_key=student.nickname, lesson_code=student.lesson.lesson_code)
-            
+                        
             template_values = {
                 'header'        : self.gen_header("student"),
                 'nickname'      : student.nickname,

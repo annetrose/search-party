@@ -21,7 +21,10 @@
 	form li.leftHalf, form li.rightHalf {width: 90% !important;}
 	form li.rightHalf, form li.rightThird {	float: left;}
 	.cntrbody .grid_11, .cntrbody .grid_5 {margin-bottom:30px;padding:5% 4%; background:#e4e2d9;}
-	.gsc-control-cse, .gsc-control-cse .gsc-table-result {width: 92% !important;}
+	.gsc-control-cse, .gsc-control-cse .gsc-table-result {width: 92% !important;height:100%;}
+	.cse .gsc-control-cse::after, .gsc-control-cse::after {visibility: visible !important;}
+	.ui-accordion-content ul li.left {width:90%;}
+	.ui-accordion-content ul li.left .cssbtn {width:80%;}
 
 /* Mobile Landscape/Browser */
 @media only screen and (min-width: 480px) and (max-width: 767px) {

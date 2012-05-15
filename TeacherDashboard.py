@@ -126,7 +126,7 @@ class TeacherDashboard(SearchPartyRequestHandler):
         db.delete(StudentActivity.fetch_all("lesson =", lesson))
         db.delete(Student.fetch_all("lesson =", lesson))
         
-#        # should the start time be reset whenever the data is cleared (i.e., lesson is started over)
+        # should start time be reset whenever the data is cleared (i.e., lesson is started over)
 #        from datetime import datetime
 #        now = datetime.now()
 #        lesson.start_time = now
@@ -181,7 +181,7 @@ class TeacherDashboard(SearchPartyRequestHandler):
             if isinstance(o, datetime.datetime):
                 return "(new Date(%d, %d, %d, %d, %d, %d))"%(
                         o.year,
-                        o.month,  
+                        o.month-1, # javascript months start at zero  
                         o.day,
                         o.hour,
                         o.minute,
