@@ -237,9 +237,10 @@ function updateMinMaxTaskTimes(timestamp) {
 // Update UI
 //=================================================================================
 
-var g_activeSessionIndex = false;
-var g_activeSessionName = null;
+var g_activeSectionIndex = false;
+var g_activeSectionKey = null;
 var g_chartApiLoaded = false;
+var g_itemList = null;
 
 function initUI() {    
     var lesson = g_lessons[0];
@@ -274,6 +275,7 @@ function updateUI() {
 		return;
 	}
 	
+	var itemList;
 	updateSideBarInfo();
 	updateButtons();
 	$("#data_display_content").html("");
@@ -298,18 +300,24 @@ function updateUI() {
 	}
 				
 	$('#inactive').toggle(!g_lessons[0].is_active);
-		
-	if (g_activeSessionName) {
-		g_activeSessionIndex = $(".accordion_section").index($('#'+g_activeSessionName));
+
+	if (g_activeSectionKey!=null && g_itemList!=null) {
+		$.each(g_itemList.items, function(idx,item) {
+			var itemKey = item.getKey();
+			if (itemKey == g_activeSectionKey) {
+				g_activeSectionIndex = idx;
+				return;
+			}
+		});
 	}
 	
 	$('#task_activity').accordion({
 	   	collapsible: true, 
-	   	active: g_activeSessionIndex,
+	   	active: g_activeSectionIndex,
 	    change: function(event, control) {
-	   		g_activeSessionIndex = control.options.active;
-	    	var activeSection = $(".accordion_section:eq("+g_activeSessionIndex+")");
-	    	g_activeSessionName = activeSection.attr("id");
+	    	g_activeSectionIndex = control.options.active;
+	    	var activeSection = $(".accordion_section:eq("+g_activeSectionIndex+")");
+	    	g_activeSectionKey = $('.text_key', activeSection).html();
 	    }
 	});
 }
@@ -320,8 +328,29 @@ function updateUIWithStudentActivity(studentNickname) {
 			updateSideBarInfo();
 			updateButtons();
 			if (g_itemList!=null) {
+				
+				// update student summary chart (for all students)
 			    drawStudentChartArea(g_itemList);
+			    
+			    // update student history (both visual and list representations)
 			    drawStudentHistory(null, studentNickname);
+			    listStudentHistory(null, studentNickname);
+		    
+			    // update expanded html for student groups
+			    var html = '';
+			    var studentData = new StudentDataItem(studentNickname, g_students[studentNickname].logged_in);
+		 		var studentIndex = getStudentSection(studentNickname);
+			    if (studentData.getHeaderHTML) {
+					html += studentData.getHeaderHTML();
+				}
+				
+				var itemLists = studentData.getAnnotationsItemLists();
+				$.each(itemLists, function(i,itemList) {
+					html += itemList.asExpandedHTML();
+				});
+			    
+		 		div = $('#item'+(studentIndex+1)+'_groups');
+		 		div.html(html);
 			}
 			break;
 		default:
@@ -331,8 +360,8 @@ function updateUIWithStudentActivity(studentNickname) {
 }
 
 function initPaneAndUpdateUI() {
-	g_activeSessionIndex = false;
-	g_activeSessionName = null;
+	g_activeSectionIndex = false;
+	g_activeSessionKey = null;
 	updateUI();
 }
 
@@ -352,16 +381,26 @@ function updateStudents() {
 	});
 		
 	accumulator.setSort(g_currentPaneSort);
+	accumulator.setDisplayOption(g_currentPaneDisplayOption);
 	var itemList = accumulator.getItems();
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
-		updateSort("student", accumulator);
+		updateOptions("student", accumulator);
 		drawStudentChartArea(itemList);
 		drawStudentHistories(itemList);
+	
+		if (accumulator.getDisplayOption() == "Ordered by Time") {
+			$(".item_groups").hide();
+			$(".student_history_list").show();
+		}
+		else {
+			$(".item_groups").show();
+			$(".student_history_list").hide();
+		}
 	}
 }
 
-function updateQueries() {
+function updateQueries() {			
 	var accumulator = new QueryAccumulator();
 	$.each(g_students, function (studentNickname,studentInfo) {
 		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
@@ -374,7 +413,7 @@ function updateQueries() {
 	var itemList = accumulator.getItems();
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
-		updateSort("query", accumulator);
+		updateOptions("query", accumulator);
 		drawQueryChartArea(itemList);
 	}
 }
@@ -396,7 +435,7 @@ function updateWords() {
 	var itemList = accumulator.getItems();
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
-		updateSort("word", accumulator);
+		updateOptions("word", accumulator);
 		drawWordChartArea(itemList);
 	}
 }
@@ -416,7 +455,7 @@ function updateLinks() {
 	var itemList = accumulator.getItems();
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
-		updateSort("link", accumulator);
+		updateOptions("link", accumulator);
 		drawLinkChartArea(itemList);
 	}
 }
@@ -432,12 +471,11 @@ function updateAnswers() {
 	var itemList = accumulator.getItems();
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
-		updateSort("answer", accumulator);
+		updateOptions("answer", accumulator);
 		drawAnswerChartArea(itemList);
 	}
 }
 
-var g_itemList = null;
 function updateAnyWithItems(itemList) {
 	g_itemList = itemList;
 	$("#data_display_content").html(itemList.asHTML());
@@ -450,19 +488,54 @@ function updateAnyWithItems(itemList) {
 	});
 }
 
-function updateSort(type, accumulator) {
-	var options = accumulator.sortOptions;
+function updateOptions(type, accumulator) {
 	var html = '';
-	for (i in options) {
-		if (html == '') html += 'Sort by: ';
-		if (options[i] == accumulator.getSort()) {
-			html += options[i] + ' ';
+
+	// sort options
+	var options = accumulator.sortOptions;
+	if (options) {
+		html += '<span style="margin-right:10px;">';
+		html += 'Sort by: ';
+		for (i in options) {
+			if (options[i] == accumulator.getSort()) {
+				html += '<strong>'+options[i] + '</strong> ';
+			}
+			else {
+				html += '<a href="#" onclick="g_currentPaneSort=\''+options[i]+'\'; updateUI(); return false;">'+options[i]+'</a> ';
+			}
 		}
-		else {
-			html += '<a href="#" onclick="g_currentPaneSort=\''+options[i]+'\'; updateUI(); return false;">'+options[i]+'</a> ';
+		html += '</span>';
+	}
+	
+	// display options (if any)
+	options = accumulator.displayOptions;
+	if (options) {
+		html += '<span style="white-space:nowrap;">';
+		html += 'Display actions: ';
+		for (i in options) {
+			if (options[i] == accumulator.getDisplayOption()) {
+				html += '<strong>' + options[i] + '</strong> ';
+			}
+			else {
+				html += '<a href="#" onclick="g_currentPaneDisplayOption=\''+options[i]+'\'; updateUI(); return false;">'+options[i]+'</a> ';
+			}
+		}
+		html += '</span>';
+	}
+	
+	// custom options (if any)
+	if (accumulator.getCustomOptions) {
+		options = accumulator.getCustomOptions();
+		if (options) {
+			html += '<span style="white-space:nowrap;">';
+			for (i in options) {
+				html += options[i];
+			}
+			html += '</span>';
 		}
 	}
-	$('#'+type+'_sort').html(html);
+	
+	$('#'+type+'_options').html(html);
 }
 
 //=================================================================================
@@ -471,6 +544,8 @@ function updateSort(type, accumulator) {
 
 var g_currentPaneName = null;
 var g_currentPaneSort = null;
+var g_currentPaneDisplayOption = null;
+var g_groupQueriesWithSameWords = false;
 
 function loadPane(paneName) {
 	if(g_currentPaneName !== null) {
@@ -501,29 +576,26 @@ function updateButtons() {
 		numStudents += 1;
 		var taskInfo = g_students[studentNickname].tasks[taskIdx];
 		var searches = taskInfo.searches;
-		for(var searchIdx in searches) {
+		for (var searchIdx in searches) {
 			var search = searches[searchIdx];
-			var query = search.query;
+			var query = normalizeQuery(search.query);
 			queries.push(query);
-			var wordsInQuery = query.trim().split(/\s+/);
-			for(var wordIdx in wordsInQuery) {
-				var word = wordsInQuery[wordIdx];
-				if(!isStopWord(word)) {
-					words.push(word);
-				}
-			}
+			words = words.concat(getWordsForQuery(query));
 			var linksFollowed = search.links_followed;
-			for(var linkIdx in linksFollowed) {
+			for (var linkIdx in linksFollowed) {
 				links.push(linksFollowed[linkIdx].url);
 			}
 		}
 		var answerTrimmed = taskInfo.answer.text.trim();
-		if(answerTrimmed.length > 0) {
+		if (answerTrimmed.length > 0) {
 			answers.push(answerTrimmed);
 		}
 	}
+	
+	// numWords - case differences not included in count, but different stems are (e.g., peanut vs. peanuts)
+	
 	numQueries = countUnique(queries);
-	numWords = countUnique(words);
+	numWords = countUnique(words); 
 	numLinks = countUnique(links);
 	numAnswers = countUnique(answers);
 
@@ -586,18 +658,19 @@ function ItemList(items, type, title) {
 			    if (dataItem.isLoggedIn) {
 			    	logoutButton = ' <button class="logout_btn" value="'+dataItem.studentNickname+'" title="Logout student">X</button>';
 				}
-			    html += '<div id="item'+(idx+1)+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + logoutButton + '<div id="student'+(idx+1)+'_history" class="student_history" style="float:right; margin-right:5px"></div></a></div>';
+			    html += '<div id="item'+(idx+1)+'" class="accordion_section"><a href="#"><span class="text_key">'+dataItem.getKey()+'</span>'+dataItem.asHTML()+logoutButton+'<div id="student'+(idx+1)+'_history" class="student_history" style="float:right; margin-right:5px"></div></a></div>';
 			}
 			else {
-				html += '<div id="item'+(idx+1)+'" class="accordion_section"><a href="#">' + dataItem.asHTML() + '</a></div>';						
+				html += '<div id="item'+(idx+1)+'" class="accordion_section"><a href="#"><span class="text_key">'+dataItem.getKey()+'</span>'+dataItem.asHTML()+'</a></div>';						
 			}
 		}
 		else {
 			html += '<div><a href="#">' + dataItem.asHTML() + '</a></div>';
 		}
 	
-		// item#_expanded div
+		// item#_expanded div: contains item#_groups and student#_history_list (if on student pane)
 		html += '<div id="item'+(idx+1)+'_expanded">';
+		html += '<div id="item'+(idx+1)+'_groups" class="item_groups">';
 		if (dataItem.getHeaderHTML) {
 			html += dataItem.getHeaderHTML();
 		}
@@ -606,6 +679,13 @@ function ItemList(items, type, title) {
 		$.each(itemLists, function(i,itemList) {
 			html += itemList.asExpandedHTML();
 		});
+		
+		html += '</div>';
+		
+		if (this.type == "student") {
+			html += '<div id="student'+(idx+1)+'_history_list" class="student_history_list" style="display:block"></div>';
+		}
+		
 		html += '</div>';
 		
 		return html;
@@ -614,7 +694,7 @@ function ItemList(items, type, title) {
 	this.asHTML = function() {
 		var html = '<h3 style="margin-bottom:10px">' + escapeForHtml(this.title) + '</h3>';
 		html += '<div id="'+this.type+'_chart" class="summary_chart"></div>';
-		html += '<div id="'+this.type+'_sort" style="margin-top:5px; font-size:9pt; width:100%;"></div>';
+		html += '<div id="'+this.type+'_options" class="display_options"></div>';
 		html += this.itemsAsHTML();
 		return html;
 	}
@@ -692,9 +772,21 @@ function StudentAccumulator() {
 			this._sortBy = sort;
 		}
 	}
+	
+	this.getDisplayOption = function() {
+		return this._displayOption;
+	}
+	
+	this.setDisplayOption = function(option) {
+		if (option != null) {
+			this._displayOption = option;
+		}
+	}
 
 	this.sortOptions = ["Login Status", "ABC"];
 	this._sortBy = "Login Status";
+	this.displayOptions = ["Grouped by Type", "Ordered by Time"];
+	this._displayOption = "Grouped by Type";
 	this._occurrenceDict = {};
 }
 
@@ -744,7 +836,7 @@ function StudentDataItem(studentNickname, isLoggedIn) {
 	
 	this.asHTML = function() {
 		var className = (this.isLoggedIn===false ? "studentLoggedOut" : "studentLoggedIn");
-		return '<span class="nickname ' + className + '">' + escapeForHtml(this.studentNickname) + '</span>';
+		return '<span class="nickname ' + className + '" style="font-size:1em;">' + escapeForHtml(this.studentNickname) + '</span>';
 	}
 	
 	this.asExpandedHTML = function() {
@@ -753,37 +845,58 @@ function StudentDataItem(studentNickname, isLoggedIn) {
 }
 
 function QueryAccumulator() {
+	this.studentRatings = [];
+
 	this.add = function(query, studentNickname, isHelpful) {
 		var uniquenessKey = studentNickname + "::" + query;
 		var uniquenessDict = this._uniquenessDict;
-		if(this._uniquenessDict[uniquenessKey]===undefined) {
+		if (this._uniquenessDict[uniquenessKey]===undefined) {
 			this._uniquenessDict[uniquenessKey] = true;
 			var occurrenceDict = this._occurrenceDict;
-			var occurrenceKey = query.toLowerCase();
+			var occurrenceKey = normalizeQuery(query);
 			var counterItem = occurrenceDict[occurrenceKey];
+						
+			// add new query
 			if (counterItem===undefined) {
 				var ratings = new RatingCounter();
 				ratings.increment(isHelpful);
-				counterItem = new QueryDataItem(query, [studentNickname], 1, ratings);
+				counterItem = new QueryDataItem(query, [studentNickname], 1, ratings, [query]);
 				occurrenceDict[occurrenceKey] = counterItem;
+				this.studentRatings[studentNickname+'::'+occurrenceKey] = isHelpful;
 			}
-			else {
+			
+			// add new student to query
+			else if ($.inArray(studentNickname, counterItem.studentNicknames)==-1) {
 				counterItem.count += 1;
 				counterItem.studentNicknames.push(studentNickname);
 				counterItem.ratings.increment(isHelpful);
+				if ($.inArray(query, counterItem.variations)==-1) {
+					counterItem.variations.push(query);
+				}
+				this.studentRatings[studentNickname+'::'+occurrenceKey] = isHelpful;
+			}
+			
+			// update query attrs for existing student
+			else {
+				var existingRating = this.studentRatings[studentNickname+'::'+occurrenceKey];
+				var rating = counterItem.ratings.update(isHelpful, existingRating);
+				this.studentRatings[studentNickname+'::'+occurrenceKey] = rating;
+				if ($.inArray(query, counterItem.variations)==-1) {
+					counterItem.variations.push(query);
+				}
 			}
 		}
 	};
 
-	this.getItems = function() {
+	this.getItems = function() {		
 		var items = valuesOfObject(this._occurrenceDict);
 		// Sorts by DESCENDING FREQUENCY
 		if (this._sortBy == "Frequency") {
-			sortInPlaceByCountDescending(items, "query");
+			sortInPlaceByCountDescending(items, 'variations');
 		}
 		// Sort alphabetically
 		else {
-			sortInPlaceAlphabetically(items, 'query');
+			sortInPlaceAlphabetically(items, 'variations');
 		}
 		return new ItemList(items, "query", "Queries");
 	}
@@ -800,24 +913,35 @@ function QueryAccumulator() {
 
 	this.sortOptions = ["Frequency", "ABC"];
 	this._sortBy = "Frequency";
+	this.getCustomOptions = function() {
+		var options = [];
+		var checked = "";
+		if (g_groupQueriesWithSameWords) {
+			checked = 'checked="checked"';
+		}
+		options.push('<input id="group_queries" type="checkbox" '+checked+' onclick="g_groupQueriesWithSameWords=this.checked; updateUI();"/>Group queries with same core words ');
+		return options;
+	}
+	
 	this._occurrenceDict = {};
 	this._uniquenessDict = {};
 }
 
-function QueryDataItem(query, studentNicknames, count, ratings) {
+function QueryDataItem(query, studentNicknames, count, ratings, variations) {
 	this._super = DataItem;
 	this._super("query", query, count, "query_data_item");
 
 	this.query = query;
 	this.studentNicknames = studentNicknames;
 	this.ratings = ratings;
+	this.variations = variations;
 	
 	this.getKey = function() {
 		return this.query.replace('"','&quot;');
 	}
 	
 	this.asHTML = function() {
-		return escapeForHtml(this.query) + ' '+ this.ratings.asHTML();
+		return escapeForHtml(this.variations.sort().join(', ')) + ' '+ this.ratings.asHTML();
 	}
 
 	this.asExpandedHTML = function() {
@@ -832,18 +956,19 @@ function QueryDataItem(query, studentNicknames, count, ratings) {
 		var linkAccumulator = new LinkAccumulator();
 
 		var query = this.query;
+		var variations = this.variations;
 		$.each(g_students, function (studentNickname,studentInfo) {
 			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
 			$.each(taskInfo.searches, function (i,searchInfo) {
-				if( searchInfo.query==query ) {
+				if (normalizeQuery(searchInfo.query)==normalizeQuery(query)) {
 					studentAccumulator.add(studentNickname, studentInfo.is_logged_in);
 					var isHelpful = searchIsHelpful(searchInfo);
 					$.each(searchInfo.links_followed, function (j,linkInfo) {
 						linkAccumulator.add(linkInfo.url, linkInfo.title, linkInfo.is_helpful, query, studentNickname);
 					});
-					$.each(getWordsForQuery(query), function (j,word) {
-						wordAccumulator.add(word, query, studentNickname, isHelpful);
-					});
+						$.each(getWordsForQuery(query), function (k,word) {
+							wordAccumulator.add(word, query, studentNickname, isHelpful);
+						});
 					answerAccumulator.add(taskInfo.answer.text, studentNickname);
 				}
 			});
@@ -856,20 +981,51 @@ function QueryDataItem(query, studentNicknames, count, ratings) {
 	}
 }
 
+function normalizeQuery(query) {
+	var normalized = query;
+	
+	// group queries with same words (e.g., ice cream, cream ice)
+	if (g_groupQueriesWithSameWords) {
+		var words = getWordsForQuery(normalized);
+		var coreWords = [];
+		$.each(words, function(i,word) {
+			if (!isStopWord(word)) {
+				coreWords.push(word);
+			}
+		});
+		coreWords.sort();
+		normalized = coreWords.join(' ');
+	}
+	
+	// group queries with only case differences
+	normalized = normalized.toLowerCase();
+	
+	// group queries with only quotation differences
+	normalized = normalized.replace(/"/g,"");
+	
+	return normalized;
+}
+
 function WordAccumulator() {
+	this.studentRatings = [];
+	
 	this.add = function(word, query, studentNickname, isHelpful) {
-		var stem = getWordStem(word).toLowerCase();
+//		var stem = getWordStem(word).toLowerCase();
+		var stem = getWordStem(word);
 		var uniquenessKey = stem + "::" + query.toLowerCase() + "::" + studentNickname;
 		var uniquenessDict = this._uniquenessDict;
-		if(this._uniquenessDict[uniquenessKey]===undefined) {
+		if (this._uniquenessDict[uniquenessKey]===undefined) {
 			this._uniquenessDict[uniquenessKey] = true;
-			var occurrenceKey = stem;
+			var occurrenceKey = stem.toLowerCase();
 			var counterItem = this._occurrenceDict[occurrenceKey];
+			
+			// add new word
 			if (counterItem===undefined) {
 				var wordsDict = {};
 				wordsDict[word] = 1;
 				var ratings = new RatingCounter();
 				ratings.increment(isHelpful);
+				this.studentRatings[studentNickname+'::'+occurrenceKey] = isHelpful;
 				this._occurrenceDict[occurrenceKey] = counterItem = {
 					wordsDict : wordsDict,
 					stem  : stem,
@@ -879,12 +1035,27 @@ function WordAccumulator() {
 					count : 1
 				};
 			}
-			else {
+			
+			// add new student to word
+			else if ($.inArray(studentNickname, counterItem.studentNicknames)==-1) {
 				counterItem.count += 1;
 				counterItem.wordsDict[word] = (counterItem.wordsDict[word] || 0) + 1;
 				counterItem.studentNicknames.push(studentNickname);
-				counterItem.queries.push(query);
+				if ($.inArray(query, counterItem.queries)==-1) {
+					counterItem.queries.push(query);
+				}
 				counterItem.ratings.increment(isHelpful);
+				this.studentRatings[studentNickname+'::'+occurrenceKey] = isHelpful;
+			}
+			
+			// update word attrs for existing student
+			else {
+				if ($.inArray(query, counterItem.queries)==-1) {
+					counterItem.queries.push(query);
+				}
+				var existingRating = this.studentRatings[studentNickname+'::'+occurrenceKey];
+				var rating = counterItem.ratings.update(isHelpful, existingRating);
+				this.studentRatings[studentNickname+'::'+occurrenceKey] = rating;
 			}
 		}
 	};
@@ -893,7 +1064,7 @@ function WordAccumulator() {
 		var items = valuesOfObject(this._occurrenceDict);
 		// Sorts by DESCENDING FREQUENCY
 		if (this._sortBy == "Frequency") {
-			sortInPlaceByCountDescending(items, "stem");
+			sortInPlaceByCountDescending(items, 'stem');
 		}
 		// Sort alphabetically
 		else {
@@ -902,7 +1073,7 @@ function WordAccumulator() {
 		
 		items = $.map(items, function (item, i) {
 			var wordsDict = item.wordsDict;
-			var allWordsSortedByFrequency = keysOfObjectSortedByValueDescending(wordsDict)
+			var allWordsSortedByFrequency = keysOfObjectSortedByValueDescending(wordsDict);
 			var wordsStr = allWordsSortedByFrequency.join(", ");
 			return new WordDataItem(wordsStr, wordsDict, item.stem, item.queries, item.studentNicknames, item.count, item.ratings)
 		});
@@ -1055,13 +1226,14 @@ function LinkDataItem(url, title, count, ratings) {
 	this.url = url;
 	this.title = title;
 	this.ratings = ratings;
-	this.asHTML = function() {
-		return this.title + " " + this.ratings.asHTML();
-	};
 	
 	this.getKey = function() {
 		return this.url.replace('"','&quot;');
 	}
+	
+	this.asHTML = function() {
+		return this.title + " " + this.ratings.asHTML();
+	};
 	
 	this.asExpandedHTML = function() {
 		return makeLinkHTML({url:this.url, title:this.title}, 30) + " " + this.ratings.asHTML();
@@ -1113,12 +1285,17 @@ function LinkDataItem(url, title, count, ratings) {
 }
 
 function RatingCounter() {
+	this.helpful = 0;
+	this.unhelpful = 0;
+	this.neutral = 0;
+	this.total = 0;
+	
 	this.increment = function(isHelpful) {
 		// POLICY:  if isHelpful is null or undefined or otherwise unspecified, don't count it at all.
-		if( isHelpful === true ) {
+		if (isHelpful === true) {
 			this.helpful += 1;
 		}
-		else if ( isHelpful === false ) {
+		else if (isHelpful === false) {
 			this.unhelpful += 1;
 		}
 		else {
@@ -1126,10 +1303,28 @@ function RatingCounter() {
 		}
 		this.total += 1;
 	}
-	this.helpful = 0;
-	this.unhelpful = 0;
-	this.neutral = 0;
-	this.total = 0;
+	
+	this.update = function(isHelpful, prevIsHelpful) {
+		var rating = prevIsHelpful;
+		if (isHelpful === true) {
+			if (prevIsHelpful === false) {
+				this.unhelpful -= 1;
+			}
+			else if (prevIsHelpful === null) {
+				this.neutral -= 1;
+			}
+			this.helpful += 1;
+			rating = true;
+		}
+		else if (isHelpful === false) {
+			if (prevIsHelpful === null) {
+				this.neutral -= 1;
+			}
+			this.unhelpful += 1;
+			rating = false;
+		}
+		return rating;
+	}
 	
 	this.asHTML = function() {
 		var html = "";
@@ -1190,7 +1385,7 @@ function AnswerAccumulator() {
 		var items = valuesOfObject(this._occurrenceDict);
 		// Sorts by DESCENDING FREQUENCY
 		if (this._sortBy == "Frequency") {
-			sortInPlaceByCountDescending(items, "answer");
+			sortInPlaceByCountDescending(items, 'answerText');
 		}
 		// Sort alphabetically
 		else {
@@ -1226,7 +1421,7 @@ function AnswerDataItem(answerText, studentNicknames, count) {
 	}
 	
 	this.asHTML = function() {		
-		return escapeForHtml(this.answerText) + ' ('+this.count+')';
+		return escapeForHtml(this.answerText) + ' <span style="white-space:nowrap">('+this.count+')</span>';
 	}
 	
     this.asExpandedHTML = function() {
@@ -1273,6 +1468,8 @@ function AnswerDataItem(answerText, studentNicknames, count) {
 var g_chart = null;
 var g_chartData = null;
 var g_chartOptions = null;
+var g_minTaskTime = null;
+var g_maxTaskTime = null;
 
 function createChart(chart_div, data, customOptions, defaultSelectAction) {
 	if (g_chartApiLoaded) {
@@ -1317,16 +1514,7 @@ function drawChart() {
 
 // TODO: Display multi-line custom tooltip; data.addColumn({type:'string', role:'tooltip}) did not work
 // TODO: Reduce space between columns
-function drawStudentChartArea(itemList) {
-//	var data = getStudentChartData(itemList);	
-//	var options = {
-//			'vAxis' : { title: '# queries', baseline: 0 },
-//			'legend' : { position: 'none' },
-//			'colors' : [ '#454C45', '#888888' ],
-//			'isStacked' : true
-//	};
-//	var chart = createChart('student_chart', data, options, true);
-		
+function drawStudentChartArea(itemList) {		
 	var data = new google.visualization.DataTable();
     data.addColumn('string', 'Bin');
     data.addColumn('number', 'Query');
@@ -1362,7 +1550,7 @@ function drawStudentChartArea(itemList) {
 			'vAxis' : { title: '# actions', baseline: 0, maxValue: maxCount },
 			'hAxis' : { title: hAxisTitle, textPosition: 'none' },
 			'legend' : { position: 'top' },
-			'colors' : [ '#888888', '#739c95', '#5C091F', '#454C45', 'blue' ],
+			'colors' : [ g_actionColors['search'], g_actionColors['link_helpful'], g_actionColors['link_unhelpful'], g_actionColors['link'], g_actionColors['answer'] ],
 			'isStacked' : true,
 			'backgroundColor': { fill: 'transparent' }
 		};
@@ -1370,9 +1558,6 @@ function drawStudentChartArea(itemList) {
 		var chart = createChart('student_chart', data, options, false);
     }
 }
-
-var g_minTaskTime = null;
-var g_maxTaskTime = null;
 
 function binStudentChartData() {
 	var minBinCount = 25;
@@ -1478,7 +1663,7 @@ function drawQueryChartArea(itemList) {
 	var options = {
 			'vAxis' : { title: '# students', baseline: 0 },
 			'legend' : { position: 'top' },
-			'colors' : [ '#739C95', '#5C091F', '#454C45' ],
+			'colors' : [ g_actionColors['link_helpful'], g_actionColors['link_unhelpful'], g_actionColors['link'] ],
 			'isStacked' : true
 	};
 	var chart = createChart('query_chart', data, options, true);
@@ -1501,7 +1686,7 @@ function drawWordChartArea(itemList) {
 	var options = {
 			'vAxis' : { title: '# students', baseline: 0 },
 			'legend' : { position: 'top' },
-			'colors' : [ '#739C95', '#5C091F', '#454C45' ],
+			'colors' : [ g_actionColors['link_helpful'], g_actionColors['link_unhelpful'], g_actionColors['link'] ],
 			'isStacked' : true
 	};
 	var chart = createChart('word_chart', data, options, true);
@@ -1524,7 +1709,7 @@ function drawLinkChartArea(itemList) {
 	var options = {
 			'vAxis' : { title: '# students', baseline: 0 },
 			'legend' : { position: 'top' },
-			'colors' : [ '#739C95', '#5C091F', '#454C45' ],
+			'colors' : [ g_actionColors['link_helpful'], g_actionColors['link_unhelpful'], g_actionColors['link'] ],
 			'isStacked' : true
 	};
 	var chart = createChart('link_chart', data, options, true);
@@ -1547,7 +1732,7 @@ function drawAnswerChartArea(itemList) {
 	var options = {
 			'vAxis' : { title: '# students', baseline: 0 },
 			'legend' : { position: 'none' },
-			'colors' : [ '#454C45' ],
+			'colors' : [ g_actionColors['link'] ],
 	};
 	var chart = createChart('answer_chart', data, options, true);
 }
@@ -1566,98 +1751,162 @@ function getAnswerChartData(itemList) {
 // Student Histories
 //=================================================================================
 
+var g_actionDim = 6; // pixels
+var g_actionColors = { search:'#888888', link:'#454C45', link_helpful:'#739c95', link_unhelpful:'#5C091F', answer:'blue' };
+
 function drawStudentHistories(itemList) {
     $.each(itemList.items, function(idx, item) {
-    	var div = $('#student'+(idx+1)+'_history');
-    	drawStudentHistory(div, item.studentNickname); 	
+    	drawStudentHistory($('#student'+(idx+1)+'_history'), item.studentNickname); 
+    	listStudentHistory($('#student'+(idx+1)+'_history_list'), item.studentNickname);
     });
 }
 
 function drawStudentHistory(div, studentNickname) {
-	var taskDim = 6; // pixels
-	var taskMargin = 1; // pixels
+	var actionMargin = 1; // pixels
 	var historyHeight = 20; // pixels
 	var historyWidth = Math.ceil($('#task_activity').width() * 0.35); // pixels
 	var ellipsesWidth = 15; // pixels
 	var largeGap = 15 * 60 * 1000; // 15 min (in ms)
-	var topMargin = Math.floor((historyHeight/2)-(taskDim/2));
-	var colors = { search:'#888888', link:'#454C45', link_helpful:'#739c95', link_unhelpful:'#5C091F', answer:'blue' };
-    var maxNumTasksToDraw = Math.floor((historyWidth-ellipsesWidth)/(taskDim+taskMargin))-2;
+	var topMargin = Math.floor((historyHeight/2)-(g_actionDim/2));
+    var maxNumActionsToDraw = Math.floor((historyWidth-ellipsesWidth)/(g_actionDim+actionMargin))-2;
 
     $('.student_history').width(historyWidth);
     
     var task = selectedTaskIdx()+1;
- 	var taskHistoryHtml = [];
+ 	var searchHistoryHtml = [];
     var student = g_students[studentNickname];
 	var taskHistory = student.task_history[task-1];
 	var numTasksDrawn = 0;
  	for (var i=0; i<taskHistory.length; i++) {
- 		var taskHtml = '';
- 		var taskItem = taskHistory[i];
- 		var type = taskItem.activity_type;
+ 		var actionHtml = '';
+ 		var action = taskHistory[i];
+ 		var type = action.activity_type;
  		
      	var skip = (i<taskHistory.length-1) && (type=='link') && (taskHistory[i+1].activity_type=='link_rating');
      	if (skip) continue;
 
      	if (i>0) {
- 			var taskTime = getLocalTime(new Date(taskItem.timestamp));
+ 			var taskTime = getLocalTime(new Date(action.timestamp));
  			var prevTaskTime = getLocalTime(new Date(taskHistory[i-1].timestamp));
  			var isLargeGap = (taskTime.getTime()-prevTaskTime.getTime())>=largeGap;
      		if (isLargeGap) {
- 				taskHtml += '<div style="width:1px;height:20px !important;background:grey;float:left;margin-right:'+taskMargin+'px;"></div>';
+ 				actionHtml += '<div style="width:1px;height:20px !important;background:grey;float:left;margin-right:'+actionMargin+'px;"></div>';
  			}
  		}
  		
  		if (type=='link_rating') {
- 			if (taskItem.is_helpful) type = 'link_helpful';
+ 			if (action.is_helpful) type = 'link_helpful';
  			else type = 'link_unhelpful';
  		}
  		
  		var title = '';
  		if (type=='search') {
- 			title = 'Query: '+taskItem.search;
+ 			title = 'Query: '+action.search;
  		}
  		else if (type=='link') {
- 			title = "Unrated Link: "+taskItem.link_title+' ('+taskItem.link+')';
+ 			title = "Unrated Link: "+action.link_title+' ('+action.link+')';
  		}
  		else if (type=='link_helpful') {
- 		    title = "Helpful Link: "+taskHistory[i-1].link_title+' ('+taskItem.link+')';
+ 		    title = "Helpful Link: "+taskHistory[i-1].link_title+' ('+action.link+')';
  	    }
      	else if (type=='link_unhelpful') {
- 		    title = "Unhelpful Link: "+taskHistory[i-1].link_title+' ('+taskItem.link+')';
+ 		    title = "Unhelpful Link: "+taskHistory[i-1].link_title+' ('+action.link+')';
  	    }
  		else if (type=='answer') {
- 		    title = "Response: "+taskItem.answer_text;
- 		    if (taskItem.answer_explanation) title += ' ('+taskItem.answer_explanation+')';
+ 		    title = "Response: "+action.answer_text;
+ 		    if (action.answer_explanation) title += ' ('+action.answer_explanation+')';
 	    }
  		
- 		taskHtml += '<div title="'+title+'" style="width:'+taskDim+'px;height:'+taskDim+'px !important;background:'+colors[type]+';float:left;margin-right:'+taskMargin+'px;margin-top:'+topMargin+'px;">&nbsp;</div>';
- 		taskHistoryHtml.push(taskHtml);
+ 		actionHtml += '<div title="'+title+'" style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+g_actionColors[type]+';float:left;margin-right:'+actionMargin+'px;margin-top:'+topMargin+'px;">&nbsp;</div>';
+ 		searchHistoryHtml.push(actionHtml);
  	}
 
- 	// show up to maxNumTasksToDraw of most recent tasks
-    // and show ellipses (...) at beginning if more than maxNumTasksToDraw
-    var numTasksToRemove = 0;
- 	if (taskHistoryHtml.length > maxNumTasksToDraw) {
- 		numTasksToRemove = taskHistoryHtml.length - maxNumTasksToDraw;
+ 	// show up to maxNumActionsToDraw of most recent tasks
+    // and show ellipses (...) at beginning if more than maxNumActionsToDraw
+    var numActionsToRemove = 0;
+ 	if (searchHistoryHtml.length > maxNumActionsToDraw) {
+ 		numActionsToRemove = searchHistoryHtml.length - maxNumActionsToDraw;
  	}
 
- 	for (var i=0; i<numTasksToRemove; i++) {
- 		taskHistoryHtml.shift();
+ 	for (var i=0; i<numActionsToRemove; i++) {
+ 		searchHistoryHtml.shift();
  	}
  	
- 	var html = taskHistoryHtml.join('');
- 	if (numTasksToRemove > 0) {
- 		html = '<div style="width:'+ellipsesWidth+'px;height:'+taskDim+'px !important;float:left;">...</div>' + html;
+ 	var html = searchHistoryHtml.join('');
+ 	if (numActionsToRemove > 0) {
+ 		html = '<div style="width:'+ellipsesWidth+'px;height:'+g_actionDim+'px !important;float:left;">...</div>' + html;
  	}
  	else {
- 		html = '<div style="width:'+ellipsesWidth+'px;height:'+taskDim+'px !important;float:left">&nbsp;</div>' + html;
+ 		html = '<div style="width:'+ellipsesWidth+'px;height:'+g_actionDim+'px !important;float:left">&nbsp;</div>' + html;
  	}
  	
  	if (div==null) {
  		var sectionIndex = getStudentSection(studentNickname);
  		div = $('#student'+(sectionIndex+1)+'_history');
  	}
+ 	div.html(html);
+}
+
+function listStudentHistory(div, studentNickname) { 
+    var task = selectedTaskIdx()+1;
+    var student = g_students[studentNickname];
+	var taskHistory = student.task_history[task-1];
+	var html = '(none)';
+ 	for (var i=0; i<taskHistory.length; i++) {
+ 		var taskItem = taskHistory[i];
+ 		var taskTime = getLocalTime(new Date(taskItem.timestamp));
+ 		var taskType = taskItem.activity_type;
+		if (taskType=='link_rating') {
+			if (taskItem.is_helpful) taskType='link_helpful';
+			else taskType='link_unhelpful';
+		}
+ 		
+ 		var skip = (i<taskHistory.length-1) && (taskType=='link') && (taskHistory[i+1].activity_type=='link_rating');
+     	if (skip) continue;
+ 		
+ 		var type = '';
+ 		var details = '';
+ 		if (taskType=='search') {
+ 			type = 'Query';
+ 			details = taskItem.search;
+ 		}
+ 		else if (taskType=='link') {
+ 			type = "Unrated Link";
+ 			details = taskItem.link_title+'<br/>';
+ 		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
+ 		}
+ 		else if (taskType=='link_helpful') {
+ 		    type = "Helpful Link";
+ 		    details = taskHistory[i-1].link_title + '<br/>';
+ 		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
+ 	    }
+ 		else if (taskType=='link_unhelpful') {
+ 		    type = "Unhelpful Link";
+ 		    details =  taskHistory[i-1].link_title+'<br/>';
+ 		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
+
+ 	    }
+ 		else if (taskType=='answer') {
+ 		    type = "Response";
+ 		    details = taskItem.answer_text;
+ 		    if (taskItem.answer_explanation) details += '<br/><em>'+taskItem.answer_explanation+'</em>';
+	    }
+ 		
+ 		if (i==0) html = '<table class="search_history">';
+ 		html += '<tr>';
+ 		html += '<td style="width:15ex">' + getFormattedTimestamp(taskTime) + '</td>';
+ 		html += '<td style="width:15ex">' + '<div style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+g_actionColors[taskType]+'; float:left; margin-right:4px; margin-top:7px;">&nbsp;</div> ' + type.replace(" ", "&nbsp;") + '</td>';
+ 		html += '<td>' + details + '</td>';
+ 		html += '</tr>';
+ 		if (i==taskHistory.length-1) html += '</table>';
+ 	}
+ 	
+ 	if (div==null) {
+ 		var sectionIndex = getStudentSection(studentNickname);
+ 		div = $('#student'+(sectionIndex+1)+'_history_list');
+ 	}
+ 	
+ 	html = '<h5>Search History</h5>\n' + html;
  	div.html(html);
 }
 
@@ -1797,11 +2046,13 @@ function copyOfArray(arr) {
 }
 
 function keysOfObjectSortedByValueDescending(o) {
-	var keys = keysOfObject(o);
+	// TODO / FIX: Returning duplicate keys (2x number expected); not sure why
+	//var keys = keysOfObject(o);
+	var keys = Object.keys(o);
 	keys.sort(function (a,b) {
 		var aValue = o[a];
 		var bValue = o[b];
-		return (a > b ? -1 : (a < b ? 1 : 0));
+		return (aValue > bValue ? -1 : (aValue < bValue ? 1 : 0));
 	});
 	return keys;
 }
@@ -1818,24 +2069,42 @@ function keysOfObject(o) {
 
 function sortInPlaceAlphabetically(items, propertyName) {
 	items.sort(function(a,b) {
+		var aValue = a[propertyName];
+		var bValue = b[propertyName];
+		
+		// check if property is an array
+		// if so, convert to comma-separated sorted string of values
+		if ($.isArray(aValue)) {
+			aValue = aValue.sort().join(', ');
+			bValue = bValue.sort().join(', ');
+		}
+			
 		// case insensitive sort
-		var aValue = a[propertyName].toLowerCase();
-		var bValue = b[propertyName].toLowerCase();
+		var aValue = aValue.toLowerCase();
+		var bValue = bValue.toLowerCase();
 		return (aValue > bValue ? 1 : (aValue < bValue ? -1 : 0));
 	});
 }
 
-function sortInPlaceByCountDescending(occurrences, secondarySortKey) {
-	occurrences.sort(function(a,b) {
+function sortInPlaceByCountDescending(items, propertyName) {
+	items.sort(function(a,b) {
 		var aCount = a.count;
 		var bCount = b.count;
 		var result = (aCount > bCount ? -1 : (aCount < bCount ? 1 : 0));
-		if( result===0 && secondarySortKey ) {
-			var aKey = a[secondarySortKey];
-			aKey = (((typeof aKey)=="string") ? aKey.toLowerCase() : aKey);
-			var bKey = b[secondarySortKey];
-			bKey = (((typeof bKey)=="string") ? bKey.toLowerCase() : bKey);
-			result = (aKey > bKey ? 1 : (aKey < bKey ? -1 : 0));
+		if( result===0 && propertyName ) {
+			var aValue = a[propertyName];
+			var bValue = b[propertyName];
+			
+			// check if property is an array
+			// if so, convert to comma-separated sorted string of values
+			if ($.isArray(aValue)) {
+				aValue = aValue.sort().join(', ');
+				bValue = bValue.sort().join(', ');
+			}
+
+			aValue = (((typeof aValue)=="string") ? aValue.toLowerCase() : aValue);
+			bValue = (((typeof bValue)=="string") ? bValue.toLowerCase() : bValue);
+			result = (aValue > bValue ? 1 : (aValue < bValue ? -1 : 0));
 		}
 		return result;
 	});
@@ -1851,8 +2120,15 @@ function valuesOfObject(o) {
 
 function getWordsForQuery(query) {
 	query = normalizeSpacing(query);
-	words = query.split(" ");
-	return words;
+	query = query.replace(/"/g, "");
+	var words = query.split(" ");
+	var wordsForQuery = [];
+	for (var i in words) {
+		if (!isStopWord(words[i])) {
+			wordsForQuery.push(words[i]);
+		}
+	}
+	return wordsForQuery;
 }
 
 function assert(condition, msg) {
@@ -1877,9 +2153,8 @@ function calculateNumStudents() {
 
 function searchIsHelpful(searchInfo) {	
 	// searches with only unrated links return null;
-	// searches with any helpful links return true;
-	// searches with any unhelpful links (and no helpful links) return false
-	// (atr)
+	// searches with only helpful or unrated links return true;
+	// searches with only unhelpful or unrated links return false
 	var linksFollowed = searchInfo.links_followed;
 	var numLinksFollowed = linksFollowed.length;
 	var helpfulLinkCount = 0;
@@ -1902,14 +2177,11 @@ function searchIsHelpful(searchInfo) {
 }
 
 function countUnique(list) {
-	var set={};
-	var listLength=list.length;
-	for(var i=0; i < listLength; i++) {
-		set[list[i]] = true;
-	}
-	var numUnique = 0;
-	for(var item in set) {
-		numUnique += 1;
-	}
-	return numUnique;
+	var uniqueValues = [];
+	for (var i in list) {
+		if ($.inArray(list[i], uniqueValues) == -1) {
+			uniqueValues.push(list[i]);
+		}
+	}		
+	return uniqueValues.length;
 }
