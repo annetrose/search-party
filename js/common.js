@@ -83,7 +83,7 @@ function getFormattedTimestamp(ts) {
     if (month.length==1) month = '0' + month;
     var day = ''+ts.getDate();
     if (day.length == 1) day = '0' + day;
-    var date =  month + '/' + day + '/'+ ts.getFullYear();
+    var date =  month + '/' + day + '/'+ (ts.getFullYear()+'').substr(2);
     var hours = ''+ts.getHours();
     var mins = ''+ts.getMinutes();
     if (mins.length == 1) mins = '0' + mins;
