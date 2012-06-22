@@ -18,11 +18,11 @@ class AnswerHandler(SearchPartyRequestHandler):
         
         if self.is_student and self.person.is_logged_in:
             student = self.person
-            task_idx = int(self.request.get("task_idx"))
-            answer_text = self.request.get("answer_text")
-            answer_explanation = self.request.get("answer_explanation")
             lesson = student.lesson
             teacher = lesson.teacher
+            task_idx = int(self.request.get("task_idx", student.current_task_idx))
+            answer_text = self.request.get("answer_text")
+            answer_explanation = self.request.get("answer_explanation")
             activity = StudentActivity(
                     student=student,
                     lesson=lesson,

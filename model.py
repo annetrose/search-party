@@ -109,7 +109,8 @@ class Student(PersonModel):
     nickname = db.StringProperty()
     lesson = db.ReferenceProperty(Lesson)
     teacher = db.ReferenceProperty(Teacher)
-    task_idx = db.IntegerProperty()
+    task_idx = db.IntegerProperty(default=0)
+    current_task_idx = db.IntegerProperty(default=0)
     first_login_timestamp = db.DateTimeProperty(auto_now_add=True)
     latest_login_timestamp = db.DateTimeProperty()
     latest_logout_timestamp = db.DateTimeProperty()
@@ -183,6 +184,20 @@ class StudentActivity(SearchPartyModel):
 
     default_sort_key_fn = (lambda item: item.timestamp)
     
+    def toDict(self):
+        return {
+            'lesson_code': self.lesson.lesson_code,
+            'task_idx': self.task_idx,
+            'timestamp': self.timestamp.strftime("%m/%d/%y %H:%M"),
+            'activity_type': self.activity_type,
+            'search': self.search,
+            'link': self.link,
+            'link_title': self.link_title,
+            'is_helpful': self.is_helpful,
+            'answer_text': self.answer_text,
+            'answer_explanation': self.answer_explanation
+        }
+    
     def __repr__(self):
         params_to_show = [
             self.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
@@ -191,37 +206,3 @@ class StudentActivity(SearchPartyModel):
             self.activity_type,
         ]
         return self.__class__.__name__ + repr(tuple(params_to_show))
-    
-def fetch_student_activities_for_task(self, student, lesson, task_idx):
-    query = StudentActivity.all()
-    query = query.filter('lesson =', lesson).filter('task_idx =', task_idx)
-    query.order('timestamp')
-    items = query.fetch(EXPECTED_UPPER_BOUND)
-    return tuple(items)
-
-#def to_dict(model):
-#        import datetime
-#        import time
-#        SIMPLE_TYPES = (int, long, float, bool, dict, basestring, list)
-#        
-#        output = {}
-#        
-#        for key, prop in model.properties().iteritems():
-#            value = getattr(model, key)
-#
-#            if value is None or isinstance(value, SIMPLE_TYPES):
-#                output[key] = value
-#            elif isinstance(value, datetime.date):
-#                # Convert date/datetime to ms-since-epoch ("new Date()").
-#                ms = time.mktime(value.utctimetuple())
-#                ms += getattr(value, 'microseconds', 0) / 1000
-#                output[key] = int(ms)
-#            elif isinstance(value, db.GeoPt):
-#                output[key] = {'lat': value.lat, 'lon': value.lon}
-#            elif isinstance(value, db.Model):
-#                #output[key] = to_dict(value)
-#                output[key] = str(value)
-#            else:
-#                raise ValueError('Cannot encode ' + repr(prop))
-#
-#        return output  

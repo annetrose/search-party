@@ -13,52 +13,29 @@ function initializeStudent() {
 	initUI();
 };
 
-function initUI() {
-	 var lesson = g_lessons[0];
-     var lesson_code = lesson.lesson_code;
-     $('#lesson_title').html(lesson.title);
-     $('#lesson_code').html(lesson_code);
-     $('#task_chooser').selectbox();
-     updateTaskDescription(0);    
-     
-	switchToSearch();
+function initUI() {	
+	var lesson = g_lessons[0];
+	var lesson_code = lesson.lesson_code;
+	$('#lesson_title').html(lesson.title);
+	$('#lesson_code').html(lesson_code);
+	$('#task_chooser').selectbox();
+    
 	updateQueryHistory();
+    	switchToSearch();
+    
+	var taskInfo = g_student_info.tasks[selectedTaskIdx()];
+	var answerInfo = taskInfo.answer;
+	$("#answer_text").val(answerInfo.text);
+	$("#answer_explanation").val(answerInfo.explanation);
 
 	var checkContent = function() {
-		var answerText = document.getElementById("answer_text").value;
+		var answerText = $("#answer_text").val();
 		var answerTextIsEmpty = (answerText.trim().length==0);
-		var answerExplanation = document.getElementById("answer_explanation").value;
 		document.getElementById("answer_button").disabled = answerTextIsEmpty;
 	};
 	$("#answer_text").keyup(checkContent);
 	$("#answer_explanation").keyup(checkContent);
-	$("#answer_button").click(function() {
-			var answerText = document.getElementById("answer_text").value;
-			var answerExplanation = document.getElementById("answer_explanation").value;
-			$.ajax({
-				type: 'POST',
-				url: "/answer", 
-				dataType: "json",
-				data: {
-					task_idx: selectedTaskIdx(),
-					student_nickname : g_studentNickname,
-					lesson_code : g_lessons[0].lesson_code,
-					answer_text: answerText,
-					answer_explanation: answerExplanation
-				},
-				cache: false,
-				success: function(data) {
-					if (data.status==0) {
-		            	showLoggedOutWarning();
-		            }
-				}
-			});
-			
-			document.getElementById("answer_msg").innerHTML = "Saved (" + ((new Date()).toLocaleTimeString()) + ")";
-			onAnswerSubmitted(answerText, answerExplanation);
-			return false;
-	});
-
+	$("#answer_button").click(onAnswerSubmitted);
 	$("#helpful_button").click(onLinkRated);
 	$("#not_helpful_button").click(onLinkRated);
 	$("#neutral_button").click(onLinkNeutral);
@@ -113,22 +90,18 @@ function updateChannelToken(data) {
 // UI Event Handlers
 //=================================================================================
 
-function initEventHandlers() {
-	$("#custom_search_element").contents().find("input[name='search']").focus();
-	$("#custom_search_element").contents().find("input[value='Search']").click(function(event) {
-		var searchTerms = $("input[name='search']").val();
-		onSearchExecuted(searchTerms);
-	});
-}
-
-function updateTaskDescription(taskIdx) {
-    var html = g_lessons[0].tasks[taskIdx][1];
-    if (html == '') html = '(none)';
-    $('#task_description').html(html);
+function changeTask(task) {
+	if (task != selectedTaskIdx()+1) {
+		var option = $("#task_title_"+task);
+		$("#task_chooser").selectbox("change", option.attr('value'), option.text());
+	}
 }
 
 function onTaskChanged(taskIdx) { // called from js/task_chooser.js
-    updateTaskDescription(taskIdx);
+	var html = g_lessons[0].tasks[taskIdx][1];
+    if (html == '') html = '(none)';
+    $('#task_description').html(html);
+    
 	$.post("/task_changed", {
 		task_idx : selectedTaskIdx(),
 		student_nickname : g_studentNickname,
@@ -139,25 +112,23 @@ function onTaskChanged(taskIdx) { // called from js/task_chooser.js
 	var taskIdx = selectedTaskIdx();
 	var taskInfo = g_student_info.tasks[taskIdx];
 	var answerInfo = taskInfo.answer;
-	var answerText = answerInfo.text;
-	var answerExplanation = answerInfo.explanation;
 
-	document.getElementById("answer_text").value = answerText;
+	$("#answer_text").val(answerInfo.text);
+	$("#answer_explanation").val(answerInfo.explanation);
 	document.getElementById("answer_msg").innerHTML = "";
-	document.getElementById("answer_explanation").value = answerExplanation;
 	document.getElementById("answer_button").disabled = true;
 
 	updateQueryHistory();
 }
 
 function onSearchComplete() {  // called from js/student_custom_search.js
-	g_lastQuery = $("input[name='search']").val();
+	var query = $("input[name='search']").val();
 	$.ajax({
 		type: 'POST',
 		url: "/search_executed", 
 		dataType: "json",
 		data: {
-			query : g_lastQuery,
+			query : query,
 			student_nickname : g_studentNickname,
 			lesson_code : g_lessons[0].lesson_code,
 			task_idx : selectedTaskIdx() 
@@ -169,7 +140,7 @@ function onSearchComplete() {  // called from js/student_custom_search.js
             	var taskIdx = selectedTaskIdx();
             	var taskInfo = g_student_info.tasks[taskIdx];
             	var searches = taskInfo.searches;
-            	var searchInfo = { query:g_lastQuery, links_followed:[] };
+            	var searchInfo = { query:query, links_followed:[] };
             	searches.push(searchInfo);
 
             	// Update the rendering of the history list.
@@ -181,7 +152,7 @@ function onSearchComplete() {  // called from js/student_custom_search.js
             	// Find result links and register click handler.
             	$("#custom_search_element").contents().find("a[class='gs-title']").click(function(event) {
             		var url = $(this).attr("href");
-            		if(url.indexOf("://www.google.com/url?") > 0) {
+            		if (url.indexOf("://www.google.com/url?") > 0) {
             			// For example:
             			// http://www.google.com/url?q=http://www.thefreedictionary.com/fawn&sa=U&ei=...&ved=...&client=internal-uds-cse&usg=...
             			var queryParts = url.slice(url.indexOf("?")+1).split("&");
@@ -194,11 +165,11 @@ function onSearchComplete() {  // called from js/student_custom_search.js
             			}
             		}
                     var title = $(this).text();
-            		onLinkFollowed(url, title);
+            		onLinkFollowed(url, title, query);
             		openLink(url, title);
             		return false;
             	});
-            	
+            	            	
             	// Ads seem to show up a bit later, so we wait a bit and then remove them
             	setTimeout("hideAds()", 500);
             }
@@ -224,6 +195,13 @@ function showLoggedOutWarning() {
     });
 }
 
+function visitLink(url, title, query) {
+	if (url) {
+		onLinkFollowed(url, title, query);
+		openLink(url, title);
+	}
+}
+
 function onQueryLinkClicked(event) {
 	var url = event.target.href;
 	var title = event.target.title;
@@ -231,7 +209,7 @@ function onQueryLinkClicked(event) {
 	return false;
 }
 
-function onLinkFollowed(url, title) {
+function onLinkFollowed(url, title, query) {
 	$.ajax({
 		type: 'POST',
 		url: "/link_followed", 
@@ -239,7 +217,7 @@ function onLinkFollowed(url, title) {
 		data: {
 			url : url,
 			title : title,
-			query : g_lastQuery,
+			query : query,
 			student_nickname : g_studentNickname,
 			lesson_code : g_lessons[0].lesson_code,
 			task_idx : selectedTaskIdx(),		
@@ -258,16 +236,16 @@ function onLinkFollowed(url, title) {
 	var searches = taskInfo.searches;
 	var searchInfo = searches[searches.length - 1];
 	var linksFollowed = searchInfo.links_followed;
-	var linkInfo = {url:url, title:title};
+	var linkInfo = { url:url, title:title };
 	linksFollowed.push(linkInfo);
 
 	// Update the rendering of the history list.
 	updateQueryHistory();
+
+	g_linkInfo = linkInfo;
 }
 
 function onLinkRated() {
-	switchToSearch();
-
 	var is_helpful_str;
 	var is_helpful;
 	if (this.id=="helpful_button") {
@@ -294,20 +272,19 @@ function onLinkRated() {
 		var numLinksFollowed = linksFollowed.length;
 		for (var j=0; j<numLinksFollowed; j++) {
 			var linkInfo = linksFollowed[j];
-			if (linkInfo.url==g_current_result_url) {
+			if (linkInfo.url==g_linkInfo.url) {
 				linkInfo.is_helpful = is_helpful;
 			}
 		}
 	}
-
-	updateQueryHistory();
 	
 	$.ajax({
 		type: 'POST',
 		url: "/link_rated", 
 		dataType: "json",
 		data: {
-			url : g_current_result_url,task_idx : selectedTaskIdx(),
+			url : g_linkInfo.url,
+			task_idx : selectedTaskIdx(),
 			is_helpful : is_helpful_str,
 			student_nickname : g_studentNickname,
 			lesson_code : g_lessons[0].lesson_code,
@@ -319,18 +296,53 @@ function onLinkRated() {
             }
 		}
 	});
+
+	updateQueryHistory();
+	switchToSearch();
 }
 
 function onLinkNeutral() {
 	switchToSearch();
 }
 
-function onAnswerSubmitted(text, explanation) {
-	// Add this followed link to the list.
+function changeAnswer(answer, explanation) {
+	if (answer==null) {
+		answer='';
+		explanation='';
+	}
+	$('#answer_text').val(answer);
+	$('#answer_explanation').val(explanation);
+	$('#answer_button').click();
+}
+
+function onAnswerSubmitted() {
 	var taskIdx = selectedTaskIdx();
+	var answerText = $("#answer_text").val();
+	var answerExplanation = $("#answer_explanation").val();
+	$.ajax({
+		type: 'POST',
+		url: "/answer", 
+		dataType: "json",
+		data: {
+			task_idx: taskIdx,
+			student_nickname : g_studentNickname,
+			lesson_code : g_lessons[0].lesson_code,
+			answer_text: answerText,
+			answer_explanation: answerExplanation
+		},
+		cache: false,
+		success: function(data) {
+			if (data.status==0) {
+            	showLoggedOutWarning();
+            }
+		}
+	});
+	
+	$("#answer_msg").html("Saved (" + ((new Date()).toLocaleTimeString()) + ")");
+	
 	var taskInfo = g_student_info.tasks[taskIdx];
-	var answerInfo = {text:text, explanation:explanation};
-	taskInfo.answer = answerInfo;
+	var answerInfo = { text:answerText, explanation:answerExplanation };
+	taskInfo.answer = answerInfo;	
 }
 
 function updateQueryHistory() {
@@ -459,7 +471,7 @@ function sortAndDedupeSearches(searches) {
 	for(var searchIdx=numSearches-1; searchIdx>=0; searchIdx--) {  // descending time order
 		var search = searches[searchIdx];
 		var query = search.query;
-		if(queriesSeen[query]==undefined) {
+		if (queriesSeen[query]==undefined) {
 			queriesSeen[query] = true;
 			var linkInfos = linkInfosByQuery[query];
 			if(linkInfos != undefined) {
@@ -490,7 +502,6 @@ function openLink(url, title) {
 		window.open(url);
 	}
 	$("#result_page_title").html(title);
-	g_current_result_url = url;
 	switchToResultPage();
 }
 
@@ -500,6 +511,7 @@ function switchToResultPage() {
 }
 
 function switchToSearch() {
+	g_linkInfo = { url:'', title:'' };
 	$("#result_frame").get(0).src = "about:blank";
 	$("#result_page_container").hide();
 	$("#search_container").show();

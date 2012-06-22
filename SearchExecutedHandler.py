@@ -19,8 +19,8 @@ class SearchExecutedHandler(SearchPartyRequestHandler):
             student = self.person
             lesson = student.lesson
             teacher = lesson.teacher
+            task_idx = int(self.request.get("task_idx", student.current_task_idx))
             query = self.request.get("query")
-            task_idx = int(self.request.get("task_idx"))
             activity = StudentActivity(
                 student = student,
                 lesson = lesson,

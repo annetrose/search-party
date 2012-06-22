@@ -31,10 +31,9 @@ class PersonPage(SearchPartyRequestHandler):
 
             for student in students:
                 tasks_info = [{"searches":[], "answer":{"text":"", "explanation":""}, "history":[]} for _ in range(num_tasks)]
-#                tasks_info = [{"searches":[], "answer":{"text":"", "explanation":""}} for _ in range(num_tasks)]
                 student_structure[student.nickname] = {
                     "task_idx"  : student.task_idx,
-                    "logged_in"    : student.is_logged_in,
+                    "logged_in" : student.is_logged_in,
                     "tasks"     : tasks_info
                 }
 

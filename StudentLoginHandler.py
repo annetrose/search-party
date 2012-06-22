@@ -89,8 +89,8 @@ class StudentLoginHandler(SearchPartyRequestHandler):
             assert student.session_sid is not None
             student.put()
             self.set_person(student)
-
             self.session['msg'] = "Student logged in:  Hello " + student_nickname
+            self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
             self.response.out.write(json.dumps({"status":"logged_in"}))
             log( "=> LOGIN SUCCESS" )
 
@@ -99,5 +99,6 @@ class StudentLoginHandler(SearchPartyRequestHandler):
             self.set_person(None)
             msg = e.args[0]
             self.session['msg'] = msg
-            self.response.out.write(json.dumps({"status":"logged_out"}))
+            self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
+            self.response.out.write(json.dumps({"status":"logged_out", "error":msg}))
             log( "LOGIN FAILURE:  %s"%msg )

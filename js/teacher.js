@@ -985,11 +985,12 @@ function normalizeQuery(query) {
 	var normalized = query;
 	
 	// group queries with same words (e.g., ice cream, cream ice)
+	// ignores stop words and duplicates
 	if (g_groupQueriesWithSameWords) {
 		var words = getWordsForQuery(normalized);
 		var coreWords = [];
 		$.each(words, function(i,word) {
-			if (!isStopWord(word)) {
+			if (!isStopWord(word) && $.inArray(word, coreWords)==-1) {
 				coreWords.push(word);
 			}
 		});
@@ -1002,7 +1003,7 @@ function normalizeQuery(query) {
 	
 	// group queries with only quotation differences
 	normalized = normalized.replace(/"/g,"");
-	
+		
 	return normalized;
 }
 
