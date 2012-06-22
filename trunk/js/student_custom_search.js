@@ -6,14 +6,13 @@ google.setOnLoadCallback(function() {
 	var customSearchOptions = {};
 	customSearchOptions[google.search.Search.RESTRICT_SAFESEARCH] = google.search.Search.SAFESEARCH_STRICT;
 
-	var customSearchControl = new google.search.CustomSearchControl(customSearchId, customSearchOptions);
-
 	// https://groups.google.com/a/googleproductforums.com/forum/#!msg/customsearch/Bp8MndGfn6M/AR8zQf5O3fIJ
 	// https://groups.google.com/a/googleproductforums.com/forum/#!topic/customsearch/OUpAUFbQ6-o/discussion
+	var customSearchControl = new google.search.CustomSearchControl(customSearchId, customSearchOptions);
 	customSearchControl.setResultSetSize(10);
 	customSearchControl.draw('custom_search_element');
 	customSearchControl.setSearchCompleteCallback(null, onSearchComplete)
-	//initEventHandlers();
+	//initSearchControl(customSearchControl);
 }, true);
 
 

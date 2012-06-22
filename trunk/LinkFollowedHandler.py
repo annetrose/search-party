@@ -18,10 +18,10 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
         
         if self.is_student and self.person.is_logged_in:
             student = self.person
-            task_idx = int(self.request.get("task_idx"))
             teacher = student.teacher
+            task_idx = int(self.request.get("task_idx", student.current_task_idx))
             query = self.request.get("query")
-            url = self.request.get('url')
+            url = self.request.get("url")
             lesson_key = Student.lesson.get_value_for_datastore(student)
             title = self.request.get("title")
             link = StudentActivity(
@@ -31,7 +31,7 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
                 activity_type = StudentActivity.ACTIVITY_TYPE_LINK,
                 search = query,
                 link = url,
-                link_title = title,
+                link_title = title
             )
             link.put()
             log("LinkFollowedHandler:  activity=%r"%link)

@@ -18,8 +18,8 @@ class LinkRatedHandler(SearchPartyRequestHandler):
         
         if self.is_student and self.person.is_logged_in:
             student = self.person
-            task_idx = int(self.request.get("task_idx"))
             teacher = student.teacher
+            task_idx = int(self.request.get("task_idx", student.current_task_idx))
             url = self.request.get('url')
             lesson_key = Student.lesson.get_value_for_datastore(student)
             is_helpful = {"1":True, "0":False, None:None}[self.request.get("is_helpful")]
