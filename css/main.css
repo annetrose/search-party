@@ -113,9 +113,6 @@ h6 {font-size:16px; font-size: 1.6rem; margin:0 0 .4rem 0;}
 .ui-accordion .ui-accordion-content { padding: 2em 1em 2em 2.2em; border-top: 0; margin-top: -2px; position: relative; top: 1px; margin-bottom: 2px; overflow: auto; display: none; zoom: 1; }
 .ui-accordion .ui-accordion-content-active { display: block; }
 
-/* ---------------- dialogs -------------------- */
-#message_text {	font-size: 14px; font-size: 1.4rem;	line-height: 120%;}	
-
 /* ------ buttons ----------*/
 .cssbtn, .cssbtn:visited { background: #1b252e url(../imgs/alert-overlay.png) repeat-x;display: inline-block;padding: 7px 11px;color: #fff;text-decoration: none;line-height: 1;-moz-border-radius: 5px;-webkit-border-radius: 5px;-moz-box-shadow: 0 1px 3px #999;-webkit-box-shadow: 0 1px 3px #999;text-shadow: 0 -1px 1px #171717;position: relative;cursor: pointer;text-transform:uppercase;font-weight:bold;font-family:Arial,Helvetica, sans-serif;}
 .cssbtn:hover { background: -webkit-gradient(linear, left top, left bottom, from(#2e3d4a), to(#1b252e)); background: -moz-linear-gradient(top, #2e3d4a, #1b252e); filter: progid:DXImageTransform.Microsoft.gradient(startColorstr    = '#2e3d4a', endColorstr='#1b252e'); /*
@@ -139,22 +136,22 @@ button::-moz-focus-inner { border:0; padding:0; } /* remove button padding in FF
 .center { text-align: center; }
      
 /* special styles for specific divs ------------------ */
-#lessons_list_active a, #lessons_list_inactive a {font-size:18px; font-size:1.8rem; line-height: 1.3em; font-weight: bold;margin:0 0 2% 0;}
-#lessons_list_active, #lessons_list_inactive {margin:2% 0;}
-#lessons_list_active .ui-accordion-content ol, #lessons_list_inactive .ui-accordion-content ol {margin-bottom:25px !important;}
-.db_drop a {text-decoration: none;}
-.db_drop li {color: #444;margin-top: 10px;padding: 5px;font-size:14px; font-size:1.4rem;}
-.db_drop ul li {display:inline; list-style-type: none;cursor: pointer;position: relative;zoom: 1;}
-.db_drop li a {display:block; padding: 2% 0 2% 2.2em; }
-.db_drop ul li a {display:inline;}
-.db_drop span {margin-top:2%;}
-.more    {display:block;position:relative; z-index:1;}
+#lesson_list a, #lessons_list_active a, #lessons_list_inactive a { font-size:18px; font-size:1.8rem; line-height: 1.3em; font-weight: bold;margin:0 0 2% 0;}
+#lesson_list, #lessons_list_active, #lessons_list_inactive { margin:2% 0; }
+#lessons_list .ui-accordion-content ol, #lessons_list_active .ui-accordion-content ol, #lessons_list_inactive .ui-accordion-content ol { margin-bottom:25px !important;}
+.db_drop a { text-decoration: none; }
+.db_drop li { color: #444; margin-top: 10px; padding: 5px; font-size:14px; font-size:1.4rem; }
+.db_drop ul li { display:inline; list-style-type: none;cursor: pointer;position: relative;zoom: 1; }
+.db_drop li a { display:block; padding: 2% 0 2% 2.2em; }
+.db_drop ul li a { display:inline; }
+.db_drop span { margin-top:2%; }
+.more { display:block; position:relative; z-index:1; }
 .dropdown1 { display: none; }
-.dropdown1 li a {color:#fff !important}
-.sbOptions {width: 100%;}
-#answer_form {margin-bottom:20px;}
-.ui-accordion-content ul li.left {margin:5px !important;}
-#task_description {line-height:1.5em;}
+.dropdown1 li a { color:#fff !important }
+.sbOptions { width: 100%; }
+#answer_form { margin-bottom:20px; }
+.ui-accordion-content ul li.left { margin:5px !important; }
+#task_description { line-height:1.5em; }
 
 /*---------- Most of what is below is the original CSS. Holly --------------------------------*/
 
@@ -189,8 +186,9 @@ button::-moz-focus-inner { border:0; padding:0; } /* remove button padding in FF
 #side_button_bar .del, #side_button_bar2 .del, #content .ui-accordion-content .del, #content .ui-accordion-content .del {background: url(/imgs/icons_btns.png) right 8px no-repeat;}
 #side_button_bar .view, #side_button_bar2 .view, #content .ui-accordion-content .view, #content.ui-accordion-content .view {background: url(/imgs/icons_btns.png) right -285px no-repeat;}
 
-span.view_icon_only {padding: 8px 0px 0px 14px; line-height:1em; background: url(/imgs/icons_btns.png) right -285px no-repeat;}
-
+span.view_icon_only { padding: 8px 0px 0px 14px; line-height:1em; background: url(/imgs/icons_btns.png) right -285px no-repeat;}
+span.check_icon { background: url(/imgs/select.png) right 8px no-repeat;}
+span.check_icon_only { padding: 0px 0px 0px 14px; line-height:1em; background: url(/imgs/select.png) right 2px no-repeat;}
 
 /**************************************** * TEACHER / TEACHER_LESSON */
 

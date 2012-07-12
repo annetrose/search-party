@@ -13,6 +13,7 @@ class StudentLoginPage(SearchPartyRequestHandler):
 		self.load_search_party_context(user_type="student")
 		template_values = {
 			'header': self.gen_header("student"),
+            "lessons_json"  : self.get_lessons_json()
 		}
 		if self.session.has_key('msg'):
 			template_values['msg'] = self.session.pop('msg')  # only show the message once

@@ -39,7 +39,7 @@ class TeacherPage(PersonPage):
                 'lesson_json'        : self.get_lesson_json(lesson_code),
                 'students_js'        : self.make_student_structure_js2(lesson=lesson, indent="  "),
                 'default_start_pane' : default_start_pane,
-                'debug_mode'         : json.dumps(settings.DEBUG),
+                'debug_mode'         : json.dumps(settings.DEBUG)
             }
 
             if self.session.has_key('msg'):

@@ -7,8 +7,8 @@
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript" src="/js/common.js"></script>
   <script type="text/javascript" src="/js/stemmer_snowball.js"></script>{# must come before teacher.js #}
-  <script type="text/javascript" src="/js/teacher.js?version=060112"></script>
-  <script type="text/javascript" src="/js/lesson.js?version=060112"></script>
+  <script type="text/javascript" src="/js/teacher.js?version=071212"></script>
+  <script type="text/javascript" src="/js/lesson.js?version=071212"></script>
   <script type="text/javascript" src="/js/task_chooser.js"></script>
   
   <script type="text/javascript">
@@ -35,9 +35,7 @@
 {% endblock %}
 
 {% block top %}
-<div id="message_dialog" title="Message" style="display:none">
-  <p id="message_text"></p>
-</div>
+<div id="message" title="Message" style="display:none"></div>
 <div class="container_16 cntrmain">
   <div class="grid_16 branding">
       {{ header|safe }}

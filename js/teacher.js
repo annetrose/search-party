@@ -252,10 +252,11 @@ function initUI() {
     
     var utc_offset_minutes = (new Date()).getTimezoneOffset();
 	var html = '';
+    html += '<button class="cssbtn" id="edit_lesson_btn_'+lesson_code+'" onclick="goToLessonForm(\''+lesson_code+'\');">Edit activity<span class="edit"></span></button><br/>';
 	html += '<button class="cssbtn" id="stop_lesson_btn_'+lesson_code+'" style="display:none" onclick="stopLesson(\''+lesson_code+'\')">Stop activity<span class="stop"></span></button>';
 	html += '<button class="cssbtn" id="start_lesson_btn_'+lesson_code+'" style="display:none" onclick="startLesson(\''+lesson_code+'\')">Start activity<span class="start"></span></button>';
 	html += '<br/>';
-    //html += '<button class="cssbtn" id="edit_lesson_btn_'+lesson_code+'" onclick="editLesson(\''+lesson_code+'\')">Edit lesson<span class="edit"></span></button><br/>';
+	html += '<button class="cssbtn" id="clone_lesson_btn_'+lesson_code+'" onclick="cloneLesson(\''+lesson_code+'\', false)">Clone activity</button><br/>';
     html += '<button class="cssbtn" id="download_data_btn_'+lesson_code+'" onclick="window.location=\'/data_dump?lesson_code='+lesson_code+'&utc_offset_minutes=' + utc_offset_minutes + '\'; return false;">Download data<span class="dl"></span></button><br/>' 
     html += '<button class="cssbtn" id="clear_lesson_btn_'+lesson_code+'" onclick="clearLesson(\''+lesson_code+'\', false)">Clear data<span class="clr"></span></button><br/>';
     html += '<button class="cssbtn" id="delete_lesson_btn_'+lesson_code+'" onclick="deleteLesson(\''+lesson_code+'\')">Delete activity<span class="del"></span></button>';
@@ -1808,10 +1809,12 @@ function drawStudentHistory(div, studentNickname) {
  			title = "Unrated Link: "+action.link_title+' ('+action.link+')';
  		}
  		else if (type=='link_helpful') {
- 		    title = "Helpful Link: "+taskHistory[i-1].link_title+' ('+action.link+')';
+ 			var link_info = (taskHistory[i-1]==undefined) ? action.link : taskHistory[i-1].link_title+' ('+action.link+')';
+ 		    title = "Helpful Link: " + link_info;
  	    }
      	else if (type=='link_unhelpful') {
- 		    title = "Unhelpful Link: "+taskHistory[i-1].link_title+' ('+action.link+')';
+ 			var link_info = (taskHistory[i-1]==undefined) ? action.link : taskHistory[i-1].link_title+' ('+action.link+')';
+ 		    title = "Unhelpful Link: " + link_info;
  	    }
  		else if (type=='answer') {
  		    title = "Response: "+action.answer_text;
@@ -1878,14 +1881,13 @@ function listStudentHistory(div, studentNickname) {
  		}
  		else if (taskType=='link_helpful') {
  		    type = "Helpful Link";
- 		    details = taskHistory[i-1].link_title + '<br/>';
+ 			details = (taskHistory[i-1]!=undefined) ? taskHistory[i-1].link_title + '<br/>' : '';
  		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
  	    }
  		else if (taskType=='link_unhelpful') {
  		    type = "Unhelpful Link";
- 		    details =  taskHistory[i-1].link_title+'<br/>';
+ 			details = (taskHistory[i-1]!=undefined) ? taskHistory[i-1].link_title + '<br/>' : '';
  		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
-
  	    }
  		else if (taskType=='answer') {
  		    type = "Response";

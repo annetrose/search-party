@@ -19,17 +19,22 @@ class SearchExecutedHandler(SearchPartyRequestHandler):
             student = self.person
             lesson = student.lesson
             teacher = lesson.teacher
-            task_idx = int(self.request.get("task_idx", student.current_task_idx))
+            task_idx = int(self.request.get("task_idx", 0))
             query = self.request.get("query")
+            url = self.request.get("url", default_value=None)
+            ext = int(self.request.get("ext", 0))
             activity = StudentActivity(
                 student = student,
                 lesson = lesson,
                 task_idx = task_idx,
                 activity_type = 'search',
                 search = query,
+                link = url
             )
             activity.put()
-            send_update_query(student=student, teacher=teacher, task_idx=task_idx, query=query)
+            
+            notifyStudent = ext==1
+            send_update_query(student=student, teacher=teacher, task_idx=task_idx, query=query, notifyStudent=notifyStudent)
             response_data = { "status":1 }
             
         else:

@@ -20,8 +20,13 @@ function initUI() {
 	$('#lesson_code').html(lesson_code);
 	$('#task_chooser').selectbox();
     
+	var task = parseInt(getSpecificURLParameter(''+document.location, 'task'));
+	if (!isNaN(task)) {
+		changeTask(task);
+	}
+	
 	updateQueryHistory();
-    	switchToSearch();
+    switchToSearch();
     
 	var taskInfo = g_student_info.tasks[selectedTaskIdx()];
 	var answerInfo = taskInfo.answer;
@@ -57,19 +62,49 @@ function openChannel() {
 function onSocketOpen() {
 }
 
-function onSocketMessage(msg) {
-    var state = JSON.parse(msg.data);
-    if ("log" in state) {
-		$("#log").append("message received: " + state.log + "<br>");
-	
-    } else if ('status' in state) {
-		if (state.status=="on") {
-			$("#status_header").hide();
-		} else {
-			$("#status_header").show();
-			$("#status_header").html("Teacher is OFFLINE");
+function onSocketMessage(msg) {    
+	var updates = JSON.parse(msg.data);
+	var num_updates = updates.length;
+	for (var i=0; i<num_updates; i++) {
+		var update = updates[i];
+		switch (update.type) {
+			case "query":
+				var taskInfo = g_student_info.tasks[update.task_idx];
+				taskInfo.searches.push({query:update.query, links_followed:[]});
+				if (update.task_idx == selectedTaskIdx()) {
+					updateQueryHistory();
+				}
+				break;
+				
+			case "link_followed":
+				var taskInfo = g_student_info.tasks[update.task_idx];
+				taskInfo.searches.push({query:update.query, links_followed:[]});
+				taskInfo.searches[taskInfo.searches.length-1].links_followed.push({url:update.url, title:update.title});
+				if (update.task_idx == selectedTaskIdx()) {
+					updateQueryHistory();
+				}
+				break;
+				
+			case "link_rated":
+				var taskInfo = g_student_info.tasks[update.task_idx];
+				for (var i=0; i<taskInfo.searches.length; i++) {
+					var linksFollowed = taskInfo.searches[i].links_followed;
+					for (var j=0; j<linksFollowed.length; j++) {
+						var linkInfo = linksFollowed[j];
+						if (linksFollowed[j].url==update.url) {
+							linksFollowed[j].is_helpful = update.is_helpful=="1";
+						}
+					}
+				}
+				if (update.task_idx == selectedTaskIdx()) {
+					updateQueryHistory();
+				}
+				break;
+				
+			default:
+				break;
 		}
-    }
+	}
 }
 
 function onSocketError(error) {
@@ -174,7 +209,7 @@ function onSearchComplete() {  // called from js/student_custom_search.js
             	setTimeout("hideAds()", 500);
             }
             else {
-                showLoggedOutWarning();
+                showWarning(data.status);
            }
         },
         error: function() {
@@ -182,17 +217,25 @@ function onSearchComplete() {  // called from js/student_custom_search.js
 	});
 }
 
-function showLoggedOutWarning() {
-	$('#logged_out_warning').dialog({
-        autoOpen: true,
-        modal: true,
-        buttons: {
-          Ok: function() {
-            $(this).dialog("close");
-            window.location.reload(true);
-          }
-        }
-    });
+function showWarning(status) {
+	if (status != 1) {
+		var warning = 'An unknown error has occurred.';
+		if (status==0) {
+			warning = 'You have been logged out.  Please log in again to continue.';
+		}
+		$('#message').html("<p>"+warning+"</p>");
+
+		$('#message').dialog({
+			autoOpen: true,
+			modal: true,
+			buttons: {
+				Ok: function() {
+					$(this).dialog("close");
+					window.location = '/student_login';
+				}
+			}
+		});
+	}
 }
 
 function visitLink(url, title, query) {
@@ -224,8 +267,8 @@ function onLinkFollowed(url, title, query) {
 		},
 		cache: false,
 		success: function(data) {
-			if (data.status==0) {
-            	showLoggedOutWarning();
+			if (data.status!=1) {
+            	showWarning(data.status);
             }
 		}
 	});
@@ -267,7 +310,6 @@ function onLinkRated() {
 	var numSearches = searches.length;
 	for(var i=0; i<numSearches; i++) {
 		var search = searches[i];
-		var query = search.query;
 		var linksFollowed = search.links_followed;
 		var numLinksFollowed = linksFollowed.length;
 		for (var j=0; j<numLinksFollowed; j++) {
@@ -291,8 +333,8 @@ function onLinkRated() {
 		},
 		cache: false,
 		success: function(data) {
-			if (data.status==0) {
-            	showLoggedOutWarning();
+			if (data.status!=1) {
+            	showWarning(data.status);
             }
 		}
 	});
@@ -332,8 +374,8 @@ function onAnswerSubmitted() {
 		},
 		cache: false,
 		success: function(data) {
-			if (data.status==0) {
-            	showLoggedOutWarning();
+			if (data.status!=1) {
+            	showWarning(data.status);
             }
 		}
 	});

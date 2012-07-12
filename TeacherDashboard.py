@@ -5,9 +5,9 @@
 #          University of Maryland, Human-Computer Interaction Lab - www.cs.umd.edu/hcil
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 
-from SearchPartyRequestHandler import SearchPartyRequestHandler
+from PersonPage import PersonPage
 
-class TeacherDashboard(SearchPartyRequestHandler):
+class TeacherDashboard(PersonPage):
 
     def get(self):
         self.load_search_party_context(user_type="teacher")
@@ -17,6 +17,7 @@ class TeacherDashboard(SearchPartyRequestHandler):
                 raise NotAnAuthenticatedTeacherError()
             
             else:
+                lesson = None
                 form_item = lambda key:self.request.get(key, "").strip()
                 if form_item is not None:
                     lesson_code = form_item("lesson_code")
@@ -25,7 +26,11 @@ class TeacherDashboard(SearchPartyRequestHandler):
                         lesson = Lesson.get_by_key_name(lesson_code)       
                     action = form_item("action")
                 if action=="create":
-                    self.create_lesson(form_item)
+                    self.create_edit_lesson(form_item)
+                elif action=="clone":
+                    self.clone_lesson(lesson)
+                elif action=="edit":
+                    self.create_edit_lesson(form_item)
                 elif action=="start":
                     self.start_lesson(lesson)  
                 elif action=="stop":
@@ -44,6 +49,8 @@ class TeacherDashboard(SearchPartyRequestHandler):
                     student_key = "::".join((student_nickname, lesson_code))
                     student = Student.get_by_key_name(student_key)
                     self.log_out_student(student)
+                elif action=="logoutallstudents":
+                    self.log_out_all_students(lesson)
                 else:
                     self.show_dashboard()
 
@@ -54,23 +61,26 @@ class TeacherDashboard(SearchPartyRequestHandler):
         self.get();
         
     def show_dashboard(self):
-            import helpers
-            import settings
+        import helpers
+        import settings
             
-            template_values = {
-                'header'     : self.gen_header("teacher"),
-                "lessons_json"  : self.get_lessons_json(),
-                "dbg_timestamp" : (helpers.timestamp() if settings.ENABLE_FILLER_FORM_FILLING else ""),
-            }
+        template_values = {
+            "header"     : self.gen_header("teacher"),
+            "lessons_json"  : self.get_lessons_json(),
+            "dbg_timestamp" : (helpers.timestamp() if settings.ENABLE_FILLER_FORM_FILLING else "")
+        }
 
-            if self.session.has_key('msg'):
-                template_values['msg'] = self.session.pop('msg')
+        if self.session.has_key('msg'):
+            template_values['msg'] = self.session.pop('msg')
                     
-            self.write_response_with_template("teacher_dashboard.html", template_values)
+        self.write_response_with_template("teacher_dashboard.html", template_values)
             
-    def create_lesson(self, form_item):
-        lesson_title = self.request.get("lesson_title")
-        lesson_code = self.make_lesson_code()
+    def create_edit_lesson(self, form_item):
+        lesson_code = form_item("lesson_code")
+        is_new = lesson_code == ""
+        if is_new:
+            lesson_code = self.make_lesson_code()
+        lesson_title = form_item("lesson_title")
         lesson_description = form_item("lesson_description")
         class_name = form_item("class_name")
         task_infos = []
@@ -85,20 +95,50 @@ class TeacherDashboard(SearchPartyRequestHandler):
         tasks_json = json.dumps(task_infos)
 
         if (len(lesson_title) > 0) and (len(lesson_code) > 0) and (len(task_infos) > 0):
-            from datetime import datetime
             from model import Lesson
+            from datetime import datetime
             now = datetime.now()
+
             lesson = Lesson(key_name=lesson_code,
                 teacher=self.person, title=lesson_title, lesson_code=lesson_code,
                 description=lesson_description, class_name=class_name, 
-                start_time=now, stop_time=None, tasks_json=tasks_json)
+                tasks_json=tasks_json, start_time=now, stop_time=None)
+            
+            if not is_new:
+                old_lesson = Lesson.get_by_key_name(lesson_code)       
+                lesson.start_time = old_lesson.start_time
+                lesson.stop_time = old_lesson.stop_time
+            
             lesson.put()
             self.response.out.write(self.get_lessons_json())
-                        
+        
         else:
             data = { 'error': 1, 'msg': 'Required fields are missing.' }
             self.response.out.write(json.dumps(data))
+            
+    def clone_lesson(self, lesson):
+        lesson_title = lesson.title + " (Clone)"
+        lesson_code = self.make_lesson_code()
+        
+        task_infos = []
+        for task_idx in range(0, len(lesson.tasks)):
+            task_title = lesson.tasks[task_idx][0];
+            if task_title != "":
+                task_description = lesson.tasks[task_idx][1];
+                task_infos.append((task_title, task_description))
 
+        import json
+        tasks_json = json.dumps(task_infos)
+
+        from datetime import datetime
+        from model import Lesson
+        lesson = Lesson(key_name=lesson_code,
+            teacher=self.person, title=lesson_title, lesson_code=lesson_code,
+            description=lesson.description, class_name=lesson.class_name, 
+            start_time=datetime.now(), stop_time=lesson.stop_time, tasks_json=tasks_json)
+        lesson.put()           
+        self.response.out.write(self.get_lesson_json(lesson_code))
+        
     def start_lesson(self, lesson, write_response=True):
         lesson.stop_time = None
         lesson.put()
@@ -110,6 +150,11 @@ class TeacherDashboard(SearchPartyRequestHandler):
         now = datetime.now()
         lesson.stop_time = now
         lesson.put()
+        
+        if self.request.get("logout", False) == True:
+            from helpers import log
+            log("STOP LESSON: LOGOUT ALL STUDENTS");
+            
         if write_response:
             self.write_response_plain_text("OK")
 
@@ -118,6 +163,11 @@ class TeacherDashboard(SearchPartyRequestHandler):
         lessons = Lesson.fetch_all(filter_expr="teacher", filter_value=self.person)
         for lesson in lessons:
             self.stop_lesson(lesson, False)
+            
+        if self.request.get("logout", False) == True:
+            from helpers import log
+            log("STOP ALL LESSONS: LOGOUT ALL STUDENTS");
+                
         self.write_response_plain_text("OK")
        
     def clear_lesson(self, lesson, write_response=True):
@@ -125,13 +175,7 @@ class TeacherDashboard(SearchPartyRequestHandler):
         from google.appengine.ext import db
         db.delete(StudentActivity.fetch_all("lesson =", lesson))
         db.delete(Student.fetch_all("lesson =", lesson))
-        
-        # should start time be reset whenever the data is cleared (i.e., lesson is started over)
-#        from datetime import datetime
-#        now = datetime.now()
-#        lesson.start_time = now
-#        lesson.put()
-            
+        self.log_out_all_students(lesson, False);
         if write_response:
             self.write_response_plain_text("OK")
                 
@@ -142,6 +186,7 @@ class TeacherDashboard(SearchPartyRequestHandler):
         if lesson.stop_time is None:
             lesson.stop_time = now
         lesson.put()
+        self.log_out_all_students(lesson, False);
         if write_response:
             self.write_response_plain_text("OK")
     
@@ -150,12 +195,30 @@ class TeacherDashboard(SearchPartyRequestHandler):
         lessons = Lesson.fetch_all(filter_expr="teacher", filter_value=self.person)
         for lesson in lessons:
             self.delete_lesson(lesson, False)
+        self.log_out_all_students(None, False);
         self.write_response_plain_text("OK")
              
-    def log_out_student(self, student):
+    def log_out_student(self, student, write_response=True):
         student.log_out(True)
-        self.write_response_plain_text("OK")
+        if write_response:
+            self.write_response_plain_text("OK")
                    
+    def log_out_all_students(self, lesson=None, write_response=True):
+        from model import Student
+        if lesson is None:
+            students = Student.all()
+        else:
+            students = tuple(Student.all().filter("lesson =", lesson))
+            
+        for student in students:
+            if student.is_logged_in or len(student.client_ids) > 0:
+                from helpers import log
+                log("Teacher logged out {0} from lesson {1}".format(student.nickname, student.lesson.lesson_code))
+                self.log_out_student(student, False)
+          
+        if write_response:      
+            self.write_response_plain_text("OK")
+
     def make_lesson_code(self):
         import random
         from model import Lesson
@@ -172,38 +235,4 @@ class TeacherDashboard(SearchPartyRequestHandler):
                 break
         return lesson_code
     
-    def get_lessons_json(self):
-        from model import Lesson
-        import json
-        import datetime
-            
-        def handler(o):
-            if isinstance(o, datetime.datetime):
-                return "(new Date(%d, %d, %d, %d, %d, %d))"%(
-                        o.year,
-                        o.month-1, # javascript months start at zero  
-                        o.day,
-                        o.hour,
-                        o.minute,
-                        o.second)
-            else:
-                raise TypeError(repr(o))
-    
-        lessons = Lesson.fetch_all(filter_expr="teacher", filter_value=self.person)
-        lesson_infos = []
-        for lesson in lessons:
-            if not lesson.is_deleted:
-                lesson_infos.append({
-                    "lesson_code" : lesson.lesson_code,
-                    "title" : lesson.title,
-                    "description" : lesson.description,
-                    "class_name" : lesson.class_name,
-                    "start_time" : lesson.start_time,
-                    "stop_time" : lesson.stop_time,
-                    "tasks" : lesson.tasks,
-                    "is_active" : lesson.is_active
-                })
-        lessons_json = json.dumps(lesson_infos, default=handler)
-        return lessons_json
-
 class NotAnAuthenticatedTeacherError(Exception): pass

@@ -11,19 +11,19 @@ from SearchPartyRequestHandler import SearchPartyRequestHandler
 class LinkFollowedHandler(SearchPartyRequestHandler):
     def post(self):
         from model import StudentActivity, Student
-        from helpers import log
         from updates import send_update_link_followed
 
         self.load_search_party_context(user_type="student")
         
         if self.is_student and self.person.is_logged_in:
-            student = self.person
+            student = self.person 
             teacher = student.teacher
-            task_idx = int(self.request.get("task_idx", student.current_task_idx))
+            task_idx = int(self.request.get("task_idx", 0))
             query = self.request.get("query")
             url = self.request.get("url")
             lesson_key = Student.lesson.get_value_for_datastore(student)
             title = self.request.get("title")
+            ext = int(self.request.get("ext", 0))
             link = StudentActivity(
                 student = student,
                 lesson = lesson_key,
@@ -34,9 +34,11 @@ class LinkFollowedHandler(SearchPartyRequestHandler):
                 link_title = title
             )
             link.put()
-            log("LinkFollowedHandler:  activity=%r"%link)
-            send_update_link_followed(student=student, teacher=teacher, task_idx=task_idx, query=query, url=url, title=title)
-            response_data = { "status":1 }
+
+            notifyStudent = ext==1
+            send_update_link_followed(student=student, teacher=teacher, task_idx=task_idx, query=query, url=url, title=title, notifyStudent=notifyStudent)
+            response_data = link.toDict();
+            response_data['status'] = 1;
             
         else:
             response_data = { "status":0, "msg":"Student not logged in" }

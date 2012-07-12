@@ -18,10 +18,6 @@ class TaskChangedHandler(SearchPartyRequestHandler):
         if self.is_student:
             student = self.person
             teacher = student.lesson.teacher
-            task_idx = int(self.request.get("task_idx"))
-            if student.current_task_idx != task_idx:
-                student.current_task_idx = task_idx
-                student.put()
-                
+            task_idx = int(self.request.get("task_idx"))                
             log( "TaskChangedHandler:  task_idx=%r"%task_idx )
             send_update_task(student=student, teacher=teacher, task_idx=task_idx)
