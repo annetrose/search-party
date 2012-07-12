@@ -1,10 +1,13 @@
 # "search-party" is the production application.
-#application: search-party
-#version: 4
+application: search-party
+version: 7
 
 # "schpty" is a completely separate copy for development and testing.
-application: schpty
-version: dev
+#application: schpty
+#version: dev
+
+#application: hciltest
+#version: dev
 
 # For Python 2.7:
 runtime: python27

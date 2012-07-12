@@ -14,7 +14,7 @@ class SearchPartyModel(db.Model):
     default_sort_key_fn = None
 
     @classmethod
-    def fetch_all(cls, filter_expr, filter_value):
+    def fetch_all(cls, filter_expr=None, filter_value=None, sort=None):
         # TODO: Make this use less resources.  Read options online and then use profiler to test each one.
 
         assert (filter_expr is None)==(filter_value is None)
@@ -25,6 +25,8 @@ class SearchPartyModel(db.Model):
             if filter_expr is not None:
                 assert filter_value is not None
                 query = query.filter(filter_expr, filter_value)
+            if sort is not None:
+                query.order(sort)
             return query
 
         items = get_query().fetch(EXPECTED_UPPER_BOUND)
@@ -99,6 +101,16 @@ class Lesson(SearchPartyModel):
         import json
         return json.loads(self.tasks_json)
 
+    def toDict(self):
+        return {
+            'teacher': self.teacher.nickname,
+            'title': self.title,
+            'description': self.description,
+            'lesson_code': self.lesson_code,
+            'class_name': self.class_name,
+            'tasks': self.tasks
+        }
+        
     def __repr__(self):
         from helpers import to_str_if_ascii
         return "%s(%r)"%(self.__class__.__name__, to_str_if_ascii(self.key().name()))
@@ -110,7 +122,6 @@ class Student(PersonModel):
     lesson = db.ReferenceProperty(Lesson)
     teacher = db.ReferenceProperty(Teacher)
     task_idx = db.IntegerProperty(default=0)
-    current_task_idx = db.IntegerProperty(default=0)
     first_login_timestamp = db.DateTimeProperty(auto_now_add=True)
     latest_login_timestamp = db.DateTimeProperty()
     latest_logout_timestamp = db.DateTimeProperty()
@@ -188,14 +199,14 @@ class StudentActivity(SearchPartyModel):
         return {
             'lesson_code': self.lesson.lesson_code,
             'task_idx': self.task_idx,
-            'timestamp': self.timestamp.strftime("%m/%d/%y %H:%M"),
             'activity_type': self.activity_type,
             'search': self.search,
             'link': self.link,
             'link_title': self.link_title,
             'is_helpful': self.is_helpful,
             'answer_text': self.answer_text,
-            'answer_explanation': self.answer_explanation
+            'answer_explanation': self.answer_explanation,
+            'timestamp': self.timestamp.strftime("%B %d, %Y %H:%M:%S %Z")
         }
     
     def __repr__(self):

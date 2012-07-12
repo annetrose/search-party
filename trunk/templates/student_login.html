@@ -3,10 +3,143 @@
 
 {% block head %} 
 <title>Search Party - Student Login</title>
+
+<script type="text/javascript">
+// <![CDATA[
+    var g_lessons = {{ lessons_json|safe }};
+
+    $(document).ready(function() {
+        $(".login_box").keyup(function(event) {
+            if (event.which == 13) {   // Enter key
+                login(event);
+            }    
+        });
+       
+        $('#login_button').click(function(event) {
+            login(event);
+        });
+               
+        createLessonList();
+        
+        //createTeacherFilter();
+        $('#teacher_filter').change(function() {
+            createLessonList($('#teacher_filter').val());
+        });
+    });
+
+    function login(event) {
+        $.post("/student_login_handler", 
+            {
+                "lesson_code": $('#lesson_code_field').val(),
+                "student_nickname": $('#student_nickname').val()
+            }, 
+            login_callback, 'json');
+        }
+
+    function login_callback(data) {
+        terms = data;
+        status = terms['status'];
+        if (status == 'logged_in') {
+            window.location.replace("/student");
+        }
+        else if (status == 'logged_out') {
+            window.location.replace("/student_login");
+        }
+    }
+    
+    function createLessonList(teacher) {
+        var html = '';
+        var count = 0;
+        for (var i=0; i<g_lessons.length; i++) {
+            var lesson = g_lessons[i];
+            if (lesson.is_active && (teacher==undefined || teacher=="" || lesson.teacher_name==teacher)) {
+                html += getLessonHtml(lesson);
+                count++;
+            }
+        } 
+             
+        if (count>0) {    
+            $('#lesson_list').accordion('destroy');          
+            $('#lesson_list').html(html);         
+            $('#lesson_list').accordion({
+                collapsible: true, 
+                active: false
+            });
+        }
+    }
+    
+    function getLessonHtml(lesson) {
+        var lessonCode = lesson.lesson_code;
+        var customStyles = '';
+        var selectButton = '<button class="cssbtn smallest" style="padding:5px !important;" onclick="event.stopPropagation(); $(\'#lesson_code_field\').val(\''+lessonCode+'\');" title="Select activity"><span class="check_icon_only"></span></button>';
+        var html = '<h3 id="'+lessonCode+'"><div class="right" style="margin-top:5px;margin-right:5px;">'+selectButton+' #'+lessonCode+'</div><a href="#" style="margin:0px;">'+lesson.title+'</a></h3>'
+
+        html += '<div>';
+        if (lesson.class_name) {
+            html += '<h5>'+lesson.class_name + '</h5>';
+        }
+        else {
+            customStyles = 'style="padding-top:0; margin-top:0;"';
+        }
+        if (lesson.description) {
+            html += '<p class="lesson_description" '+customStyles+'>'+lesson.description + '</p>';
+        }
+        if (lesson.teacher_name) {
+                html += '<h5>Teacher</h5>';
+                html += '<p><ul><li>'+lesson.teacher_name+'</li></ul></p>';
+        }
+    
+        html += '<h5>Tasks</h5>';
+        html += '<ol>';
+        $.each(lesson.tasks, function(i, task) {
+            var taskTitle = task[0];
+            var taskDescription = task[1];
+            html += '<li>'+(i+1)+'. '+taskTitle+'</li>';
+        });
+        html += '</ol>';
+        
+        html += '<ul>';
+        html += '<li class="left">';
+        html += '<button id="select_lesson_btn" onclick="$(\'#lesson_code_field\').val(\''+lessonCode+'\');" class="cssbtn smallest">Select Activity<span class="check_icon"></span></button>';
+        html += '</li>';
+        html += '</ul>';
+        html += '<div style="clear: both"></div>';
+    
+        html += '</div>';
+        return html;
+    }
+    
+    function createTeacherFilter() {
+        var teachers = getTeachers();
+        if (teachers.length>0) {
+            var html = '<select id="teacher_filter">';
+            html += '<option value="">All Teachers</option>';
+            for (var i=0; i<teachers.length; i++) {
+                html += '<option value="'+teachers[i]+'">'+teachers[i]+'</option>';
+            }
+            html += '</select>';
+            $('#lesson_filter').html(html);
+        }
+    }
+    
+    function getTeachers() {
+        var teachers = [];
+        for (var i=0; i<g_lessons.length; i++) {
+            var lesson = g_lessons[i];
+            var teacherName = lesson.teacher_name;
+            if (teacherName && $.inArray(teacherName, teachers)==-1) {
+                teachers.push(teacherName);
+            }
+        }
+        teachers.sort();
+        return teachers;
+    }
+    
+// ]]>
+</script>  
 {% endblock %}
 
 {% block body %} 
-
     <div class="container_16 cntrmain">
 	   <div class="grid_16 branding">
 		  {{ header|safe }}
@@ -17,10 +150,11 @@
 
     <div class="container_16">
 	   <div class="grid_16 main">
+	      <header class="info">
+            <h2>Student login</h2>
+          </header>
+          <div id="content">
 		  <form>
-            <header class="info">
-                <h2>Student login</h2>
-			</header>
 		    <ul>
                 <li>
 				    <span>
@@ -39,39 +173,11 @@
 				</li>
 			</ul>
 		  </form>
+
+		  <h3 style="margin-top:15px">Activities <span id="lesson_filter" style="margin-left:5px"></span></h3>
+          <div id="lesson_list" class="accordion2" style="max-width:700px">(none)</div>
+          </div><!-- end content -->
        </div><!--- end grid_16 -->
     </div><!--- end container_16-->
-	
-	<script type="text/javascript">
-	   $(".login_box").keyup(function(event) {
-	       if (event.which == 13) {   // Enter key
-		      login(event);
-		   }    
-	   });
-	   
-	   $('#login_button').click(function(event) {
-	       login(event);
-	   });
-
-	   function login(event) {
-	       $.post("/student_login_handler", 
-	          {
-		          "lesson_code": $('#lesson_code_field').val(),
-			      "student_nickname": $('#student_nickname').val()
-              }, 
-		      login_callback, 'json');
-	   }
-
-       function login_callback(data) {
-           terms = data;
-		   status = terms['status'];
-		   if (status == 'logged_in') {
-		      window.location.replace("/student");
-		   }
-		   else if (status == 'logged_out') {
-		      window.location.replace("/student_login");
-		  }
-	   }
-	</script>  
-
-	{% endblock %}
+</div>
+{% endblock %}

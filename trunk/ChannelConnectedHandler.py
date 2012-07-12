@@ -14,7 +14,6 @@ class ChannelConnectedHandler(SearchPartyChannelHandler):
         self.load_user()
         self.person.add_client_id(self.client_id)
         if self.person_type=="student" and len(self.person.client_ids)==1:
-            self.person.current_task_idx = 0
             self.person.latest_logout_timestamp = None
         self.person.put()
         

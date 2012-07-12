@@ -230,6 +230,47 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
         self.session['msg'] = msg
         self.redirect(dst)
         
+    def get_lessons_json(self):
+        from model import Lesson
+        import json
+        import datetime
+            
+        def handler(o):
+            if isinstance(o, datetime.datetime):
+                return "(new Date(%d, %d, %d, %d, %d, %d))"%(
+                        o.year,
+                        o.month-1, # javascript months start at zero  
+                        o.day,
+                        o.hour,
+                        o.minute,
+                        o.second)
+            else:
+                raise TypeError(repr(o))
+    
+        if self.person is not None and self.is_teacher:   
+            lessons = Lesson.fetch_all(filter_expr="teacher", filter_value=self.person, sort="title")
+        else:
+            lessons = Lesson.fetch_all(sort="title")
+            
+        lesson_infos = []
+        for lesson in lessons:
+            from helpers import log
+            log('=> {0}'.format(lesson.title))
+            if not lesson.is_deleted:
+                lesson_infos.append({
+                    "lesson_code" : lesson.lesson_code,
+                    "title" : lesson.title,
+                    "description" : lesson.description,
+                    "class_name" : lesson.class_name,
+                    "teacher_name" : lesson.teacher.nickname,
+                    "start_time" : lesson.start_time,
+                    "stop_time" : lesson.stop_time,
+                    "tasks" : lesson.tasks,
+                    "is_active" : lesson.is_active
+                })
+        lessons_json = json.dumps(lesson_infos, default=handler)
+        return lessons_json
+
     def htmlunquote(self, html):
         html = html.replace("&quot;", '"')
         html = html.replace("&#39;", "'")

@@ -21,13 +21,11 @@ class AdminPage(SearchPartyRequestHandler):
             
             else:  
                 action = self.request.get("action", "");
-                if action=="logoutallstudents":
-                    self.logout_all_students()
-                elif action=="updatevalues":
+                if action=="updatevalues":
                     self.update_values()
                 else:
                     template_values = {
-                        'header'     : self.gen_header("teacher"),
+                        'header' : self.gen_header("teacher")
                     }
 
                     if self.session.has_key('msg'):
@@ -44,15 +42,6 @@ class AdminPage(SearchPartyRequestHandler):
 
     def post(self):
         self.get();
-        
-    def logout_all_students(self):
-        from model import Student
-        query = Student.all()
-        for student in query:
-            if student.is_logged_in or len(student.client_ids) > 0:
-                from helpers import log
-                log("=> log out student {0} from lesson {1}".format(student.nickname,student.lesson.lesson_code))
-                student.log_out(True)
       
     # helpful when adding new attributes to existing datastore entities and default needs to be set
     def update_values(self):          

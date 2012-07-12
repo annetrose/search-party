@@ -1,6 +1,3 @@
-var VIEW_ALL_LESSONS = '#1';
-var CREATE_LESSON = '#2';
-
 var NEW_TASK_FORM_DESIGN = false;
 var MAX_NUM_TASKS = 10;
 
@@ -28,7 +25,7 @@ function createLessonList() {
        else {           
           inactiveHtml += html;
        }
-    }    
+    }   
                     
     $('#lessons_list_active').accordion('destroy');
     $('#lessons_list_inactive').accordion('destroy');
@@ -65,7 +62,7 @@ function createLessonList() {
 function getLessonHtml(lesson) {
 	var lessonCode = lesson.lesson_code;
 	var customStyles = '';
-	var viewButton = '<button class="cssbtn smallest" style="padding:4px !important; margin-right:8px; margin-top:-2px" onclick="event.stopPropagation(); viewLesson(\''+lessonCode+'\')" title="View activity"><span class="view_icon_only"></span></button>';
+	var viewButton = '<button class="cssbtn smallest" style="padding:4px !important; margin-right:8px; margin-top:-2px" onclick="event.stopPropagation(); goToLesson(\''+lessonCode+'\')" title="View activity"><span class="view_icon_only"></span></button>';
 //	var startTime = '';
 //	if (lesson.start_time) {
 //		var localStartTime = getLocalTime(eval(lesson.start_time));
@@ -97,10 +94,13 @@ function getLessonHtml(lesson) {
 
     var utc_offset_minutes = (new Date()).getTimezoneOffset();
     html += '<ul>';
-    html += '<li class="left" style="padding-left:0px; margin-left:0px;">';
-    html += '<button id="view_lesson_btn_'+lessonCode+'" onclick="viewLesson(\'' + lessonCode + '\')" class="cssbtn smallest">View Activity<span class="view"></span></button>';
+    html += '<li class="left">';
+    html += '<button id="view_lesson_btn_'+lessonCode+'" onclick="goToLesson(\'' + lessonCode + '\')" class="cssbtn smallest">View Activity<span class="view"></span></button>';
     html += '</li>';
-    html += '<li class="left" style="margin-left:5px">';
+    html += '<li class="left">';
+    html += '<button id="edit_lesson_btn'+lessonCode+'" onclick="showLessonForm(\'' + lessonCode + '\')" class="cssbtn smallest">Edit Activity<span class="edit"></span></button>';
+    html += '</li>';
+    html += '<li class="left">';
     if (lesson.is_active) {
         html += '<button id="stop_lesson_btn_'+lessonCode+'" onclick="stopLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Stop Activity<span class="stop"></span></button>';
     }
@@ -109,80 +109,81 @@ function getLessonHtml(lesson) {
     }
     html += '</li>';
     html += '<li class="left">';
+    html += '<button id="clone_lesson_btn_'+lessonCode+'" onclick="cloneLesson(\'' + lessonCode + '\', true)" class="cssbtn smallest">Clone Activity<span></span></button>';
+    html += '</li>';
+    html += '<li class="left">';
+    html += '<button id="delete_lesson_btn_'+lessonCode+'" onclick="deleteLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Delete Activity<span class="del"></span></button>';
+    html += '</li>';
+    html += '<li class="left">';
     html += '<button id="download_data_btn_'+lessonCode+'" onclick="window.location=\'/data_dump?lesson_code='+lessonCode+'&utc_offset_minutes='+utc_offset_minutes+'\'; return false;" class="cssbtn smallest">Download Data<span class="dl"></span></button>';
     html += '</li>';
     html += '<li class="left">';
     html += '<button id="clear_data_btn_'+lessonCode+'" onclick="clearLesson(\'' + lessonCode + '\', true);" class="cssbtn smallest">Clear Data<span class="clr"></span></button>';
     html += '</li>';
-    html += '<li class="left">';
-    html += '<button id="delete_lesson_btn_'+lessonCode+'" onclick="deleteLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Delete Activity<span class="del"></span></button>';
-    html += '</li>';
     html += '</ul>';
     html += '<div style="clear: both"></div>';
-    
-//    html += '<div style="margin-top:8px; float:left">'
-//    html += '<div class="cssbtnlabel smallest" style="width:55px; float:left; margin-right:5px;">Activity:</div>';
-//    html += '<button id="view_lesson_btn_'+lessonCode+'" onclick="viewLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-right:6px">View</button>';
-//    if (lesson.is_active) {
-//        html += '<button id="stop_lesson_btn_'+lessonCode+'" onclick="stopLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-right:6px">Stop</button>';
-//    }
-//    else {
-//  	  html += '<button id="start_lesson_btn_'+lessonCode+'" onclick="startLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-right:6px">Start</button>';
-//    }
-//    html += '<button id="delete_lesson_btn_'+lessonCode+'" onclick="deleteLesson(\'' + lessonCode + '\')" class="cssbtn smallest" style="margin-right:6px">Delete</button>';
-//    html += '</div>';
-//    html += '<div style="clear:both"></div>';
-//
-//    var utc_offset_minutes = (new Date()).getTimezoneOffset();
-//    html += '<div style="margin-top:8px; float:left">'
-//    html += '<div class="cssbtnlabel smallest" style="width:55px; float:left; margin-right:5px;">Data:</div>';
-//    html += '<button id="clear_data_btn_'+lessonCode+'" onclick="clearLesson(\'' + lessonCode + '\', true);" class="cssbtn smallest" style="margin-right:6px">Clear</button>';
-//    html += '<button id="download_data_btn_'+lessonCode+'" onclick="window.location=\'/data_dump?lesson_code='+lessonCode+'&utc_offset_minutes='+utc_offset_minutes+'\'; return false;" class="cssbtn smallest" style="margin-right:6px">Download</button>';
-//    html += '</div>';
-//    html += '<div style="clear:both"></div>';
-    
-//    html += '<div class="cssbtngroup" style="float:left">';
-//    html += '<div class="cssbtnlabel smallest" style="float: left">Activity:&nbsp;</div>';
-//    html += '<button id="view_lesson_btn_'+lessonCode+'" onclick="viewLesson(\'' + lessonCode + '\')" class="cssbtn smallest">View</button> ';
-//    if (lesson.is_active) {
-//        html += '<button id="stop_lesson_btn_'+lessonCode+'" onclick="stopLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Stop</button> ';
-//    }
-//    else {
-//  	  html += '<button id="start_lesson_btn_'+lessonCode+'" onclick="startLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Start</button> ';
-//    }
-//    html += '<button id="delete_lesson_btn_'+lessonCode+'" onclick="deleteLesson(\'' + lessonCode + '\')" class="cssbtn smallest">Delete</button> ';
-//    html += '</div>';
-
-//    html += '<div class="cssbtngroup" style="float:left">';
-//    html += '<div class="cssbtnlabel smallest" style="float:left" >Data:&nbsp;</div>';
-//    html += '<button id="clear_data_btn_'+lessonCode+'" onclick="clearLesson(\'' + lessonCode + '\', true);" class="cssbtn smallest">Clear</button> ';
-//    var utc_offset_minutes = (new Date()).getTimezoneOffset();
-//    html += '<button id="download_data_btn_'+lessonCode+'" onclick="window.location=\'/data_dump?lesson_code='+lessonCode+'&utc_offset_minutes='+utc_offset_minutes+'\'; return false;" class="cssbtn smallest">Download</button>';
-//    html += '</div>';
-//
-//    html += '<div class="cssbtngroup" style="float:left">';
-//    html += '<button id="student_login_btn_'+lessonCode+'" onclick="alert(\'Not implemented yet\');" class="cssbtn smallest">Login as Student</button> ';
-//    html += '</div>';
-//    html += '<div style="clear:both"></div>';
     
     html += '</div>';
     return html;
 }
 
-function createLessonForm(timestamp) {	
-    var html = '<form method="post" id="create_lesson_form" onsubmit="createLesson(); return false;" class="wufoo">';
+function showLessonForm(lessonCode) {
+	// NOTE: Existing data not modified when activity is edited.  Should option to clear data be given?
+
+	var action;
+	var pageTitle, activityName, className, activityDesc;
+	var taskTitles = [];
+	var taskDescs = [];
+
+	var isNewLesson = lessonCode == undefined || lessonCode == '';
+
+	if (isNewLesson) {
+	    action = "createEditLesson(); return false;";
+		pageTitle = 'Create activity';
+		timestamp = g_dbg_timestamp;
+		activityName = (timestamp?'LN:'+timestamp:'');
+		className = (timestamp?'CN:'+timestamp:'');
+		activityDesc = (timestamp?'LD:'+timestamp:'');
+		
+	    if (!NEW_TASK_FORM_DESIGN) {
+	    	MAX_NUM_TASKS = 5;
+	        for (var i=0; i<MAX_NUM_TASKS; i++) {
+	            taskTitles[i] = (timestamp?'TN:'+timestamp+'#'+(i+1):'');
+	            taskDescs[i] = (timestamp?'TD:'+timestamp+'#'+(i+1):'');
+	        }
+		}	    
+	}
+	else {
+		action = "createEditLesson('"+lessonCode+"'); return false;";
+		pageTitle = 'Edit activity';
+		var lesson = getLesson(lessonCode);
+		activityName = lesson.title;
+		className = lesson.class_name;
+		activityDesc = lesson.description;
+		
+		for (var i=0; i<lesson.tasks.length; i++) {
+            taskTitles[i] = lesson.tasks[i][0];
+            taskDescs[i] = lesson.tasks[i][1];
+        }
+		for (var i=lesson.tasks.length; i<MAX_NUM_TASKS; i++) {
+			taskTitles[i] = "";
+            taskDescs[i] = "";
+		}
+	}
+	
+    var html = '<form method="post" id="lesson_form" onsubmit="'+action+'" class="wufoo">';
     html += '<ul>';
     html += '<li>';
     html += '<label class="lesson_title desc">Activity name</label>';
-    html += '<input type="text" size="50" name="lesson_title" value="'+(timestamp?'LN:'+timestamp:'')+'" class="login_box field text fn flwid"></input>';
+    html += '<input type="text" size="50" name="lesson_title" value="'+activityName+'" class="login_box field text fn flwid"></input>';
     html += '</li>';
     html += '<li>';
     html += '<label class="class_name desc">Class name (optional)</label>';
-    html += '<input type="text" size="50" name="class_name" value="'+(timestamp?'CN:'+timestamp:'')+'" class="login_box field text fn flwid"></input>';
+    html += '<input type="text" size="50" name="class_name" value="'+className+'" class="login_box field text fn flwid"></input>';
     html += '</li>';
     html += '<li>';
     html += '<label class="lesson_description desc">Activity description</label>';
-    html += '<textarea rows="4" name="lesson_description" class="field textarea small flwid">'+(timestamp?'LD:'+timestamp:'')+'</textarea>';
+    html += '<textarea rows="4" name="lesson_description" class="field textarea small flwid">'+activityDesc+'</textarea>';
     html += '</li>';
     html += '</ul>';
   
@@ -194,11 +195,11 @@ function createLessonForm(timestamp) {
         for (var i=1; i<=MAX_NUM_TASKS; i++) {
            html += '<li class="leftHalf">';
            html += '<label class="desc">Task #'+i+' name</label>';
-           html += '<input style="width:95% !important" type="text" name="task_title_'+i+'" value="'+(timestamp?'TN:'+timestamp+'#'+i:'')+'" class="field text fn flwid"></input>';
+           html += '<input style="width:95% !important" type="text" name="task_title_'+i+'" value="'+taskTitles[i-1]+'" class="field text fn flwid"></input>';
            html += '</li>';
            html += '<li class="rightHalf">';
            html += '<label class="desc">Task #'+i+' description</label>';
-           html += '<textarea style="width:100% !important" rows="2" name="task_description_'+i+'" value="'+(timestamp?'TD:'+timestamp+'#'+i:'')+'" class="field textarea flwid"></textarea>';
+           html += '<textarea style="width:100% !important" rows="2" name="task_description_'+i+'" class="field textarea flwid">'+taskDescs[i-1]+'</textarea>';
            html += '</li>';
            html += '<div class="clearfix"></div>';
         }
@@ -206,27 +207,36 @@ function createLessonForm(timestamp) {
     	html += '<input type="hidden" name="max_num_tasks" value="'+MAX_NUM_TASKS+'">';
 	}
 
-	if (NEW_TASK_FORM_DESIGN) {
-        // TODO: Make styling of + and - buttons nicer
-	    html += '<ul id="tasks">';
-	    html += '<li id="task">';
-	    html += '<label class="task_title_label desc">Task #1 name</label>';
-	    html += '<input type="text" size="50" value="" class="task_title field text fn flwid"></input>';
-	    html += '<label class="task_description_label desc" style="margin-top:5px">Task #1 description</label>';
-	    html += '<textarea class="task_description field textarea smaller flwid"></textarea>';
-	    html += '<span class="inline"><a class="task_minus">[-]</a> <a class="task_plus">[+]</a></span>';
-	    html += '</li>';
-	    html += '</ul>';
-		html += '<input type="hidden" name="max_num_tasks" value="'+MAX_NUM_TASKS+'">';
-	}
+//	if (NEW_TASK_FORM_DESIGN) {
+//       // TODO: Make styling of + and - buttons nicer
+//	    html += '<ul id="tasks">';
+//	    html += '<li id="task">';
+//	    html += '<label class="task_title_label desc">Task #1 name</label>';
+//	    html += '<input type="text" size="50" value="" class="task_title field text fn flwid"></input>';
+//	    html += '<label class="task_description_label desc" style="margin-top:5px">Task #1 description</label>';
+//	    html += '<textarea class="task_description field textarea smaller flwid"></textarea>';
+//	    html += '<span class="inline"><a class="task_minus">[-]</a> <a class="task_plus">[+]</a></span>';
+//	    html += '</li>';
+//	    html += '</ul>';
+//		html += '<input type="hidden" name="max_num_tasks" value="'+MAX_NUM_TASKS+'">';
+//	}
 	
-	html += '<input type="hidden" name="action" value="create">';
-	html += '<input type="submit" value="Create Activity" class="cssbtn"></input>&nbsp;&nbsp;'; 
-	html += '<input type="button" value="Cancel" class="cssbtn" onclick="changePane(VIEW_ALL_LESSONS);"></input>'; 
+	if (isNewLesson) {
+		html += '<input type="hidden" name="action" value="create">';
+		html += '<input type="hidden" name="lesson_code" value="">';
+		html += '<input type="submit" value="Create Activity" class="cssbtn"></input>&nbsp;&nbsp;'; 
+		html += '<input type="button" value="Cancel" class="cssbtn" onclick="returnToParentPage();"></input>'; 
+	}
+	else {
+		html += '<input type="hidden" name="action" value="edit">';
+		html += '<input type="hidden" name="lesson_code" value="'+lessonCode+'">';
+		html += '<input type="submit" value="Edit Activity" class="cssbtn"></input>&nbsp;&nbsp;'; 
+		html += '<input type="button" value="Cancel" class="cssbtn" onclick="returnToParentPage();"></input>'; 
+	}
 	    
     html += '</form>';
 
-    $('#content_title').html('Create activity');
+    $('#content_title').html(pageTitle);
     $('#content').html(html);
     updateTasks();
 }
@@ -286,19 +296,42 @@ function getTaskIndex(id) {
 	return id.substring(id.lastIndexOf("_")+1, id.length);
 }
 
-function createLesson() {
+function goToLessonList() {
+	var currentLocation = ''+window.location;
+	if (currentLocation.indexOf('/teacher_dashboard') == -1) {
+		window.location = '/teacher_dashboard';
+	}
+	else {
+		window.location.hash = '';
+		createLessonList();
+	}
+}
+
+function goToLessonForm(lessonCode) {
+	var currentLocation = ''+window.location;
+	if (currentLocation.indexOf('/teacher/') != -1) {
+		window.location = '/teacher_dashboard#' + lessonCode + ':1';
+	}
+	else {
+		window.location.hash = lessonCode;
+		showLessonForm(lessonCode);
+	}
+}
+
+function goToLesson(lessonCode) {
+	window.location = "/teacher/" + lessonCode;
+}
+
+function createEditLesson(lessonCode) {
 	$.ajax( "/teacher_dashboard", {
 		async: false,
-		data: $('#create_lesson_form').serialize(),
+		data: $('#lesson_form').serialize(),
 		dataType: 'json',
 		success: function(data) {
 			if (data.error == undefined) {
 				$('#error').hide();
 				g_lessons = data;
-				window.location.hash = VIEW_ALL_LESSONS;
-				if (typeof updateUI == 'function') {
-					updateUI();
-				}
+				returnToParentPage();
 			}
 			else {
 				$('#error').html(data.msg);
@@ -308,8 +341,44 @@ function createLesson() {
 	});
 }
 
-function viewLesson(lessonCode) {
-	window.location = "/teacher/" + lessonCode;
+function returnToParentPage() {		
+	var hash = window.location.hash;
+	if (hash != '') hash = hash.substring(1);
+	var hashTokens = hash.split(':');
+	if (hashTokens.length>1 && hashTokens[1]=='1') {
+		var lessonCode = hashTokens[0];
+		goToLesson(lessonCode);
+	}
+	else {
+		goToLessonList();
+	}
+}
+
+function cloneLesson(lessonCode, updateLessons) {
+	var lesson = getLesson(lessonCode);
+	$.ajax( "/teacher_dashboard", {
+		async: false,
+		data: {
+			action: "clone",
+			lesson_code: lessonCode,
+		},
+		dataType: 'json',
+		success: function(data) {
+			var clonedLesson = data[0];
+			if (updateLessons) {
+				g_lessons.push(clonedLesson);
+				if (typeof updateUI == 'function') {
+					updateUI();
+				}
+			}
+			var msg = lesson.title + ' has been cloned.<br/>';
+			msg += '<a href="/teacher/'+clonedLesson.lesson_code+'#students">View clone activity</a>';
+			showMessageDialog(msg);
+		},
+		error: function(jqXHR, textStatus, errorThrown) {
+			alert('Error: Clone was not successful.');
+		} 
+	});
 }
 
 function startLesson(lessonCode) {
@@ -344,7 +413,8 @@ function stopLesson(lessonCode) {
 			async: false,
 			data: {
 				action: "stop",
-				lesson_code: lessonCode
+				lesson_code: lessonCode,
+				logout: true
 			},
 			success: function(data,textStatus,jqXHR) {
 				if (data.trim()=="OK") {
@@ -353,6 +423,8 @@ function stopLesson(lessonCode) {
 					if (typeof updateUI == 'function') {
 					   updateUI();
 					}
+					
+					logoutAllStudents("Do you wish to logout all students?", lessonCode);
 				}
 				else {
 					alert(data);
@@ -368,7 +440,8 @@ function stopAllLessons() {
 	$.ajax("/teacher_dashboard", {
 			async: false,
 			data: {
-				action: "stopall"
+				action: "stopall",
+				logout: true
 			},
 			success: function(data,textStatus,jqXHR) {
 				if (data.trim()=="OK") {
@@ -377,9 +450,12 @@ function stopAllLessons() {
 					   g_lessons[i].is_active = false;
 					   g_lessons[i].stop_time = stop_time;
 					}
+					window.location.hash = '';
 					if (typeof updateUI == 'function') {
 					   updateUI();
 					}
+					
+					logoutAllStudents("Do you wish to logout all students?");	
 				}
 				else {
 					alert(data);
@@ -449,7 +525,8 @@ function deleteLesson(lessonCode) {
 }
 
 function deleteAllLessons() {
-	$('#delete_warning').dialog({
+	$('#message').html("<p>Are you sure you want to delete all your activities?</p>");
+	$('#message').dialog({
         autoOpen: true,
         modal: true,
         buttons: {
@@ -463,6 +540,7 @@ function deleteAllLessons() {
     			success: function(data,textStatus,jqXHR) {
     				if (data.trim()=="OK") {
     					g_lessons = [];
+    					window.location.hash = '';
     					if (typeof updateUI == 'function') {
     					   updateUI();
     					}
@@ -483,10 +561,6 @@ function deleteAllLessons() {
     });
 }
 
-function editLesson(lessonCode) {
-	alert('Not implemented yet');
-}
-
 function downloadLesson(lessonCode) {
     var utc_offset_minutes = (new Date()).getTimezoneOffset();
 	parent.location = '/data_dump?lesson_code='+lessonCode+'&utc_offset_minutes='+utc_offset_minutes;
@@ -494,10 +568,6 @@ function downloadLesson(lessonCode) {
 
 function downloadAllLessons() {
 	alert('Not implemented yet');
-// TODO: Only one download started ... need to zip data files first and download zip
-//  for (var i=0; i<g_lessons.length; i++) {
-//	   downloadLesson(g_lessons[i].lesson_code);
-//  }
 }
 
 function logoutStudent(studentNickname, lessonCode) {
@@ -506,9 +576,51 @@ function logoutStudent(studentNickname, lessonCode) {
 		data: {
 			action: "logoutstudent",
 			student_nickname: studentNickname,
-			lesson_code: lessonCode,
+			lesson_code: lessonCode
 		}
 	});
+}
+
+function logoutAllStudents(warning, lessonCode) {	
+	if (warning == undefined) {
+		warning = "Are you sure you want to logout all students?"
+	}
+	$('#message').html("<p>"+warning+"</p>");
+	
+	var data = { action: "logoutallstudents" };
+	if (lessonCode != undefined) {
+		data.lesson_code = lessonCode;
+	}
+	
+	$('#message').dialog({
+        autoOpen: true,
+        modal: true,
+        buttons: {
+          Yes: function() {
+            $(this).dialog("close");
+            $.ajax("/teacher_dashboard", {
+    			async: false,
+    			data: data,
+    			success: function(data,textStatus,jqXHR) {
+    				if (data.trim()=="OK") {
+    					if (typeof updateUI == 'function') {
+    					   updateUI();
+    					}
+    				}
+    				else {
+    					alert(data);
+    				}
+    			},
+    			error: function(jqXHR, textStatus, errorThrown) {
+    				alert(textStatus);
+    			}
+    	    });
+          },
+		  No: function() {
+            $(this).dialog("close");
+          }
+        }
+    });
 }
 
 function showMessageDialog(msg) {
@@ -516,8 +628,8 @@ function showMessageDialog(msg) {
 }
 
 function showMessageDialogWithOptions(msg, width) {
-	$('#message_text').html(msg);
-    $('#message_dialog').dialog({
+	$('#message').html('<p>'+msg+'</p>');
+    $('#message').dialog({
         autoOpen: true,
         modal: true,
         width: width,

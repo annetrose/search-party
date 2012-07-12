@@ -9,7 +9,7 @@
   <link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
 
   <script type="text/javascript" src="/js/common.js"></script>
-  <script type="text/javascript" src="/js/student.js?version=060112"></script>
+  <script type="text/javascript" src="/js/student.js?version=071212"></script>
   <script type="text/javascript" src="/js/task_chooser.js"></script>
   <script src="http://www.google.com/jsapi" type="text/javascript"></script>
   
@@ -29,9 +29,7 @@
 {% endblock %}
 
 {% block top %}
-<div id="logged_out_warning" title="Message" style="display:none">
-  <p>You have been logged out.  Please log in again to continue.</p>
-</div>
+<div id="message" title="Message" style="display:none"></div>
 <div class="container_16 cntrmain">
 	<div class="grid_16 branding">
         {{ header|safe }}

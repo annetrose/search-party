@@ -1,4 +1,3 @@
-
 function clipText(s, maxLength) {
 	var dots = "...";
 	var sLength = s.length;

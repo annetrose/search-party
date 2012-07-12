@@ -15,14 +15,12 @@ class StudentInfoHandler(SearchPartyRequestHandler):
 
         if self.is_student and self.person.is_logged_in:
             student = self.person
+            task_idx = int(self.request.get("task_idx", 0))
             response_data = { 
                 "status": 1, 
                 "student_nickname": student.nickname, 
-                "lesson_name": student.lesson.title,
-                "lesson_code": student.lesson.lesson_code,
-                "lesson_task": student.lesson.tasks[student.current_task_idx], 
-                "task_idx": student.current_task_idx,
-                "history": self.get_student_activities(student, student.lesson, student.current_task_idx)
+                "lesson": student.lesson.toDict(), 
+                "history": self.get_student_activities(student, student.lesson, task_idx)
             }            
         else:
             response_data = { "status":0, "msg":"Student not logged in" }
