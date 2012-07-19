@@ -4,13 +4,13 @@
 {% block head %}
   <title>Search Party - Admin</title>
   <script type="text/javascript" src="/js/common.js"></script>
-   <script type="text/javascript" src="/js/lesson.js"></script>
-  <script type="text/javascript" src="/js/admin.js"></script>
-
+  <script type="text/javascript" src="/js/lesson.js?version=071912"></script>
+  <script type="text/javascript" src="/js/admin.js?version=071912"></script>
+  
   <script type="text/javascript">
-    // <![CDATA[
-    $(document).ready(function() {
-    }); 
+    // <![CDATA[    
+    $(document).ready(function() {       
+    });
     // ]]>
   </script>
 {% endblock %}
@@ -28,17 +28,16 @@
 {% endblock %}
 
 {% block side_panel %}
-&nbsp;
 {% endblock %}
 
 {% block content_area %}
   <div id="data_display_container">
 	<header class="info">
-		<h2>Admin</h2>
+	       <h3>Admin Area</h3>    
 	</header>
     <div id="content">
-    <button class="cssbtn" id="logout_students_btn" onclick="logoutAllStudents(); return false;">Logout All Students</button><br/>
-    <!--<button class="cssbtn" id="update_values_btn" onclick="updateValues(); return false;">Update Values</button>-->
+        <button class="cssbtn" id="logout_students_btn" onclick="logoutAllStudents('Do you wish to logout all students from all teacher activities?', undefined, ALL_LESSONS); return false;">Logout All Students</button><br/>
+        <!--<button class="cssbtn" id="update_values_btn" onclick="updateValues(); return false;">Update Values</button>-->
     </div>
   </div>
 {% endblock %}

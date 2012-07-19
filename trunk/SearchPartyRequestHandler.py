@@ -173,6 +173,7 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
         else:
             template_vals["is_logged_in"] = True
             template_vals["nickname"] = self.person.nickname
+            template_vals["displayname"] = "Anonymous" if self.is_student and self.person.anonymous else self.person.nickname
         html = self.render_template("header.html", template_vals)
         return html
 
@@ -230,7 +231,7 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
         self.session['msg'] = msg
         self.redirect(dst)
         
-    def get_lessons_json(self):
+    def get_lessons_json(self, returnAll=False):
         from model import Lesson
         import json
         import datetime
@@ -246,16 +247,16 @@ class SearchPartyRequestHandler(webapp2.RequestHandler):
                         o.second)
             else:
                 raise TypeError(repr(o))
-    
-        if self.person is not None and self.is_teacher:   
+              
+        if returnAll:
+            lessons = Lesson.fetch_all(sort="title")  
+        elif self.person is not None and self.is_teacher:   
             lessons = Lesson.fetch_all(filter_expr="teacher", filter_value=self.person, sort="title")
         else:
             lessons = Lesson.fetch_all(sort="title")
             
         lesson_infos = []
         for lesson in lessons:
-            from helpers import log
-            log('=> {0}'.format(lesson.title))
             if not lesson.is_deleted:
                 lesson_infos.append({
                     "lesson_code" : lesson.lesson_code,

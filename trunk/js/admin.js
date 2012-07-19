@@ -32,3 +32,34 @@ function updateValues() {
         }
     });
 }
+
+function createTeacherFilter(teacherName) {
+    var teachers = getTeachers();
+    if (teachers.length>0) {
+        var html = '<select id="teacher_filter">';
+        html += '<option value="">All Teachers</option>';
+        for (var i=0; i<teachers.length; i++) {
+        	var selected = '';
+        	if (teacherName!=undefined && teachers[i]==teacherName) {
+        		selected = 'selected="selected"';
+        	}
+            html += '<option value="'+teachers[i]+'" '+selected+'>'+teachers[i]+'</option>';
+        }
+        html += '</select>';
+        $('#lesson_filter').html(html);
+    }
+}
+
+function getTeachers() {	
+    var teachers = [];
+    for (var i=0; i<g_lessons.length; i++) {
+        var lesson = g_lessons[i];
+        var teacherName = lesson.teacher_name;
+        if (teacherName && $.inArray(teacherName, teachers)==-1) {
+            teachers.push(teacherName);
+        }
+    }
+    
+    teachers.sort();
+    return teachers;
+}

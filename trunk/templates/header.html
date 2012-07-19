@@ -6,7 +6,7 @@
 	<div class="grid_10 hd">
     <div align="right" id="header_user_info" class="light">
 {% if is_logged_in %}
-    {{ nickname }}
+    {{ displayname }}
     {% if role == "teacher" %}
         <a class="header_link" href='/teacher_dashboard' id="dashboard_link">Dashboard</a>&nbsp;
         <a class="header_link" href='/teacher_logout' id="logout_link">Logout</a>&nbsp; 

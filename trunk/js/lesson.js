@@ -1,6 +1,9 @@
 var NEW_TASK_FORM_DESIGN = false;
 var MAX_NUM_TASKS = 10;
 
+var TEACHER_LESSONS = 0;
+var ALL_LESSONS = 1;
+
 function getLesson(lessonCode) {
 	var lesson = null;
 	for( var i=0,l=g_lessons.length; i<l; i++ ) {
@@ -13,18 +16,21 @@ function getLesson(lessonCode) {
 	return lesson;
 }
 
-function createLessonList() {
+function createLessonLists(teacherFilter, showTeacher) {
+    if (teacherFilter==="") teacherFilter = undefined;
     var activeHtml = '';
     var inactiveHtml = '';
     for (var i=0; i<g_lessons.length; i++) {
        var lesson = g_lessons[i];
-       var html = getLessonHtml(lesson);
-       if (lesson.is_active) {
-          activeHtml += html;
-       }
-       else {           
-          inactiveHtml += html;
-       }
+       if (teacherFilter==undefined || teacherFilter==lesson.teacher_name) {
+    		var html = getLessonHtml(lesson, showTeacher);
+       		if (lesson.is_active) {
+       			activeHtml += html;
+       		}
+       		else {           
+       			inactiveHtml += html;
+       		}
+    	}
     }   
                     
     $('#lessons_list_active').accordion('destroy');
@@ -59,7 +65,7 @@ function createLessonList() {
     }
 }
 
-function getLessonHtml(lesson) {
+function getLessonHtml(lesson, showTeacher) {
 	var lessonCode = lesson.lesson_code;
 	var customStyles = '';
 	var viewButton = '<button class="cssbtn smallest" style="padding:4px !important; margin-right:8px; margin-top:-2px" onclick="event.stopPropagation(); goToLesson(\''+lessonCode+'\')" title="View activity"><span class="view_icon_only"></span></button>';
@@ -79,8 +85,14 @@ function getLessonHtml(lesson) {
     else {
     	customStyles = 'style="padding-top:0; margin-top:0;"';
     }
+    
     if (lesson.description) {
        html += '<p class="lesson_description" '+customStyles+'>'+lesson.description + '</p>';
+    }
+    
+    if (showTeacher!=undefined && showTeacher && lesson.teacher_name) {
+        html += '<h5>Teacher</h5>';
+        html += '<p><ul><li>'+lesson.teacher_name+'</li></ul></p>';
     }
     
     html += '<h5 class="task_label">Tasks</h5>';
@@ -303,7 +315,7 @@ function goToLessonList() {
 	}
 	else {
 		window.location.hash = '';
-		createLessonList();
+		createLessonLists();
 	}
 }
 
@@ -424,7 +436,7 @@ function stopLesson(lessonCode) {
 					   updateUI();
 					}
 					
-					logoutAllStudents("Do you wish to logout all students?", lessonCode);
+					logoutAllStudents("Do you wish to logout all students from this activity?", lessonCode);
 				}
 				else {
 					alert(data);
@@ -455,7 +467,7 @@ function stopAllLessons() {
 					   updateUI();
 					}
 					
-					logoutAllStudents("Do you wish to logout all students?");	
+					logoutAllStudents("Do you wish to logout all students from all your activities?", undefined, TEACHER_LESSONS);	
 				}
 				else {
 					alert(data);
@@ -581,7 +593,7 @@ function logoutStudent(studentNickname, lessonCode) {
 	});
 }
 
-function logoutAllStudents(warning, lessonCode) {	
+function logoutAllStudents(warning, lessonCode, whichLessons) {	
 	if (warning == undefined) {
 		warning = "Are you sure you want to logout all students?"
 	}
@@ -590,6 +602,9 @@ function logoutAllStudents(warning, lessonCode) {
 	var data = { action: "logoutallstudents" };
 	if (lessonCode != undefined) {
 		data.lesson_code = lessonCode;
+	}
+	if (whichLessons != undefined) {
+		data.which_lessons = whichLessons;
 	}
 	
 	$('#message').dialog({

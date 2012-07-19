@@ -101,6 +101,17 @@ function onSocketMessage(msg) {
 				}
 				break;
 				
+			case "answer":
+				var taskInfo = g_student_info.tasks[update.task_idx];
+				taskInfo.answer = { text:update.text, explanation:update.explanation };
+				if (update.task_idx == selectedTaskIdx()) {
+					var localTime = getLocalTime(new Date(update.timestamp));
+					$('#answer_text').val(update.text);
+					$('#answer_explanation').val(update.explanation);
+					$("#answer_msg").html("Saved (" + localTime.toLocaleTimeString() + ")");
+				}
+				break;
+				
 			default:
 				break;
 		}

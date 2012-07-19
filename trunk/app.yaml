@@ -1,6 +1,6 @@
 # "search-party" is the production application.
 application: search-party
-version: 7
+version: 8-1
 
 # "schpty" is a completely separate copy for development and testing.
 #application: schpty
@@ -35,6 +35,9 @@ handlers:
 - url: /js
   static_dir: js
 
+- url: /html
+  static_dir: html
+  
 - url: .*
   script: main.py
  

@@ -1625,6 +1625,7 @@ function binStudentChartData() {
 				var taskTime = getLocalTime(new Date(task.timestamp)).getTime();
 				var binIndex = Math.ceil((taskTime-minTaskTime.getTime())/binTimeSpan);
 				if (binIndex==0) binIndex = 1;
+				if (binIndex>binCount) binIndex = binCount;
 			
 				if (taskType=='search') {
 					binnedData[binIndex-1].queryCount++;
@@ -1783,16 +1784,34 @@ function drawStudentHistory(div, studentNickname) {
  		var actionHtml = '';
  		var action = taskHistory[i];
  		var type = action.activity_type;
- 		
-     	var skip = (i<taskHistory.length-1) && (type=='link') && (taskHistory[i+1].activity_type=='link_rating');
-     	if (skip) continue;
 
+//     	var skip = (i<taskHistory.length-1) && (type=='link') && (taskHistory[i+1].activity_type=='link_rating');
+//     	if (skip) continue;
+
+		// if rating, change color of previous visit to link
+ 		// do not draw separate task box for ratings
+ 		if (type=='link_rating') {
+ 			searchHistoryHtml.push('');
+ 			var linkIndex = getIndexOfLink(taskHistory, action.link, i);
+ 			var newColor = g_actionColors[action.is_helpful?'link_helpful':'link_unhelpful'];
+ 			var newTitle = action.is_helpful ? 'Helpful Link' : 'Unhelpful Link';
+ 			newTitle += ': '+(action.link_title!=null ? action.link_title+' ('+action.link+')' : action.link);
+ 			
+ 			var linkHtml = ''
+ 			if (searchHistoryHtml[linkIndex].indexOf('"largegap"') != -1) {
+ 				linkHtml += '<div class="largegap" style="width:1px;height:20px !important;background:grey;float:left;margin-right:'+actionMargin+'px;"></div>';;
+ 			}
+ 			linkHtml += '<div id="event_"'+(linkIndex+1)+' title="'+newTitle+'" style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+newColor+';float:left;margin-right:'+actionMargin+'px;margin-top:'+topMargin+'px;">&nbsp;</div>';
+ 			searchHistoryHtml[linkIndex] = linkHtml;
+ 			continue;
+ 		}
+ 		
      	if (i>0) {
  			var taskTime = getLocalTime(new Date(action.timestamp));
  			var prevTaskTime = getLocalTime(new Date(taskHistory[i-1].timestamp));
  			var isLargeGap = (taskTime.getTime()-prevTaskTime.getTime())>=largeGap;
      		if (isLargeGap) {
- 				actionHtml += '<div style="width:1px;height:20px !important;background:grey;float:left;margin-right:'+actionMargin+'px;"></div>';
+ 				actionHtml += '<div class="largegap" style="width:1px;height:20px !important;background:grey;float:left;margin-right:'+actionMargin+'px;"></div>';
  			}
  		}
  		
@@ -1808,23 +1827,35 @@ function drawStudentHistory(div, studentNickname) {
  		else if (type=='link') {
  			title = "Unrated Link: "+action.link_title+' ('+action.link+')';
  		}
- 		else if (type=='link_helpful') {
- 			var link_info = (taskHistory[i-1]==undefined) ? action.link : taskHistory[i-1].link_title+' ('+action.link+')';
- 		    title = "Helpful Link: " + link_info;
- 	    }
-     	else if (type=='link_unhelpful') {
- 			var link_info = (taskHistory[i-1]==undefined) ? action.link : taskHistory[i-1].link_title+' ('+action.link+')';
- 		    title = "Unhelpful Link: " + link_info;
- 	    }
+// 		else if (type=='link_helpful') {
+// 			var link_info = action.link;
+// 			if (action.link_title!=null) {
+// 				link_info = action.link_title+' ('+action.link+')';
+// 			}
+// 			else if (taskHistory[i-1]!=undefined && taskHistory[i-1].link!=null && taskHistory[i-1].link==action.link) {
+// 				link_info = taskHistory[i-1].link_title+' ('+action.link+')'
+// 			}
+// 		    title = "Helpful Link: " + link_info;
+// 	    }
+//     	else if (type=='link_unhelpful') {
+// 			var link_info = action.link;
+// 			if (action.link_title!=null) {
+// 				link_info = action.link_title+' ('+action.link+')';
+// 			}
+// 			else if (taskHistory[i-1]!=undefined && taskHistory[i-1].link!=null && taskHistory[i-1].link==action.link) {
+// 				link_info = taskHistory[i-1].link_title+' ('+action.link+')'
+// 			}
+//     		title = "Unhelpful Link: " + link_info;
+// 	    }
  		else if (type=='answer') {
  		    title = "Response: "+action.answer_text;
  		    if (action.answer_explanation) title += ' ('+action.answer_explanation+')';
 	    }
  		
- 		actionHtml += '<div title="'+title+'" style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+g_actionColors[type]+';float:left;margin-right:'+actionMargin+'px;margin-top:'+topMargin+'px;">&nbsp;</div>';
+ 		actionHtml += '<div id="event_"'+(i+1)+' title="'+title+'" style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+g_actionColors[type]+';float:left;margin-right:'+actionMargin+'px;margin-top:'+topMargin+'px;">&nbsp;</div>';
  		searchHistoryHtml.push(actionHtml);
  	}
-
+ 	
  	// show up to maxNumActionsToDraw of most recent tasks
     // and show ellipses (...) at beginning if more than maxNumActionsToDraw
     var numActionsToRemove = 0;
@@ -1851,12 +1882,27 @@ function drawStudentHistory(div, studentNickname) {
  	div.html(html);
 }
 
+function getIndexOfLink(items, url, pos) {
+ 	var index = -1;
+	for (var i=pos; i>=0; i--) {
+ 		var item = items[i];
+ 		if (item.activity_type=='link' && item.link==url) {
+ 			index = i;
+ 			break;
+ 		}
+ 	}
+	return index;
+}
+
 function listStudentHistory(div, studentNickname) { 
     var task = selectedTaskIdx()+1;
     var student = g_students[studentNickname];
 	var taskHistory = student.task_history[task-1];
-	var html = '(none)';
- 	for (var i=0; i<taskHistory.length; i++) {
+	var html = '';
+	// old on top
+ 	//for (var i=0; i<taskHistory.length; i++) {
+	// new on top
+ 	for (var i=taskHistory.length-1; i>=0; i--) {
  		var taskItem = taskHistory[i];
  		var taskTime = getLocalTime(new Date(taskItem.timestamp));
  		var taskType = taskItem.activity_type;
@@ -1865,8 +1911,8 @@ function listStudentHistory(div, studentNickname) {
 			else taskType='link_unhelpful';
 		}
  		
- 		var skip = (i<taskHistory.length-1) && (taskType=='link') && (taskHistory[i+1].activity_type=='link_rating');
-     	if (skip) continue;
+// 		var skip = (i<taskHistory.length-1) && (taskType=='link') && (taskHistory[i+1].activity_type=='link_rating') && (taskItem.link==taskHistory[i+1].link);
+//     	if (skip) continue;
  		
  		var type = '';
  		var details = '';
@@ -1875,19 +1921,31 @@ function listStudentHistory(div, studentNickname) {
  			details = taskItem.search;
  		}
  		else if (taskType=='link') {
- 			type = "Unrated Link";
+ 			type = "Link";
  			details = taskItem.link_title+'<br/>';
  		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
  		}
  		else if (taskType=='link_helpful') {
- 		    type = "Helpful Link";
- 			details = (taskHistory[i-1]!=undefined) ? taskHistory[i-1].link_title + '<br/>' : '';
- 		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
+ 		    type = "Rated Helpful";
+ 			details = '';
+ 			if (taskItem.link_title!=null) {
+ 				details = taskItem.link_title+'<br/>';
+ 			}
+ 			else if (taskHistory[i-1]!=undefined && taskHistory[i-1].link!=null && taskHistory[i-1].link==taskItem.link) {
+ 				details = taskHistory[i-1].link_title+'<br/>';
+ 			}
+ 			details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
  	    }
  		else if (taskType=='link_unhelpful') {
- 		    type = "Unhelpful Link";
- 			details = (taskHistory[i-1]!=undefined) ? taskHistory[i-1].link_title + '<br/>' : '';
- 		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
+ 		    type = "Rated Unhelpful";
+ 			details = '';
+ 			if (taskItem.link_title!=null) {
+ 				details = taskItem.link_title+'<br/>';
+ 			}
+ 			else if (taskHistory[i-1]!=undefined && taskHistory[i-1].link!=null && taskHistory[i-1].link==taskItem.link) {
+ 				details = taskHistory[i-1].link_title+'<br/>';
+ 			}
+ 			details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
  	    }
  		else if (taskType=='answer') {
  		    type = "Response";
@@ -1895,13 +1953,18 @@ function listStudentHistory(div, studentNickname) {
  		    if (taskItem.answer_explanation) details += '<br/><em>'+taskItem.answer_explanation+'</em>';
 	    }
  		
- 		if (i==0) html = '<table class="search_history">';
  		html += '<tr>';
  		html += '<td style="width:15ex">' + getFormattedTimestamp(taskTime) + '</td>';
- 		html += '<td style="width:15ex">' + '<div style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+g_actionColors[taskType]+'; float:left; margin-right:4px; margin-top:7px;">&nbsp;</div> ' + type.replace(" ", "&nbsp;") + '</td>';
+ 		html += '<td style="width:17ex">' + '<div style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+g_actionColors[taskType]+'; float:left; margin-right:4px; margin-top:7px;">&nbsp;</div> ' + type.replace(" ", "&nbsp;") + '</td>';
  		html += '<td>' + details + '</td>';
  		html += '</tr>';
- 		if (i==taskHistory.length-1) html += '</table>';
+ 	}
+
+ 	if (html != '') {
+		html = '<table class="search_history">'+html+'</table>';
+ 	}
+ 	else {
+ 		html = '(none)';
  	}
  	
  	if (div==null) {

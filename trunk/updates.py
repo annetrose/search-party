@@ -69,9 +69,11 @@ def send_update_link_rated(student, teacher, task_idx, url, is_helpful, notifySt
     if notifyStudent:
         _send_update(teacher, student, update)
     
-def send_update_answer(student, teacher, task_idx, answer_text, answer_explanation):
+def send_update_answer(student, teacher, task_idx, answer_text, answer_explanation, notifyStudent=False):
     update = {"type":"answer", "student_nickname":student.nickname, "lesson_code":student.lesson.lesson_code, "task_idx":task_idx, "text":answer_text, "explanation":answer_explanation}
     _send_update(student, teacher, update)
+    if notifyStudent:
+        _send_update(teacher, student, update)     
     
 def send_error(to_person, msg):
     for client_id in to_person.client_ids:

@@ -65,8 +65,13 @@ class TeacherDashboard(PersonPage):
         import settings
             
         template_values = {
-            "header"     : self.gen_header("teacher"),
+            "teacher_name"  :self.person.nickname,
+            "header"        : self.gen_header("teacher"),
             "lessons_json"  : self.get_lessons_json(),
+            "admin"         : False,
+# Adding admin functionality to dashboard in progress
+#            "lessons_json"  : self.get_lessons_json(True if self.person.admin else False),
+#            "admin"         : self.person.admin,
             "dbg_timestamp" : (helpers.timestamp() if settings.ENABLE_FILLER_FORM_FILLING else "")
         }
 
@@ -151,10 +156,6 @@ class TeacherDashboard(PersonPage):
         lesson.stop_time = now
         lesson.put()
         
-        if self.request.get("logout", False) == True:
-            from helpers import log
-            log("STOP LESSON: LOGOUT ALL STUDENTS");
-            
         if write_response:
             self.write_response_plain_text("OK")
 
@@ -163,10 +164,6 @@ class TeacherDashboard(PersonPage):
         lessons = Lesson.fetch_all(filter_expr="teacher", filter_value=self.person)
         for lesson in lessons:
             self.stop_lesson(lesson, False)
-            
-        if self.request.get("logout", False) == True:
-            from helpers import log
-            log("STOP ALL LESSONS: LOGOUT ALL STUDENTS");
                 
         self.write_response_plain_text("OK")
        
@@ -195,7 +192,7 @@ class TeacherDashboard(PersonPage):
         lessons = Lesson.fetch_all(filter_expr="teacher", filter_value=self.person)
         for lesson in lessons:
             self.delete_lesson(lesson, False)
-        self.log_out_all_students(None, False);
+            self.log_out_all_students(lesson, False);
         self.write_response_plain_text("OK")
              
     def log_out_student(self, student, write_response=True):
@@ -204,11 +201,20 @@ class TeacherDashboard(PersonPage):
             self.write_response_plain_text("OK")
                    
     def log_out_all_students(self, lesson=None, write_response=True):
-        from model import Student
+        
+        assert self.is_teacher, "Must be logged in as teacher"
         if lesson is None:
+            allLessonsForAllTeachers = self.request.get("which_lessons", "0") == "1"
+            if allLessonsForAllTeachers:
+                assert self.is_teacher and self.person.admin, "Must be admin to logout students from all lessons for all teachers."
+        
+        from model import Student
+        if lesson is not None:
+            students = tuple(Student.all().filter("lesson =", lesson))
+        elif allLessonsForAllTeachers:
             students = Student.all()
         else:
-            students = tuple(Student.all().filter("lesson =", lesson))
+            students = tuple(Student.all().filter("teacher =", self.person))
             
         for student in students:
             if student.is_logged_in or len(student.client_ids) > 0:
