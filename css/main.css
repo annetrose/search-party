@@ -27,13 +27,13 @@ p {font-size: 16px; font-size: 1.6rem; line-height: 2em; margin: .8em 0; padding
 .small {font-size: 14px; font-size: 1.4rem; line-height: 1.5em;}
 ul {margin: 8px 0 0 0;}
 li {font-size: 16px; font-size:1.6rem; line-height: 25px; margin: 2% 0 0 2%;}
-h1,h2,h3,h4,h5,h6 { font-weight: bold; text-rendering: optimizeLegibility; }
-h1 {font-size:26px; font-size: 2.6rem;}
-h2 {font-size:24px; font-size: 2.4rem;}
-h3 {font-size:22px; font-size: 2.2rem; margin-top:8px; margin-top:.8rem}
-h4 {font-size:20px; font-size: 2rem; margin:0 0 1.0rem 0;}
-h5 {font-size:18px; font-size: 1.8rem; margin:0 0 .8rem 0;}
-h6 {font-size:16px; font-size: 1.6rem; margin:0 0 .4rem 0;}
+h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 { font-weight: bold; text-rendering: optimizeLegibility; }
+h1,.h1 {font-size:26px; font-size: 2.6rem;}
+h2,.h2 {font-size:24px; font-size: 2.4rem;}
+h3,.h3 {font-size:22px; font-size: 2.2rem; margin-top:8px; margin-top:.8rem}
+h4,.h4 {font-size:20px; font-size: 2rem; margin:0 0 1.0rem 0;}
+h5,.h5 {font-size:18px; font-size: 1.8rem; margin:0 0 .8rem 0;}
+h6,.h6 {font-size:16px; font-size: 1.6rem; margin:0 0 .4rem 0;}
 .light {color:#e3e1d8;}
 .light a:link {color:#bfb595;}
 .light a:hover {color:#ada17b;}
@@ -42,6 +42,7 @@ h6 {font-size:16px; font-size: 1.6rem; margin:0 0 .4rem 0;}
 .msg {color:#c9c4a7; font-size:.7rem;}
 .right {float:right;}
 .left {float:left;}
+.note { font-size: 10pt; font-style: italic; }
 	
 /* --------960 grid system custom styles ----------------------------------------------- */ 
 .container_12, .container_16 {max-width: 960px; margin: 0 auto; } 

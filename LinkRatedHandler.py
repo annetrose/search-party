@@ -20,6 +20,7 @@ class LinkRatedHandler(SearchPartyRequestHandler):
             teacher = student.teacher
             task_idx = int(self.request.get("task_idx", 0))
             url = self.request.get('url')
+            title = self.request.get('title', None)
             lesson_key = Student.lesson.get_value_for_datastore(student)
             is_helpful = {"1":True, "0":False, None:None}[self.request.get("is_helpful")]
             ext = int(self.request.get("ext", 0))
@@ -29,6 +30,7 @@ class LinkRatedHandler(SearchPartyRequestHandler):
                 task_idx = task_idx,
                 activity_type = StudentActivity.ACTIVITY_TYPE_LINK_RATING,
                 link = url,
+                link_title = title,
                 is_helpful = is_helpful
             )
             link.put()

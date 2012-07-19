@@ -19,6 +19,7 @@ class StudentInfoHandler(SearchPartyRequestHandler):
             response_data = { 
                 "status": 1, 
                 "student_nickname": student.nickname, 
+                "anonymous": student.anonymous,
                 "lesson": student.lesson.toDict(), 
                 "history": self.get_student_activities(student, student.lesson, task_idx)
             }            

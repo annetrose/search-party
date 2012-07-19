@@ -22,25 +22,52 @@ class StudentLoginHandler(SearchPartyRequestHandler):
             self.load_search_party_context(user_type="student")
 
             # Get CGI form fields.
-            lesson_code = self.request.get("lesson_code")
+            lesson_code = self.request.get('lesson_code')
             student_nickname = self.request.get('student_nickname')
+            ext = int(self.request.get('ext', 0))
 
             # Normalize whitespace in student name.
             # Replace any string of >=1 whitespace with a single space (equivalent to s/\s+/ /g).
             student_nickname = " ".join(student_nickname.split())
 
-            if not lesson_code and not student_nickname:
-            # Blank form
-                raise StudentLoginException("Please enter a lesson code and a student name.",
-                        "lesson_code==%r, student_nickname==%r"%(lesson_code, student_nickname))
-            elif not lesson_code:
+            if not lesson_code:
             # No lesson code
                 raise StudentLoginException("Please enter a lesson code.",
                         "lesson_code==%r"%lesson_code)
-            elif not student_nickname:
+                
+            # If no student nickname, generate an anonymous one
+            anonymous = False
+            if not student_nickname:
+                import random, string
+                alphabet = string.letters + string.digits
+
+                anonymous_student = None
+                for i in range(8):
+                    random_nickname = "".join(random.choice(alphabet) for i in range(10))
+                    key_name = Student.make_key_name(student_nickname=random_nickname, lesson_code=lesson_code)
+                    anonymous_student = Student.get_by_key_name(key_name)
+                    if anonymous_student is None:
+                        student_nickname = random_nickname
+                        anonymous = True
+                        break
+    
+            if anonymous and not student_nickname:
             # No student name
-                raise StudentLoginException("Please enter a student name.",
+                raise StudentLoginException("Could not login as anonymous student.",
                         "student_nickname==%r"%student_nickname)
+
+#            if not lesson_code and not student_nickname:
+#            # Blank form
+#                raise StudentLoginException("Please enter a lesson code and a student name.",
+#                        "lesson_code==%r, student_nickname==%r"%(lesson_code, student_nickname))
+#            elif not lesson_code:
+#            # No lesson code
+#                raise StudentLoginException("Please enter a lesson code.",
+#                        "lesson_code==%r"%lesson_code)
+#            elif not student_nickname:
+#            # No student name
+#                raise StudentLoginException("Please enter a student name.",
+#                        "student_nickname==%r"%student_nickname)
 
             lesson = Lesson.get_by_key_name(lesson_code)
             # Retrieve lesson from DB
@@ -72,7 +99,7 @@ class StudentLoginHandler(SearchPartyRequestHandler):
                 if not student.first_login_timestamp:
                     student.first_login_timestamp = login_timestamp
 
-            else:
+            else:                
                 student = Student(
                     key_name=key_name,
                     nickname=student_nickname,
@@ -83,15 +110,17 @@ class StudentLoginHandler(SearchPartyRequestHandler):
                     latest_login_timestamp=login_timestamp,
                     latest_logout_timestamp=None,
                     session_sid=self.session.sid,
+                    anonymous=anonymous,
                     client_ids=[]
                 )
 
             assert student.session_sid is not None
             student.put()
             self.set_person(student)
-            self.session['msg'] = "Student logged in:  Hello " + student_nickname
+            displayName = "Anonymous" if self.is_student and self.person.anonymous else self.person.nickname
+            self.session['msg'] = "Student logged in:  Hello " + displayName
             self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
-            self.response.out.write(json.dumps({"status":"logged_in"}))
+            self.response.out.write(json.dumps({"status":"logged_in", "ext":ext}))
             log( "=> LOGIN SUCCESS" )
 
         except StudentLoginException, e:
@@ -101,4 +130,4 @@ class StudentLoginHandler(SearchPartyRequestHandler):
             self.session['msg'] = msg
             self.response.headers.add_header('Content-Type', 'application/json', charset='utf-8')
             self.response.out.write(json.dumps({"status":"logged_out", "error":msg}))
-            log( "LOGIN FAILURE:  %s"%msg )
+            log( "=> LOGIN FAILURE:  %s"%msg )

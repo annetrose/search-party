@@ -4,7 +4,8 @@
 {% block head %}
   <title>Search Party - Teacher Dashboard</title>
   <script type="text/javascript" src="/js/common.js"></script>
-  <script type="text/javascript" src="/js/lesson.js?version=071212"></script>
+  <script type="text/javascript" src="/js/lesson.js?version=071912"></script>
+  {% if admin %}<script type="text/javascript" src="/js/admin.js?version=071912"></script>{% endif %}
   
   <script type="text/javascript">
     // <![CDATA[
@@ -13,11 +14,18 @@
     var g_max_num_tasks = 10;
     var g_dbg_timestamp = {% if dbg_timestamp %}"{{ dbg_timestamp }}"{% else %}undefined{% endif %};
     
-    $(document).ready(function() {
-       updateUI();
+    $(document).ready(function() {  
+       {% if admin %}
+       createTeacherFilter('{{ teacher_name }}');       
+       $('#teacher_filter').change(function() {
+           var teacherName = $('#teacher_filter').val();
+           createLessonLists(teacherName, true);
+       });     
+       {% endif %}
+       updateUI(true);
     });
 
-    function updateUI() {
+    function updateUI(init) {
        var hash = window.location.hash;
        if (hash != '') {
           var hashTokens = hash.split(':');
@@ -25,10 +33,14 @@
           showLessonForm(lessonCode);
        }
        else {
-          createLessonList();
+          {% if admin %}
+          var teacherName = $('#teacher_filter').val();
+          createLessonLists(teacherName, true);   
+          {% else %}
+          createLessonLists(undefined, false); 
+          {% endif %}
        }
     }
-     
     // ]]>
   </script>
 {% endblock %}
@@ -51,12 +63,20 @@
     <button class="load_btn cssbtn" id="stop_lessons_btn" onclick="stopAllLessons(); return false;">Stop All Activities</button><br/>
     <button class="load_btn cssbtn" id="delete_lessons_btn" onclick="deleteAllLessons(); return false;">Delete All Activities</button><br/>
   </div>
+  {% if admin %}
+  <div id="side_button_bar2">
+    Admin Area
+    <button class="cssbtn" id="logout_students_btn" onclick="logoutAllStudents('Do you wish to logout all students from all teacher activities?', undefined, ALL_LESSONS); return false;">Logout All Students</button><br/>
+    <!--<button class="cssbtn" id="update_values_btn" onclick="updateValues(); return false;">Update Values</button>-->
+  </div>
+  {% endif %}
 {% endblock %}
 
 {% block content_area %}
   <div id="data_display_container">
 	<header class="info">
-		<h2 id="content_title"></h2>
+		<span id="content_title" class="h2"></span>
+		<span id="lesson_filter" style="margin-left:5px"></span>
 	</header>
 	<div id="error" style="color:red; margin:10px 5px 5px 5px; display:none"></div>
     <div id="content"></div>

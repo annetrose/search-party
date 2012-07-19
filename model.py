@@ -45,7 +45,7 @@ class SearchPartyModel(db.Model):
 
 class PersonModel(SearchPartyModel):
     client_ids = db.StringListProperty()
-
+    
     def add_client_id(self, client_id):
         self._update_client_ids(client_id_to_add=client_id)
     
@@ -127,6 +127,7 @@ class Student(PersonModel):
     latest_logout_timestamp = db.DateTimeProperty()
     teacher_key = property(lambda self: Student.teacher.get_value_for_datastore(self))
     session_sid = db.StringProperty()
+    anonymous = db.BooleanProperty(default=False)
     default_sort_key_fn = (lambda item: item.nickname)
 
     @property

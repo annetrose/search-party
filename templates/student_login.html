@@ -19,35 +19,41 @@
             login(event);
         });
                
-        createLessonList();
+        //createLessonListForStudents();
         
-        //createTeacherFilter();
-        $('#teacher_filter').change(function() {
-            createLessonList($('#teacher_filter').val());
-        });
+        ////createTeacherFilter();
+        //$('#teacher_filter').change(function() {
+        //    createLessonListForStudents($('#teacher_filter').val());
+        //});
     });
 
     function login(event) {
         $.post("/student_login_handler", 
             {
                 "lesson_code": $('#lesson_code_field').val(),
-                "student_nickname": $('#student_nickname').val()
+                "student_nickname": $('#student_nickname').val(),
+                "ext": "{{ext}}"
             }, 
             login_callback, 'json');
         }
 
     function login_callback(data) {
-        terms = data;
-        status = terms['status'];
+        status = data['status'];
         if (status == 'logged_in') {
-            window.location.replace("/student");
+            if (data['ext']===1) {
+                window.location.replace("/html/student_ext.html");
+            }
+            else {
+                window.location.replace("/student");
+            }
+            
         }
         else if (status == 'logged_out') {
             window.location.replace("/student_login");
         }
     }
     
-    function createLessonList(teacher) {
+    function createLessonListForStudents(teacher) {
         var html = '';
         var count = 0;
         for (var i=0; i<g_lessons.length; i++) {
@@ -160,6 +166,7 @@
 				    <span>
 						<label class="desc">Student name:</label>
 						<input type="text" id="student_nickname" value="" class="login_box field text fn" name="student_nickname">
+					    <span class="note">Leave empty to login anonymously</span>
 					</span>
 				</li>
 				<li>
@@ -174,8 +181,10 @@
 			</ul>
 		  </form>
 
+          <!--
 		  <h3 style="margin-top:15px">Activities <span id="lesson_filter" style="margin-left:5px"></span></h3>
           <div id="lesson_list" class="accordion2" style="max-width:700px">(none)</div>
+          -->
           </div><!-- end content -->
        </div><!--- end grid_16 -->
     </div><!--- end container_16-->

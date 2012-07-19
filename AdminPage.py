@@ -25,7 +25,8 @@ class AdminPage(SearchPartyRequestHandler):
                     self.update_values()
                 else:
                     template_values = {
-                        'header' : self.gen_header("teacher")
+                        "header" : self.gen_header("teacher"),
+                        "lessons_json"  : self.get_lessons_json(True)
                     }
 
                     if self.session.has_key('msg'):
