@@ -7,11 +7,63 @@
 # License: Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 */
 
+var g_complete_histories = [];
+
+// panes
+var g_itemList = null;
+var g_accumulator = null;
+var g_currentPaneName = null;
+var g_currentPaneSort = null;
+var g_currentPaneDisplayOption = null;
+var g_groupQueriesWithSameWords = false;
+
+var g_activeSectionIndex = false;
+var g_activeSectionKey = null;
+
+// charts
+var g_chartApiLoaded = false;
+var g_chart = null;
+var g_chartData = null;
+var g_chartOptions = null;
+var g_minTaskTime = null;
+var g_maxTaskTime = null;
+
+// clouds
+var DEFAULT_CLOUD_SHOW_OPTION = 'link_helpful';
+var g_cloudShowOption = DEFAULT_CLOUD_SHOW_OPTION;
+
+// student histories
+var g_actionDim = 6; // pixels
+var g_actionColors = { search:'#888888', link:'#454C45', link_helpful:'#739c95', link_unhelpful:'#5C091F', answer:'blue' };
+
 function initializeTeacher() {
 	window.status = "Loading...";
 	openChannel();
 	initUI();
+	initHistoryData();
 	window.status = "Loaded";
+}
+
+function updateData() {
+	initHistoryData();
+}
+
+function initHistoryData() {
+	for (var taskIdx=0; taskIdx<g_lessons[0].tasks.length; taskIdx++) {
+		g_complete_histories[taskIdx] = [];
+		for (var studentNickname in g_students) {
+			var student = g_students[studentNickname];
+			for (var i=0; i<student.task_history[taskIdx].length; i++) {
+				var task = student.task_history[taskIdx][i];
+				task.student_nickname = studentNickname;
+				g_complete_histories[taskIdx].push(task);
+			}
+		}
+		
+		g_complete_histories[taskIdx].sort(function(x, y) {
+			return new Date(x.timestamp) - new Date(y.timestamp);
+		});		
+	}
 }
 
 $(window).resize(function() {
@@ -148,8 +200,12 @@ function handle_update_task(student_nickname, task_idx) {
 
 function handle_update_query(student_nickname, task_idx, query, timestamp) {
 	if (g_students[student_nickname]!=undefined) {
-		g_students[student_nickname].task_history[task_idx].push({activity_type:"search", search:query, link:null, link_title:null, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp});
+		var task = {activity_type:"search", search:query, link:null, link_title:null, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp};
+		g_students[student_nickname].task_history[task_idx].push(task);
 		g_students[student_nickname].tasks[task_idx].searches.push({"query":query, "links_followed":[]});
+		task.student_nickname = student_nickname;
+		g_complete_histories[task_idx].push(task);
+		
 		if (task_idx == selectedTaskIdx()) {
 		    updateMinMaxTaskTimes(timestamp);
 			updateUIWithStudentActivity(student_nickname);
@@ -159,7 +215,11 @@ function handle_update_query(student_nickname, task_idx, query, timestamp) {
 
 function handle_update_link_followed(student_nickname, task_idx, query, url, title, timestamp) {
 	if (g_students[student_nickname]!=undefined) {
-		g_students[student_nickname].task_history[task_idx].push({activity_type:"link", search:query, link:url, link_title:title, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp});
+		var task = {activity_type:"link", search:query, link:url, link_title:title, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp};
+		g_students[student_nickname].task_history[task_idx].push(task);		
+		task.student_nickname = student_nickname;
+		g_complete_histories[task_idx].push(task);
+		
 		var searches = g_students[student_nickname].tasks[task_idx].searches;
 		var num_searches = searches.length;
 		var search_info = null;
@@ -184,7 +244,11 @@ function handle_update_link_followed(student_nickname, task_idx, query, url, tit
 
 function handle_update_link_rated(student_nickname, task_idx, url, is_helpful, timestamp) {	
 	if (g_students[student_nickname]!=undefined) {
-		g_students[student_nickname].task_history[task_idx].push({activity_type:"link_rating", search:null, link:url, link_title:null, is_helpful:is_helpful, answer_text:null, answer_explanation:null, timestamp:timestamp});
+		var task = {activity_type:"link_rating", search:null, link:url, link_title:null, is_helpful:is_helpful, answer_text:null, answer_explanation:null, timestamp:timestamp};
+		g_students[student_nickname].task_history[task_idx].push(task);
+		task.student_nickname = student_nickname;
+		g_complete_histories[task_idx].push(task);
+		
 		var searches = g_students[student_nickname].tasks[task_idx].searches;
 		var num_searches = searches.length;
 		for (var i=0; i<num_searches; i++) {
@@ -208,7 +272,11 @@ function handle_update_link_rated(student_nickname, task_idx, url, is_helpful, t
 
 function handle_update_answer(student_nickname, task_idx, text, explanation, timestamp) {
 	if (g_students[student_nickname]!=undefined) {
-		g_students[student_nickname].task_history[task_idx].push({activity_type:"answer", search:null, link:null, link_title:null, is_helpful:null, answer_text:text, answer_explanation:explanation, timestamp:timestamp});
+		var task = {activity_type:"answer", search:null, link:null, link_title:null, is_helpful:null, answer_text:text, answer_explanation:explanation, timestamp:timestamp};
+		g_students[student_nickname].task_history[task_idx].push(task);
+		task.student_nickname = student_nickname;
+		g_complete_histories[task_idx].push(task);
+		
 		var answer_info = g_students[student_nickname].tasks[task_idx].answer;
 		answer_info.text = text;
 		answer_info.explanation = explanation;
@@ -236,11 +304,6 @@ function updateMinMaxTaskTimes(timestamp) {
 //=================================================================================
 // Update UI
 //=================================================================================
-
-var g_activeSectionIndex = false;
-var g_activeSectionKey = null;
-var g_chartApiLoaded = false;
-var g_itemList = null;
 
 function initUI() {    
     var lesson = g_lessons[0];
@@ -276,11 +339,14 @@ function updateUI() {
 		return;
 	}
 	
-	var itemList;
 	updateSideBarInfo();
 	updateButtons();
 	$("#data_display_content").html("");
+	$("#cloud").html("");
 	switch( g_currentPaneName ) {
+		case "complete":
+			updateCompleteHistory();
+			break;
 		case "students":
 			updateStudents();
 			break;
@@ -363,6 +429,7 @@ function updateUIWithStudentActivity(studentNickname) {
 function initPaneAndUpdateUI() {
 	g_activeSectionIndex = false;
 	g_activeSessionKey = null;
+	g_cloudShowOption = DEFAULT_CLOUD_SHOW_OPTION;
 	updateUI();
 }
 
@@ -371,26 +438,48 @@ function updateSideBarInfo() {
 	$("#num_students").html(numStudents);
 }
 
+function updateCompleteHistory() {			
+	var accumulator = new QueryAccumulator();
+	$.each(g_students, function (studentNickname,studentInfo) {
+		$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
+			var isHelpful = searchIsHelpful(searchInfo);
+			accumulator.add(searchInfo.query, studentNickname, isHelpful);
+		});
+	});
+	
+	accumulator.setSort('ABC');
+	var itemList = accumulator.getItems();
+	updateAnyWithItems(itemList);
+	$('#pane_title').html('Complete History');
+	$('#task_activity').hide();
+	if (itemList.hasItems()) {
+		var saveState2 = g_groupQueriesWithSameWords;
+		g_groupQueriesWithSameWords=true;
+		drawHistoryCloud(itemList);
+		listCompleteStudentHistories();
+		g_groupQueriesWithSameWords = saveState2;
+	}
+}
+
 function updateStudents() {
-	var accumulator = new StudentAccumulator();
+	g_accumulator = new StudentAccumulator();
 	// TODO / FIX: Returning duplicate student names (2x number expected); not sure why
 	//var studentNames = keysOfObject(g_students);
 	var studentNames = Object.keys(g_students);
 	$.each(studentNames, function(i, studentNickname) {
 		var isLoggedIn = g_students[studentNickname].logged_in;
-		accumulator.add(studentNickname, isLoggedIn);
+		g_accumulator.add(studentNickname, isLoggedIn);
 	});
 		
-	accumulator.setSort(g_currentPaneSort);
-	accumulator.setDisplayOption(g_currentPaneDisplayOption);
-	var itemList = accumulator.getItems();
+	g_accumulator.setSort(g_currentPaneSort);
+	g_accumulator.setDisplayOption(g_currentPaneDisplayOption);
+	var itemList = g_accumulator.getItems();
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
-		updateOptions("student", accumulator);
 		drawStudentChartArea(itemList);
+		updateOptions("student", g_accumulator);
 		drawStudentHistories(itemList);
-	
-		if (accumulator.getDisplayOption() == "Ordered by Time") {
+		if (g_accumulator.getDisplayOption() == "Ordered by Time") {
 			$(".item_groups").hide();
 			$(".student_history_list").show();
 		}
@@ -415,7 +504,8 @@ function updateQueries() {
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
 		updateOptions("query", accumulator);
-		drawQueryChartArea(itemList);
+		drawQueryCloud(itemList);
+		//drawQueryChartArea(itemList);
 	}
 }
 
@@ -437,7 +527,8 @@ function updateWords() {
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
 		updateOptions("word", accumulator);
-		drawWordChartArea(itemList);
+		drawWordCloud(itemList);
+		//drawWordChartArea(itemList);
 	}
 }
 
@@ -457,7 +548,8 @@ function updateLinks() {
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
 		updateOptions("link", accumulator);
-		drawLinkChartArea(itemList);
+		drawLinkCloud(itemList);
+		//drawLinkChartArea(itemList);
 	}
 }
 
@@ -473,7 +565,8 @@ function updateAnswers() {
 	updateAnyWithItems(itemList);
 	if (itemList.hasItems()) {
 		updateOptions("answer", accumulator);
-		drawAnswerChartArea(itemList);
+		drawAnswerCloud(itemList);
+		//drawAnswerChartArea(itemList);
 	}
 }
 
@@ -536,17 +629,12 @@ function updateOptions(type, accumulator) {
 		}
 	}
 	
-	$('#'+type+'_options').html(html);
+	$('#display_options').html(html);
 }
 
 //=================================================================================
 // UI Pane
 //=================================================================================
-
-var g_currentPaneName = null;
-var g_currentPaneSort = null;
-var g_currentPaneDisplayOption = null;
-var g_groupQueriesWithSameWords = false;
 
 function loadPane(paneName) {
 	if(g_currentPaneName !== null) {
@@ -693,10 +781,13 @@ function ItemList(items, type, title) {
 	}
 	
 	this.asHTML = function() {
-		var html = '<h3 style="margin-bottom:10px">' + escapeForHtml(this.title) + '</h3>';
-		html += '<div id="'+this.type+'_chart" class="summary_chart"></div>';
-		html += '<div id="'+this.type+'_options" class="display_options"></div>';
+		var html = '<h3 id="pane_title" style="margin-bottom:10px">' + escapeForHtml(this.title) + '</h3>';
+		html += '<div id="summary_chart" class="summary_chart"></div>';
+		html += '<div id="tag_cloud" class="tag_cloud"></div>';
+		html += '<div id="complete_history" class="complete_history"></div>';
+		html += '<div id="display_options" class="display_options"></div>';
 		html += this.itemsAsHTML();
+		html += '</div>';
 		return html;
 	}
 	
@@ -1467,11 +1558,6 @@ function AnswerDataItem(answerText, studentNicknames, count) {
 //=================================================================================
 // Charts
 //=================================================================================
-var g_chart = null;
-var g_chartData = null;
-var g_chartOptions = null;
-var g_minTaskTime = null;
-var g_maxTaskTime = null;
 
 function createChart(chart_div, data, customOptions, defaultSelectAction) {
 	if (g_chartApiLoaded) {
@@ -1557,7 +1643,7 @@ function drawStudentChartArea(itemList) {
 			'backgroundColor': { fill: 'transparent' }
 		};
 	    
-		var chart = createChart('student_chart', data, options, false);
+		var chart = createChart('summary_chart', data, options, false);
     }
 }
 
@@ -1624,7 +1710,7 @@ function binStudentChartData() {
     		
 				var taskTime = getLocalTime(new Date(task.timestamp)).getTime();
 				var binIndex = Math.ceil((taskTime-minTaskTime.getTime())/binTimeSpan);
-				if (binIndex==0) binIndex = 1;
+				if (binIndex<1) binIndex = 1;
 				if (binIndex>binCount) binIndex = binCount;
 			
 				if (taskType=='search') {
@@ -1669,7 +1755,7 @@ function drawQueryChartArea(itemList) {
 			'colors' : [ g_actionColors['link_helpful'], g_actionColors['link_unhelpful'], g_actionColors['link'] ],
 			'isStacked' : true
 	};
-	var chart = createChart('query_chart', data, options, true);
+	var chart = createChart('summary_chart', data, options, true);
 }
 
 function getQueryChartData(itemList) {
@@ -1692,7 +1778,7 @@ function drawWordChartArea(itemList) {
 			'colors' : [ g_actionColors['link_helpful'], g_actionColors['link_unhelpful'], g_actionColors['link'] ],
 			'isStacked' : true
 	};
-	var chart = createChart('word_chart', data, options, true);
+	var chart = createChart('summary_chart', data, options, true);
 }
 
 function getWordChartData(itemList) {
@@ -1715,7 +1801,7 @@ function drawLinkChartArea(itemList) {
 			'colors' : [ g_actionColors['link_helpful'], g_actionColors['link_unhelpful'], g_actionColors['link'] ],
 			'isStacked' : true
 	};
-	var chart = createChart('link_chart', data, options, true);
+	var chart = createChart('summary_chart', data, options, true);
 }
 
 function getLinkChartData(itemList) {
@@ -1737,7 +1823,7 @@ function drawAnswerChartArea(itemList) {
 			'legend' : { position: 'none' },
 			'colors' : [ g_actionColors['link'] ],
 	};
-	var chart = createChart('answer_chart', data, options, true);
+	var chart = createChart('summary_chart', data, options, true);
 }
 
 function getAnswerChartData(itemList) {
@@ -1751,11 +1837,154 @@ function getAnswerChartData(itemList) {
 }
 
 //=================================================================================
-// Student Histories
+// Word Clouds
 //=================================================================================
 
-var g_actionDim = 6; // pixels
-var g_actionColors = { search:'#888888', link:'#454C45', link_helpful:'#739c95', link_unhelpful:'#5C091F', answer:'blue' };
+function drawHistoryCloud(itemList, option) {		
+	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
+	var options = [];
+	options.push(getCloudOption('Helpful', 'link_helpful', 'drawHistoryCloud'));
+	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawHistoryCloud'));
+	options.push(getCloudOption('Unrated', 'link', 'drawHistoryCloud'));
+	var showOptions = { label:'Queries: ', options:options };
+	
+	drawCloud("tag_cloud", itemList, function(i, item) {
+		var link = item.query;
+		var url = '#';
+		var weight = g_cloudShowOption == 'link_helpful' ? item.ratings.helpful : (g_cloudShowOption == 'link_unhelpful' ? item.ratings.unhelpful : item.count-item.ratings.helpful-item.ratings.unhelpful);
+		return {link:link, url:url, weight:weight};
+	}, { show:showOptions, color:{start:g_actionColors[g_cloudShowOption], end:g_actionColors[g_cloudShowOption]}, className:'noLink' });
+}
+
+function drawQueryCloud(itemList, option) {		
+	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
+	var options = [];
+	options.push(getCloudOption('Helpful', 'link_helpful', 'drawQueryCloud'));
+	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawQueryCloud'));
+	options.push(getCloudOption('Unrated', 'link', 'drawQueryCloud'));
+	var showOptions = { label:'Show: ', options:options };
+	
+	drawCloud("tag_cloud", itemList, function(i, item) {
+		var link = item.query;
+		var url = "javascript:openAccordion("+i+");";
+		var weight = g_cloudShowOption == 'link_helpful' ? item.ratings.helpful : (g_cloudShowOption == 'link_unhelpful' ? item.ratings.unhelpful : item.count-item.ratings.helpful-item.ratings.unhelpful);
+		return {link:link, url:url, weight:weight};
+	}, { show:showOptions, color:{start:g_actionColors[g_cloudShowOption], end:g_actionColors[g_cloudShowOption]} });
+}
+
+function drawWordCloud(itemList, option) {	
+	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
+	var options = [];
+	options.push(getCloudOption('Helpful', 'link_helpful', 'drawWordCloud'));
+	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawWordCloud'));
+	options.push(getCloudOption('Unrated', 'link', 'drawWordCloud'));
+	var showOptions = { label:'Show: ', options:options };
+
+	drawCloud("tag_cloud", itemList, function(i, item) {
+		var link = item.wordsStr;
+		var url = "javascript:openAccordion("+i+");";
+		var weight = g_cloudShowOption == 'link_helpful' ? item.ratings.helpful : (g_cloudShowOption == 'link_unhelpful' ? item.ratings.unhelpful : item.count-item.ratings.helpful-item.ratings.unhelpful);
+		return {link:link, url:url, weight:weight};
+	}, { show:showOptions, color:{start:g_actionColors[g_cloudShowOption], end:g_actionColors[g_cloudShowOption]} });
+}
+
+function drawLinkCloud(itemList, option) {
+	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
+	var options = [];
+	options.push(getCloudOption('Helpful', 'link_helpful', 'drawLinkCloud'));
+	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawLinkCloud'));
+	options.push(getCloudOption('Unrated', 'link', 'drawLinkCloud'));
+	var showOptions = { label:'Show: ', options:options };
+
+	drawCloud("tag_cloud", itemList, function(i, item) {
+		var link = item.title;
+		var url = "javascript:openAccordion("+i+");";
+		var weight = g_cloudShowOption == 'link_helpful' ? item.ratings.helpful : (g_cloudShowOption == 'link_unhelpful' ? item.ratings.unhelpful : item.count-item.ratings.helpful-item.ratings.unhelpful);
+		return {link:link, url:url, weight:weight};
+	}, { show:showOptions, color:{start:g_actionColors[g_cloudShowOption], end:g_actionColors[g_cloudShowOption]} });
+}
+
+function drawAnswerCloud(itemList) {	
+	drawCloud("tag_cloud", itemList, function(i, item) {
+		var link = item.answerText;
+		var url = "javascript:openAccordion("+i+");";
+		var weight = item.count;
+		return {link:link, url:url, weight:weight};
+	});
+}
+
+function drawCloud(divName, itemList, getCloudDataFunc, options) {
+//	$('#cloud').html('');
+//	$('#cloud').width($('#cloud').parent().width()+'px');
+//	$('#cloud').height('200px');
+//	$("#cloud").jQCloud(data);
+//	$("#cloud").show();
+
+	// cloud html
+	var cloudHtml = '';
+	var maxWeight = 1;
+	$.each(itemList.items, function(i, item) {
+		var data = getCloudDataFunc(i, item);
+		if (data.weight>0) {
+			var link = data.link.length<=MAX_TAG_LENGTH ? data.link : data.link.substring(0,MAX_TAG_LENGTH)+"&hellip;";
+			link = link.replace("<", "&lt;").replace(">", "&gt;");
+			cloudHtml += '<a'+((options!=undefined && options.className!=undefined)?' class="'+options.className+'"':'')+' href="'+data.url+'" rel="'+data.weight+'" title="'+data.link+'">'+link+'</a>\n';
+			if (data.weight>maxWeight) maxWeight = data.weight;
+		}
+	});
+	if (cloudHtml == '') {
+		cloudHtml = '<span class="small">(none)</span>';
+	}
+	
+	// if items, show cloud options + html
+	if (itemList.items.length>0) {
+		var html = '';
+		if (options!=undefined && options.show!=undefined && options.show.options.length>0) {
+			html += '<div class="cloud_options display_options">'+options.show.label+options.show.options.join(' ')+'</div>';
+		}
+		html += '<div class="cloud"><p>'+cloudHtml+'</p></div>';
+		
+		var minFont = 10;
+		var maxFont = 26;
+		if (maxWeight<=2) {
+			maxFont = 16;
+		}
+		
+		var startColor = options!=undefined && options.color!=undefined && options.color.start!=undefined ? options.color.start : g_actionColors['link'];
+		var endColor = options!=undefined && options.color!=undefined && options.color.end!=undefined ? options.color.end : g_actionColors['link'];
+		
+		$("#"+divName).html(html);
+		$("#"+divName+" a").tagcloud({
+			size: {
+				start: minFont,
+				end: maxFont,
+				unit: 'pt'
+			},
+			color: {
+				start: startColor,
+				end: endColor
+			}
+		});
+	}
+}
+
+function getCloudOption(label, value, funcName, className) {
+	var isSelected = value==g_cloudShowOption;
+	if (isSelected) {
+		return '<strong>'+label+'</strong>';
+	}
+	else {
+		return '<a href="#" onclick="'+funcName+'(g_itemList,\''+value+'\'); return false;">'+label+'</a>';
+	}
+}
+
+function openAccordion(index) {
+	$('#task_activity').accordion({active:index});
+}
+
+//=================================================================================
+// Student Histories
+//=================================================================================
 
 function drawStudentHistories(itemList) {
     $.each(itemList.items, function(idx, item) {
@@ -1785,25 +2014,25 @@ function drawStudentHistory(div, studentNickname) {
  		var action = taskHistory[i];
  		var type = action.activity_type;
 
-//     	var skip = (i<taskHistory.length-1) && (type=='link') && (taskHistory[i+1].activity_type=='link_rating');
-//     	if (skip) continue;
-
 		// if rating, change color of previous visit to link
- 		// do not draw separate task box for ratings
+	 	// do not draw separate task box for ratings
  		if (type=='link_rating') {
- 			searchHistoryHtml.push('');
  			var linkIndex = getIndexOfLink(taskHistory, action.link, i);
- 			var newColor = g_actionColors[action.is_helpful?'link_helpful':'link_unhelpful'];
- 			var newTitle = action.is_helpful ? 'Helpful Link' : 'Unhelpful Link';
- 			newTitle += ': '+(action.link_title!=null ? action.link_title+' ('+action.link+')' : action.link);
+ 			if (linkIndex != -1) {
+ 				var newColor = g_actionColors[action.is_helpful?'link_helpful':'link_unhelpful'];
+ 				var newTitle = action.is_helpful ? 'Helpful Link' : 'Unhelpful Link';
+ 				newTitle += ': '+(action.link_title!=null ? action.link_title+' ('+action.link+')' : action.link);
  			
- 			var linkHtml = ''
- 			if (searchHistoryHtml[linkIndex].indexOf('"largegap"') != -1) {
- 				linkHtml += '<div class="largegap" style="width:1px;height:20px !important;background:grey;float:left;margin-right:'+actionMargin+'px;"></div>';;
+				var linkHtml = '';
+				if (searchHistoryHtml[linkIndex].indexOf('"largegap"') != -1) {
+					linkHtml += '<div class="largegap" style="width:1px;height:20px !important;background:grey;float:left;margin-right:'+actionMargin+'px;"></div>';;
+				}
+				linkHtml += '<div id="event_"'+(linkIndex+1)+' title="'+newTitle+'" style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+newColor+';float:left;margin-right:'+actionMargin+'px;margin-top:'+topMargin+'px;">&nbsp;</div>';
+
+ 				searchHistoryHtml.push(''); // empty place holder for link rating event so array indices are correct
+				searchHistoryHtml[linkIndex] = linkHtml;
+				continue;
  			}
- 			linkHtml += '<div id="event_"'+(linkIndex+1)+' title="'+newTitle+'" style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+newColor+';float:left;margin-right:'+actionMargin+'px;margin-top:'+topMargin+'px;">&nbsp;</div>';
- 			searchHistoryHtml[linkIndex] = linkHtml;
- 			continue;
  		}
  		
      	if (i>0) {
@@ -1815,11 +2044,6 @@ function drawStudentHistory(div, studentNickname) {
  			}
  		}
  		
- 		if (type=='link_rating') {
- 			if (action.is_helpful) type = 'link_helpful';
- 			else type = 'link_unhelpful';
- 		}
- 		
  		var title = '';
  		if (type=='search') {
  			title = 'Query: '+action.search;
@@ -1827,26 +2051,12 @@ function drawStudentHistory(div, studentNickname) {
  		else if (type=='link') {
  			title = "Unrated Link: "+action.link_title+' ('+action.link+')';
  		}
-// 		else if (type=='link_helpful') {
-// 			var link_info = action.link;
-// 			if (action.link_title!=null) {
-// 				link_info = action.link_title+' ('+action.link+')';
-// 			}
-// 			else if (taskHistory[i-1]!=undefined && taskHistory[i-1].link!=null && taskHistory[i-1].link==action.link) {
-// 				link_info = taskHistory[i-1].link_title+' ('+action.link+')'
-// 			}
-// 		    title = "Helpful Link: " + link_info;
-// 	    }
-//     	else if (type=='link_unhelpful') {
-// 			var link_info = action.link;
-// 			if (action.link_title!=null) {
-// 				link_info = action.link_title+' ('+action.link+')';
-// 			}
-// 			else if (taskHistory[i-1]!=undefined && taskHistory[i-1].link!=null && taskHistory[i-1].link==action.link) {
-// 				link_info = taskHistory[i-1].link_title+' ('+action.link+')'
-// 			}
-//     		title = "Unhelpful Link: " + link_info;
-// 	    }
+ 		else if (type=='link_rating') {
+ 			// only gets here if previous visit to link not found (i.e., link rated w/o link visit getting recorded)
+ 			type = action.is_helpful ? 'link_helpful' : 'link_unhelpful';
+			title = action.is_helpful ? 'Helpful Link' : 'Unhelpful Link';
+			title += ': '+(action.link_title!=null ? action.link_title+' ('+action.link+')' : action.link);
+ 		}
  		else if (type=='answer') {
  		    title = "Response: "+action.answer_text;
  		    if (action.answer_explanation) title += ' ('+action.answer_explanation+')';
@@ -1954,9 +2164,9 @@ function listStudentHistory(div, studentNickname) {
 	    }
  		
  		html += '<tr>';
- 		html += '<td style="width:15ex">' + getFormattedTimestamp(taskTime) + '</td>';
  		html += '<td style="width:17ex">' + '<div style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+g_actionColors[taskType]+'; float:left; margin-right:4px; margin-top:7px;">&nbsp;</div> ' + type.replace(" ", "&nbsp;") + '</td>';
  		html += '<td>' + details + '</td>';
+ 		html += '<td style="width:15ex">' + getFormattedTimestamp(taskTime) + '</td>';
  		html += '</tr>';
  	}
 
@@ -1974,6 +2184,88 @@ function listStudentHistory(div, studentNickname) {
  	
  	html = '<h5>Search History</h5>\n' + html;
  	div.html(html);
+}
+
+function listCompleteStudentHistories() { 
+	var html = '';
+	var task = selectedTaskIdx()+1;
+	var taskHistory = g_complete_histories[task-1];
+	// old on top
+ 	//for (var i=0; i<taskHistory.length; i++) {
+	// new on top
+ 	for (var i=taskHistory.length-1; i>=0; i--) {
+ 		var taskItem = taskHistory[i];
+ 		var taskTime = getLocalTime(new Date(taskItem.timestamp));
+ 		var taskType = taskItem.activity_type;
+		if (taskType=='link_rating') {
+			if (taskItem.is_helpful) taskType='link_helpful';
+			else taskType='link_unhelpful';
+		}
+ 		
+ 		var type = '';
+ 		var details = '';
+ 		if (taskType=='search') {
+ 			type = 'Query';
+ 			details = taskItem.search;
+ 		}
+ 		else if (taskType=='link') {
+ 			type = "Link";
+ 			details = taskItem.link_title+'<br/>';
+ 		    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
+ 		}
+ 		else if (taskType=='link_helpful') {
+ 		    type = "Rated Helpful";
+ 			details = '';
+ 			if (taskItem.link_title!=null) {
+ 				details = taskItem.link_title+'<br/>';
+ 			}
+ 			else if (taskHistory[i-1]!=undefined && taskHistory[i-1].link!=null && taskHistory[i-1].link==taskItem.link) {
+ 				details = taskHistory[i-1].link_title+'<br/>';
+ 			}
+ 			details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
+ 	    }
+ 		else if (taskType=='link_unhelpful') {
+ 		    type = "Rated Unhelpful";
+ 			details = '';
+ 			if (taskItem.link_title!=null) {
+ 				details = taskItem.link_title+'<br/>';
+ 			}
+ 			else if (taskHistory[i-1]!=undefined && taskHistory[i-1].link!=null && taskHistory[i-1].link==taskItem.link) {
+ 				details = taskHistory[i-1].link_title+'<br/>';
+ 			}
+ 			details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
+ 	    }
+ 		else if (taskType=='answer') {
+ 		    type = "Response";
+ 		    details = taskItem.answer_text;
+ 		    if (taskItem.answer_explanation) details += '<br/><em>'+taskItem.answer_explanation+'</em>';
+	    }
+ 		
+ 		html += '<tr>';
+ 		html += '<td style="width:17ex">' + '<div style="width:'+g_actionDim+'px;height:'+g_actionDim+'px !important;background:'+g_actionColors[taskType]+'; float:left; margin-right:4px; margin-top:7px;">&nbsp;</div> ' + type.replace(" ", "&nbsp;") + '</td>';
+ 		html += '<td>' + details + '</td>';
+ 		html += '<td style="width:13ex">'+taskItem.student_nickname+'</td>';
+ 		html += '<td style="width:15ex">' + getFormattedTimestamp(taskTime) + '</td>';
+ 		html += '</tr>';
+ 	}
+
+    if (html != '') {
+    	var rowHtml = html;
+		html = '<table class="search_history">';
+ 		html += '<tr>';
+ 		html += '<td style="width:17ex"><h6>Task</h6></td>';
+ 		html += '<td>&nbsp;</td>';
+ 		html += '<td style="width:13ex"><h6>Student</h6></td>';
+ 		html += '<td style="width:15ex"><h6>Time</h6></td>';
+ 		html += '</tr>';
+		html += rowHtml;
+		html += '</table>';
+ 	}
+ 	else {
+ 		html = '(none)';
+ 	}
+    
+ 	$('#complete_history').html(html);
 }
 
 function getStudentSection(studentNickname) {

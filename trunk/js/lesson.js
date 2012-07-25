@@ -490,6 +490,9 @@ function clearLesson(lessonCode, showDialog) {
 			success: function(data,textStatus,jqXHR) {
 				if (data.trim()=="OK") {
 					g_students = {};
+					if (typeof updateData == 'function') {
+						updateData();
+					}
 					if (typeof updateUI == 'function') {
 					   updateUI();
 					}
