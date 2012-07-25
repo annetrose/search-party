@@ -3,13 +3,16 @@
 
 {% block head %}
   <title>Search Party - Teacher View</title>
+  <link rel="stylesheet" type="text/css" href="/css/jqcloud.css"></link>
   <link rel="stylesheet" type="text/css" href="/css/task_chooser.css"></link>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript" src="/js/common.js"></script>
   <script type="text/javascript" src="/js/stemmer_snowball.js"></script>{# must come before teacher.js #}
-  <script type="text/javascript" src="/js/teacher.js?version=071912"></script>
-  <script type="text/javascript" src="/js/lesson.js?version=071912"></script>
+  <script type="text/javascript" src="/js/teacher.js?version=072512"></script>
+  <script type="text/javascript" src="/js/lesson.js?version=072512"></script>
   <script type="text/javascript" src="/js/task_chooser.js"></script>
+  <script type="text/javascript" src="/js/jqcloud-1.0.0.min.js"></script>
+  <script type="text/javascript" src="/js/jquery.tagcloud.js"></script>
   
   <script type="text/javascript">
   // <![CDATA[
@@ -52,6 +55,7 @@
     <button class="load_btn cssbtn" id="load_words_btn" onclick="loadPane('words')">Words</button><br/>
     <button class="load_btn cssbtn" id="load_links_btn" onclick="loadPane('links')">Links</button><br/>
     <button class="load_btn cssbtn" id="load_answers_btn" onclick="loadPane('answers')">Responses</button><br/>
+    <button class="load_btn cssbtn" id="load_history_btn" onclick="loadPane('complete')">Complete History</button><br/>
   </div>
   
   <div id="side_button_bar2"></div>

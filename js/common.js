@@ -1,3 +1,7 @@
+THUMBS_UP_URL = "/imgs/check.png"; 
+THUMBS_DOWN_URL = "/imgs/no.png";
+MAX_TAG_LENGTH = 30;
+
 function clipText(s, maxLength) {
 	var dots = "...";
 	var sLength = s.length;
@@ -110,6 +114,3 @@ function getTimestamp() {
     var time = hours + ':' + mins + ':' + secs;
     return date + ' ' + time;
 }
-
-THUMBS_UP_URL = "/imgs/check.png"; 
-THUMBS_DOWN_URL = "/imgs/no.png";
