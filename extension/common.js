@@ -1,6 +1,6 @@
-//var SEARCH_PARTY_URL = 'http://search-party.appspot.com';
+var SEARCH_PARTY_URL = 'http://search-party.appspot.com';
 //var SEARCH_PARTY_URL = 'http://hciltest.appspot.com';
-var SEARCH_PARTY_URL = 'http://localhost:8081';
+//var SEARCH_PARTY_URL = 'http://localhost:8081';
 
 var DEBUG = true;
 
