@@ -1914,13 +1914,6 @@ function drawAnswerCloud(itemList) {
 }
 
 function drawCloud(divName, itemList, getCloudDataFunc, options) {
-//	$('#cloud').html('');
-//	$('#cloud').width($('#cloud').parent().width()+'px');
-//	$('#cloud').height('200px');
-//	$("#cloud").jQCloud(data);
-//	$("#cloud").show();
-
-	// cloud html
 	var cloudHtml = '';
 	var maxWeight = 1;
 	$.each(itemList.items, function(i, item) {
