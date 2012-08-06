@@ -1,0 +1,51 @@
+body {
+	width:450px;
+	font: 10pt Arial;
+}
+
+h1 {
+	font: bold 12pt Arial;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+h2 {
+	font: bold 11pt Arial;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+.historyitem {
+	white-space:nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+	margin-top:5px;
+	margin-bottom:5px;
+}
+
+.itemtime {
+	display: inline-block;
+	width: 90px;
+	vertical-align: top;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
+.itemtype {
+	display: inline-block;
+	width: 100px;
+	vertical-align: top;
+}
+
+.itemdetail {
+	display: inline-block;
+	width: 240px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
+.note {
+	font-size: 8pt;
+	font-weight: normal;
+	font-style: italic;
+}
