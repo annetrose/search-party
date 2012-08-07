@@ -1,6 +1,6 @@
 {
   "name": "Search Party",
-  "version": "1.4",
+  "version": "1.3",
   "manifest_version": 2,
   "description": "Allows Search Party students to search within google.com directly",
   "background": {
@@ -22,24 +22,5 @@
     "webNavigation",
     "http://*/*",
     "https://*/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": [
-      	"http://*/*", "https://*/*"
-      ],
-      "exclude_matches": [
-      	"http://www.google.com/*", "https://www.google.com/*"
-      ],
-      "js": ["jquery-1.7.1.min.js", "universalContentScript.js"],
-      "css": ["mystyles.css"]
-    }, 
-    {
-      "matches": [
-        "http://www.google.com/*", "https://www.google.com/*"
-      ],
-      "js": ["jquery-1.7.1.min.js", "googleContentScript.js"],
-      "css": ["mystyles.css"]
-    }
   ]
 }
