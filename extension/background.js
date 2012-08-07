@@ -58,19 +58,6 @@ $(document).ready(function() {
 	updateTopUi(true);
 });
 
-/**
- * onConnect event is fired when a connection is made from an extension process or content script
- */
-chrome.extension.onConnect.addListener(function(port) {
-	console.assert(port.name == "spTopUi");
-	
-	port.onMessage.addListener(function(msg) {
-		
-		
-		
-	});
-});
-
 function updateTopUi(init) {
 	// $('#content').hide();
 	// $('#loading').show();
@@ -83,7 +70,7 @@ function updateTopUi(init) {
 //			var taskIndex = getStoredTask();
 //			var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1]; // TODO: Get stored description
 ////			port.postMessage({
-////				message_type: 'update_top_ui',
+////				type: 'update_top_ui',
 ////				task_index: taskIndex,
 ////				task_description: taskDesc
 ////			});
@@ -111,7 +98,7 @@ function updateTopUi(init) {
 								name: "spTopUi"
 							});
 							port.postMessage({
-								message_type: 'update_top_ui',
+								type: 'update_top_ui',
 								task_index: taskIndex,
 								task_description: taskDesc
 							});
@@ -141,7 +128,7 @@ function updateTopUi(init) {
 				name: "spTopUi"
 			});
 			port.postMessage({
-				message_type: 'update_top_ui',
+				type: 'update_top_ui',
 				task_index: taskIndex,
 				task_description: taskDesc
 			});
@@ -182,6 +169,29 @@ function initTabs() {
 	});
 }	
 
+/**
+ * onConnect event is fired when a connection is made from an extension process or content script
+ */
+chrome.extension.onConnect.addListener(function(port) {
+	//console.assert(port.name == "spTopUi");
+	//alert(port.name);
+
+	port.onMessage.addListener(function(message) {
+		
+		//alert(message.type);
+
+		if (message.type == 'request') {
+			
+			// chrome.extension.sendRequest(message.request); // This doesn't seem to work.  Why not?  Can this script not send requests to its own handler?
+			handleResponse(message.request.response, message.request.explanation);
+		}
+	});
+});
+
+/**
+ * Set up event listener to handle requests (sent using 
+ * chrome.extension.sendRequest()).
+ */
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	if (request.type=='login') {
 		handleLogin();
@@ -435,7 +445,7 @@ function handleLogin() {
 						name : "spTopUi"
 					});
 					port.postMessage({
-						message_type: 'show_top_ui'
+						type: 'show_top_ui'
 					});
 					
 					// Check if Search Party is visible.  If so, terminate this interval function.
@@ -469,7 +479,7 @@ function handleLogout() {
 				name : "spTopUi"
 			});
 			port.postMessage({
-				message_type: 'hide_top_ui'
+				type: 'hide_top_ui'
 			});
 
 		});
@@ -492,7 +502,7 @@ function handleTaskChange() {
 		var taskIndex = getSelectedTaskIndex();
 		var taskDesc = getStoredTask();
 		port.postMessage({
-			message_type: 'show_top_ui',
+			type: 'show_top_ui',
 			task_index : taskIndex,
 			task_description : taskDesc
 		});
