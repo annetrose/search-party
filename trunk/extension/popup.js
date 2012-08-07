@@ -2,7 +2,6 @@
 
 $(document).ready(function() {
 	
-	//alert("hey");
 	//getQueryHistoryHtml();
 	loadStudent(true);
 });
@@ -36,8 +35,6 @@ function loadStudent(init) {
 				var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1];
 				$('#task_desc').html(taskDesc);
 				$('#task_history').html(getHistoryHtml());
-				
-				var json_text = JSON.stringify(g_studentInfo, null, 2);
 
 				if (getStoredLink() != '') {
 					var ratingHtml = '<h2>Link Rating</h2>';
@@ -53,8 +50,9 @@ function loadStudent(init) {
 					$('#rating_area').html('');
 				}
 
+				// var responseStudentJSON = JSON.stringify(g_studentInfo, null, 2);
 				var responseHtml = '<h2>Response</h2>';
-				responseHtml += json_text + '<br /><br />';
+				// responseHtml += json_text + '<br /><br />';
 				responseHtml += getResponseControls() + '<br/>';
 				responseHtml += '<hr style="color:grey"/>';
 				$('#response_area').html(responseHtml);
@@ -78,7 +76,7 @@ function loadStudent(init) {
 						name : "spTopUi"
 					});
 					port.postMessage({
-						message_type: 'show_top_ui',
+						type: 'show_top_ui',
 						task_index : taskIndex,
 						task_description : taskDesc
 					});
