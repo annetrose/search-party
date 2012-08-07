@@ -15,50 +15,9 @@ function hideGoogleBar() {
 	googleBar.style.visibility = 'hidden';
 }
 
-//function createSearchPartyInterface() {
-//	var googleBar = document.getElementById(googleBarElementId);
-//
-//	var element = document.createElement('div');
-//	//element.id = '';
-//	//element.className = '';
-//	element.style.width = '100%';
-//	element.style.height = '200px';
-//	element.style.background = '#444444';
-//	//element.style.border-bottom = '1px solid #DEDEDE';
-//	element.innerHTML = '<img src="http://search-party.appspot.com/imgs/sp_logo.png" />';
-//
-//
-//	if(googleBar.nextSibling) {
-//		googleBar.parentNode.insertBefore(element, googleBar.nextSibling);
-//	} else {
-//		googleBar.parentNode.appendChild(element);
-//	}
-//}
-
-//function createUniversalInterface() {
-//	var bodyTags = document.getElementsByTagName("body");
-//	var bodyTag = bodyTags[0];
-//	
-//	var element = document.createElement('div');
-//	//element.id = '';
-//	element.className = 'universalUI';
-//	element.innerHTML = '<img src="http://search-party.appspot.com/imgs/sp_logo.png" />';
-//
-//	if(bodyTag) {
-//		bodyTag.insertBefore(element, bodyTag.firstChild);	
-//		bodyTag.style.margin = '200px 0px 0px 0px';
-//	}
-//}
-
-// Initialize extension
-//createSearchPartyInterface();
-//createUniversalInterface();
-
-
-
 function createSearchPartyInterface() {
 	
-	//height of top bar, or width in your case
+	// Height of embedded top UI, or width in your case
 	var height = '200px';
 	
 	//resolve html tag, which is more dominant than <body>
@@ -131,6 +90,12 @@ function createSearchPartyInterface() {
 		<button id="submit_response" name="submit_response">Save</button> \
 		<span id="response_saved" class="note"></span> \
 		</div> \
+		\
+		<div> \
+		Page Rating<br/> \
+		<input type="radio" id="helpful" name="rating" value="1"> Helpful</input> \
+		<input type="radio" id="unhelpful" name="rating" value="0"> Unhelpful</input> \
+		</div> \
 		</div>';
 }
 
@@ -192,51 +157,18 @@ function showSearchPartyTopUi() {
 	g_top_ui_visible = true;
 }
 
-
-
 createSearchPartyInterface();
-hideSearchPartyTopUi();
+//hideSearchPartyTopUi();
 //showSearchPartyTopUi();
 
-
-
-
-
-// Set up message handler that listens for events from the extension page 
-/*
-chrome.extension.onMessage.addListener(
-	function(request, sender, sendResponse) {
-		alert('receiving msg');
-		alert(request.greeting);
-		console.log(sender.tab ?
-			"from a content script:" + sender.tab.url :
-			"from the extension");
-		if (request.greeting == "hello") {
-			sendResponse({farewell: "goodbye"});
-		}
-});
-*/
-
-
-/*
-var port = chrome.extension.connect({name: "knockknock"});
-port.postMessage({joke: "Knock knock"});
-port.onMessage.addListener(function(msg) {
-  if (msg.question == "Who's there?")
-    port.postMessage({answer: "Madame"});
-  else if (msg.question == "Madame who?")
-    port.postMessage({answer: "Madame... Bovary"});
-});
-*/
-
-
-
-//onConnect event is fired when a connection is made from an extension process or content script
+/**
+ * "onConnect event is fired when a connection is made from an extension process or content script"
+ */
 chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == "spTopUi");
 	port.onMessage.addListener(function(message) {
 
-		if (message.message_type == 'show_top_ui') {
+		if (message.type == 'show_top_ui') {
 			
 			showSearchPartyTopUi();
 			
@@ -245,7 +177,12 @@ chrome.extension.onConnect.addListener(function(port) {
 				$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
 			}
 			
-		} else if (message.message_type == 'update_top_ui') {
+			port.postMessage({
+				type: 'acknowledgment',
+				message: 'show_top_ui'
+			});
+			
+		} else if (message.type == 'update_top_ui') {
 			// Update Seach Party UI
 			
 			// Update task description
@@ -253,68 +190,11 @@ chrome.extension.onConnect.addListener(function(port) {
 				$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
 			}
 			
-		} else if (message.message_type == 'hide_top_ui') {
+		} else if (message.type == 'hide_top_ui') {
 			
 			hideSearchPartyTopUi();
 			
 		}
 
-//		if(msg.joke == "Knock knock") {
-//			port.postMessage({question: "Who's there?"});
-//		} else if(msg.answer == "Madame") {
-//			port.postMessage({question: "Madame who?"});
-//		} else if(msg.answer == "Madame... Bovary") {
-//			port.postMessage({question: "I don't get it."});
-//		}
-
 	});
 });
-
-
-
-
-
-
-
-/*
-var width = '100px';
-//top (or right, left, or bottom) offset
-var currentRight = html.css('right'); //or getComputedStyle(html).top
-if (currentRight === 'auto') {
-	currentRight = 0;
-} else {
-	currentRight = parseFloat($('html').css('right')); //parseFloat removes any 'px' and returns a number type
-}
-html.css(
-	'right',     //make sure we're -adding- to any existing values
-	currentRight + parseFloat(width) + 'px'
-);
-
-// DRAW SIDE TOOLBAR
-var searchPartyFrameId = 'searchPartyRightFrame';
-if(document.getElementById(searchPartyFrameId)) {
-	alert('id:' + searchPartyFrameId + ' taken please dont use this id!');
-	throw 'id:' + searchPartyFrameId + ' taken please dont use this id!';
-}
-html.append(
-	'<iframe id="' + searchPartyFrameId + '" scrolling="no" frameborder="0" allowtransparency="false" '
-	+ 'style="position: fixed; width: '+width+';border:none;z-index: 2147483647; top: 0px;'
-        + 'height:100%;right:0px;left: 0px;">'+
-	+ '</iframe>'
-);
-
-// Style the 
-document.getElementById(searchPartyFrameId).contentDocument.body.innerHTML =
-	'<style type="text/css">\
-	html, body {          \
-	height: 100%; \
-	width: '+width+'; \
-	z-index: 2147483647;\
-	background-color: #cccccc;\
-	border-bottom: 1px solid #DEDEDE; \
-	}                     \
-	</style>                \
-	<p>UNSTYLED HTML!</p> \
-	<img src="http://search-party.appspot.com/imgs/sp_logo.png" /> \
-	';
-*/

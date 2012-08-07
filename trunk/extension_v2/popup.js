@@ -1,60 +1,47 @@
-//var g_studentInfo = null; // Moved this to background.js
+var g_studentInfo = null;
 
 $(document).ready(function() {
-	
-	//alert("hey");
-	//getQueryHistoryHtml();
 	loadStudent(true);
 });
 
-/**
- * Loads student data and optionally updates the UI to reflect the updated student data.
- *
- * @init If true, initialize the UI, otherwise only update student data.
- */
 function loadStudent(init) {
 	$('#content').hide();
 	$('#loading').show();
-	$.ajax({
-		type : 'POST',
-		url : SEARCH_PARTY_URL + "/student_info",
-		dataType : "json",
-		data : {
-			task_idx : getStoredTask()
+        $.ajax({
+                type: 'POST',
+                url: SEARCH_PARTY_URL+"/student_info",
+                dataType: "json",
+		data: {
+			task_idx: getStoredTask()
 		},
-		cache : false,
-		success : function(data) {
+                cache: false,
+                success: function(data) {
 			g_studentInfo = data;
 			updateBadge(data.status);
-			
 			if (init) {
 				initUI(data);
 			}
-			
-			if (data.status == 1) { // Check if student is logged in
+			if (data.status==1) {
 				var taskIndex = getSelectedTaskIndex();
 				var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1];
 				$('#task_desc').html(taskDesc);
 				$('#task_history').html(getHistoryHtml());
-				
-				var json_text = JSON.stringify(g_studentInfo, null, 2);
-
+	
 				if (getStoredLink() != '') {
 					var ratingHtml = '<h2>Link Rating</h2>';
-					if (getStoredLinkTitle() != '')
-						ratingHtml += getStoredLinkTitle() + '<br/>';
+					if (getStoredLinkTitle()!='') ratingHtml += getStoredLinkTitle() + '<br/>';
 					ratingHtml += getStoredLink() + '<br/>';
-					ratingHtml += getRatingSelector() + '<br/>';
+					ratingHtml += getRatingSelector()+'<br/>';
 					ratingHtml += '<hr style="color:grey"/>';
 					$('#rating_area').html(ratingHtml);
 					updateLinkRating(getStoredLink());
 					$('input[name=rating]').change(onRatingChanged);
-				} else {
+				}
+				else {
 					$('#rating_area').html('');
 				}
 
 				var responseHtml = '<h2>Response</h2>';
-				responseHtml += json_text + '<br /><br />';
 				responseHtml += getResponseControls() + '<br/>';
 				responseHtml += '<hr style="color:grey"/>';
 				$('#response_area').html(responseHtml);
@@ -68,38 +55,21 @@ function loadStudent(init) {
 				$('#submit_response').click(function() {
 					onResponseChanged();
 				});
-
-				// Send message to content script requesting an update to the
-				// in-browser SearchParty UI
-				chrome.tabs.getSelected(null, function(tab) {
-
-					// Create message on port
-					var port = chrome.tabs.connect(tab.id, {
-						name : "spTopUi"
-					});
-					port.postMessage({
-						message_type: 'show_top_ui',
-						task_index : taskIndex,
-						task_description : taskDesc
-					});
-
-				});
-
 			}
 			$('#loading').hide();
 			$('#content').show();
-		},
-		error : function() {
+                },
+		error: function() {
 			g_studentInfo = null;
-			$('#content').html('Error connecting to ' + SEARCH_PARTY_URL);
+			$('#content').html('Error connecting to '+SEARCH_PARTY_URL);
 			$('#loading').hide();
 			$('#content').show();
 		}
-	});
+        });
 }
 
 function initUI(data) {
-	var content = '<div style="font-size: 14pt; font-weight: bold; float: left;">Search Party';
+	var content = '<div style="font-size:14pt; font-weight:bold; float:left">Search Party';
 //	if (data.status==1) {
 //		content += ' <a id="student_link" href="#" class="note">[View web interface]</a>';
 //	}
@@ -125,7 +95,7 @@ function initUI(data) {
 	}
 	$('#content').html(content);
 
-	if (data.status == 1) {
+	if (data.status==1) {
 		var taskIndex = getStoredTask();
 		$('#task_chooser').val(taskIndex);
 		$('#task_chooser').change(onTaskChanged);
@@ -154,10 +124,6 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 });
 
-/**
- * Generate HTML for the task selector for the extension pop-up.
- * @returns {String}
- */
 function getTaskSelector() {
 	var html = '<select id="task_chooser">';	
 	for (var i=0; i<g_studentInfo.lesson.tasks.length; i++) {
@@ -167,10 +133,6 @@ function getTaskSelector() {
 	return html;
 }
 
-/**
- * Callback function called when the selection in the drop-down menu in the   
- * extension pop-up changes.
- */
 function onTaskChanged() {
 	// SP server not notified about task change so SP UI and 
 	// extension can work on different tasks if they choose
@@ -179,18 +141,10 @@ function onTaskChanged() {
 	chrome.extension.sendRequest({'type':'task', 'task':getSelectedTaskIndex()});
 }
 
-/**
- * Get the index of the selected item in the task drop-down menu. 
- * @returns
- */
 function getSelectedTaskIndex() {
 	return $('#task_chooser').prop('selectedIndex');
 }
 
-/**
- * Generate HTML for the page rating UI for the extension pop-up. 
- * @returns {String}
- */
 function getRatingSelector() {
 	var html = '<input type="radio" id="helpful" name="rating" value="1"> Helpful</input> ';
 	html += '<input type="radio" id="unhelpful" name="rating" value="0"> Unhelpful</input>';
@@ -355,84 +309,6 @@ function getHistoryHtml() {
 	return html;
 }
 
-function getQueryHistoryHtml() {
-	var html = '';
-
-	alert(g_studentInfo.tasks[0]);
-	
-//	var history = g_studentInfo.tasks[0];
-//	
-//	if (history.length==0) {
-//		html = '(none)';
-//	}
-//	
-//	//g_students[student_nickname].tasks[task_idx].searches.push({"query":query, "links_followed":[]});
-//
-//	//for (var i=0; i<history.length; i++) {
-//	for (var i=history.length-1; i>=0; i--) {
-//		var taskItem = history[i];
-//                var taskType = taskItem.activity_type;
-//                if (taskType=='link_rating') {
-//                        if (taskItem.is_helpful) taskType='link_helpful';
-//                        else taskType='link_unhelpful';
-//                }
-//
-//		var timestamp = getFormattedTimestamp(getLocalTime(new Date(taskItem.timestamp)));
-//                var type = '';
-//                var details = '';
-//                if (taskType=='search') {
-//                        type = 'Query';
-//			var searchType = getGoogleSearchType(taskItem.link);
-//			if (searchType != 'normal') {
-//				type += '<br/><span class="note">('+searchType+')</span>';
-//			}
-//                        details = taskItem.search;
-//               	        if (taskItem.link) details = '<a href="'+taskItem.link+'" target="_blank">'+taskItem.search+'</a>';
-//                }
-//                else if (taskType=='link') {
-//                        type = "Visited Link";
-//			if (taskItem.search == EMPTY_SEARCH) {
-//				type += '<br/><span class="note">(direct)</span>';
-//			}
-//			details = '';
-//			if (taskItem.link_title!=taskItem.link) {
-//                        	details = taskItem.link_title+'<br/>';
-//			}
-//               	        details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
-//                }
-//                else if (taskType=='link_helpful') {
-//		    // page title not stored in rating action
-//                    type = "Rated Helpful";
-//                    details = '';
-//		    if (taskItem.link_title!=null && taskItem.link_title!=taskItem.link) {
-//                       	details = taskItem.link_title+'<br/>';
-//		    }
-//                    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
-//                }
-//                else if (taskType=='link_unhelpful') {
-//		    // page title not stored in rating action
-//                    type = "Rated Unhelpful";
-//                    details = '';
-//		    if (taskItem.link_title!=null && taskItem.link_title!=taskItem.link) {
-//                       	details = taskItem.link_title+'<br/>';
-//		    }
-//                    details += '<a href="'+taskItem.link+'" target="_blank">'+taskItem.link+'</a>';
-//                }
-//                else if (taskType=='answer') {
-//                    type = "Response";
-//                    details = taskItem.answer_text;
-//                    if (taskItem.answer_explanation) details += '<br/><em>'+taskItem.answer_explanation+'</em>';
-//                }
-//
-//		html += '<p class="historyitem">';
-//		html += '<span class="itemtype">'+type+'</span>';
-//		html += '<span class="itemdetail">'+details+'</span>';
-//		html += '<span class="itemtime">'+timestamp+'</span>';
-//		html += '</p>';
-//        }
-//	return html;
-}
-
 function getGoogleSearchType(url) {
 	var type = 'normal';
 	if (url) {
@@ -495,4 +371,3 @@ function getFormattedTimestamp(ts) {
     var time = hours + ':' + mins;
     return date + '&nbsp;' + time;
 }
-
