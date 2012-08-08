@@ -15,6 +15,45 @@ function hideGoogleBar() {
 	googleBar.style.visibility = 'hidden';
 }
 
+function onResponseChanged() {
+	//alert("onResponseChanged");
+	
+	var response = $('#searchPartyTopFrame').contents().find('#response').val();
+	if (response != '') {
+		var explanation = $('#searchPartyTopFrame').contents().find('#explanation').val();
+		//chrome.extension.sendRequest({'type':'response', 'response':response, 'explanation':explanation});
+		
+		// Open port to send message (background.js receives and handles this message)
+		var port = chrome.extension.connect({ name: "spTopUi" });
+		port.postMessage({
+			type: 'request',
+			request: { 'type':'response', 'response': response, 'explanation': explanation }
+		});
+		
+		//alert("Sent response");
+	}
+	else {
+		onUnsavedResponse();
+	}
+}
+function onUnsavedResponse() {
+	var msg = 'Unsaved changes';
+	var response = $('#response').val();
+	if (response=='') msg += ' - response must not be empty';
+	$('#response_saved').html(msg);
+}
+
+function onRatingChanged() {
+	var rating = $('input:radio[name=rating]:checked').val();
+	//chrome.extension.sendRequest({'type':'rating', 'rating':rating});
+	// Open port to send message (background.js receives and handles this message)
+	var port = chrome.extension.connect({ name: "spTopUi" });
+	port.postMessage({
+		type: 'request',
+		request: { 'type': 'rating', 'rating': rating }
+	});
+}
+
 function createSearchPartyInterface() {
 	
 	// Height of embedded top UI, or width in your case
@@ -71,8 +110,8 @@ function createSearchPartyInterface() {
 			height: ' + height + '; \
 			width: 100%; \
 			z-index: 2147483647; \
-			background-color: #eeeeee; \
-			border-bottom: 1px solid #DEDEDE; \
+			background-color: #E5E5E5; \
+			border-bottom: 1px solid #222222; \
 			font-family: arial,sans-serif; \
 			font-size: 13px; \
 		} \
@@ -97,6 +136,13 @@ function createSearchPartyInterface() {
 		<input type="radio" id="unhelpful" name="rating" value="0"> Unhelpful</input> \
 		</div> \
 		</div>';
+
+	// Set up UI event listeners
+	$('#searchPartyTopFrame').contents().find('#submit_response').click(function() { 
+		onResponseChanged();
+	});
+	
+	$('#searchPartyTopFrame').contents().find('input[name=rating]').change(onRatingChanged);
 }
 
 function hideSearchPartyTopUi() {
@@ -157,9 +203,19 @@ function showSearchPartyTopUi() {
 	g_top_ui_visible = true;
 }
 
+
+
 createSearchPartyInterface();
 //hideSearchPartyTopUi();
 //showSearchPartyTopUi();
+
+//clouds
+//var DEFAULT_CLOUD_SHOW_OPTION = 'link_helpful';
+//var g_cloudShowOption = DEFAULT_CLOUD_SHOW_OPTION;
+//var g_actionColors = { search:'#888888', link:'#454C45', link_helpful:'#739c95', link_unhelpful:'#5C091F', answer:'blue' };
+//
+//var itemList = [ 'hey', 'hello', 'what', 'why' ];
+//drawQueryCloud(itemList);
 
 /**
  * "onConnect event is fired when a connection is made from an extension process or content script"
@@ -198,3 +254,147 @@ chrome.extension.onConnect.addListener(function(port) {
 
 	});
 });
+
+
+
+
+
+
+//=================================================================================
+//Word Clouds
+//=================================================================================
+
+//function drawHistoryCloud(itemList, option) {		
+//	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
+//	var options = [];
+//	options.push(getCloudOption('Helpful', 'link_helpful', 'drawHistoryCloud'));
+//	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawHistoryCloud'));
+//	options.push(getCloudOption('Unrated', 'link', 'drawHistoryCloud'));
+//	var showOptions = { label:'Queries: ', options:options };
+//	
+//	drawCloud("tag_cloud", itemList, function(i, item) {
+//		var link = item.query;
+//		var url = '#';
+//		var weight = g_cloudShowOption == 'link_helpful' ? item.ratings.helpful : (g_cloudShowOption == 'link_unhelpful' ? item.ratings.unhelpful : item.count-item.ratings.helpful-item.ratings.unhelpful);
+//		return {link:link, url:url, weight:weight};
+//	}, { show:showOptions, color:{start:g_actionColors[g_cloudShowOption], end:g_actionColors[g_cloudShowOption]}, className:'noLink' });
+//}
+//
+//function drawQueryCloud(itemList, option) {		
+//	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
+//	var options = [];
+//	options.push(getCloudOption('Helpful', 'link_helpful', 'drawQueryCloud'));
+//	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawQueryCloud'));
+//	options.push(getCloudOption('Unrated', 'link', 'drawQueryCloud'));
+//	var showOptions = { label:'Show: ', options:options };
+//	
+//	drawCloud("tag_cloud", itemList, function(i, item) {
+//		var link = item.query;
+//		var url = "javascript:openAccordion("+i+");";
+//		var weight = g_cloudShowOption == 'link_helpful' ? item.ratings.helpful : (g_cloudShowOption == 'link_unhelpful' ? item.ratings.unhelpful : item.count-item.ratings.helpful-item.ratings.unhelpful);
+//		return {link:link, url:url, weight:weight};
+//	}, { show:showOptions, color:{start:g_actionColors[g_cloudShowOption], end:g_actionColors[g_cloudShowOption]} });
+//}
+//
+//function drawWordCloud(itemList, option) {	
+//	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
+//	var options = [];
+//	options.push(getCloudOption('Helpful', 'link_helpful', 'drawWordCloud'));
+//	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawWordCloud'));
+//	options.push(getCloudOption('Unrated', 'link', 'drawWordCloud'));
+//	var showOptions = { label:'Show: ', options:options };
+//
+//	drawCloud("tag_cloud", itemList, function(i, item) {
+//		var link = item.wordsStr;
+//		var url = "javascript:openAccordion("+i+");";
+//		var weight = g_cloudShowOption == 'link_helpful' ? item.ratings.helpful : (g_cloudShowOption == 'link_unhelpful' ? item.ratings.unhelpful : item.count-item.ratings.helpful-item.ratings.unhelpful);
+//		return {link:link, url:url, weight:weight};
+//	}, { show:showOptions, color:{start:g_actionColors[g_cloudShowOption], end:g_actionColors[g_cloudShowOption]} });
+//}
+//
+//function drawLinkCloud(itemList, option) {
+//	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
+//	var options = [];
+//	options.push(getCloudOption('Helpful', 'link_helpful', 'drawLinkCloud'));
+//	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawLinkCloud'));
+//	options.push(getCloudOption('Unrated', 'link', 'drawLinkCloud'));
+//	var showOptions = { label:'Show: ', options:options };
+//
+//	drawCloud("tag_cloud", itemList, function(i, item) {
+//		var link = item.title;
+//		var url = "javascript:openAccordion("+i+");";
+//		var weight = g_cloudShowOption == 'link_helpful' ? item.ratings.helpful : (g_cloudShowOption == 'link_unhelpful' ? item.ratings.unhelpful : item.count-item.ratings.helpful-item.ratings.unhelpful);
+//		return {link:link, url:url, weight:weight};
+//	}, { show:showOptions, color:{start:g_actionColors[g_cloudShowOption], end:g_actionColors[g_cloudShowOption]} });
+//}
+//
+//function drawAnswerCloud(itemList) {	
+//	drawCloud("tag_cloud", itemList, function(i, item) {
+//		var link = item.answerText;
+//		var url = "javascript:openAccordion("+i+");";
+//		var weight = item.count;
+//		return {link:link, url:url, weight:weight};
+//	});
+//}
+//
+//function drawCloud(divName, itemList, getCloudDataFunc, options) {
+//	var cloudHtml = '';
+//	var maxWeight = 1;
+//	$.each(itemList.items, function(i, item) {
+//		var data = getCloudDataFunc(i, item);
+//		if (data.weight>0) {
+//			var link = data.link.length<=MAX_TAG_LENGTH ? data.link : data.link.substring(0,MAX_TAG_LENGTH)+"&hellip;";
+//			link = link.replace("<", "&lt;").replace(">", "&gt;");
+//			cloudHtml += '<a'+((options!=undefined && options.className!=undefined)?' class="'+options.className+'"':'')+' href="'+data.url+'" rel="'+data.weight+'" title="'+data.link+'">'+link+'</a>\n';
+//			if (data.weight>maxWeight) maxWeight = data.weight;
+//		}
+//	});
+//	if (cloudHtml == '') {
+//		cloudHtml = '<span class="small">(none)</span>';
+//	}
+//	
+//	// if items, show cloud options + html
+//	if (itemList.items.length>0) {
+//		var html = '';
+//		if (options!=undefined && options.show!=undefined && options.show.options.length>0) {
+//			html += '<div class="cloud_options display_options">'+options.show.label+options.show.options.join(' ')+'</div>';
+//		}
+//		html += '<div class="cloud"><p>'+cloudHtml+'</p></div>';
+//		
+//		var minFont = 10;
+//		var maxFont = 26;
+//		if (maxWeight<=2) {
+//			maxFont = 16;
+//		}
+//		
+//		var startColor = options!=undefined && options.color!=undefined && options.color.start!=undefined ? options.color.start : g_actionColors['link'];
+//		var endColor = options!=undefined && options.color!=undefined && options.color.end!=undefined ? options.color.end : g_actionColors['link'];
+//		
+//		$("#"+divName).html(html);
+//		$("#"+divName+" a").tagcloud({
+//			size: {
+//				start: minFont,
+//				end: maxFont,
+//				unit: 'pt'
+//			},
+//			color: {
+//				start: startColor,
+//				end: endColor
+//			}
+//		});
+//	}
+//}
+//
+//function getCloudOption(label, value, funcName, className) {
+//	var isSelected = value==g_cloudShowOption;
+//	if (isSelected) {
+//		return '<strong>'+label+'</strong>';
+//	}
+//	else {
+//		return '<a href="#" onclick="'+funcName+'(g_itemList,\''+value+'\'); return false;">'+label+'</a>';
+//	}
+//}
+//
+//function openAccordion(index) {
+//	$('#task_activity').accordion({active:index});
+//}
