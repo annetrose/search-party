@@ -1,0 +1,3192 @@
+{
+  "Mike": {
+    "logged_in": true,
+    "task_idx": 0,
+    "task_history": [
+      [
+        {
+          "activity_type": "search",
+          "search": "birdofprey",
+          "link": "https: //www.google.com/search?hl=en&site=&source=hp&q=bird+of+prey&oq=bird+of+prey&gs_l=hp.3..5j0l9.58067.59330.0.59487.12.12.0.0.0.0.156.1219.6j6.12.0...0.0...1c.5OOFirfb8kA",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201217: 33: 17",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "answer",
+          "search": null,
+          "link": null,
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": "rapere",
+          "answer_explanation": "",
+          "timestamp": "August08, 201217: 33: 51",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "search",
+          "search": "contentscriptdocumentready",
+          "link": "https: //www.google.com/search?q=content+script+document+ready&sugexp=chrome, mod=11&sourceid=chrome&ie=UTF-8",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201217: 37: 34",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "answer",
+          "search": null,
+          "link": null,
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": "rapere",
+          "answer_explanation": "",
+          "timestamp": "August08, 201217: 48: 31",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "answer",
+          "search": null,
+          "link": null,
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": "rapere",
+          "answer_explanation": "notetest",
+          "timestamp": "August08, 201217: 58: 17",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //c/",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201218: 16: 21",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "search",
+          "search": "define: duo",
+          "link": "https: //www.google.com/search?q=define%3A+duo&sugexp=chrome, mod=11&sourceid=chrome&ie=UTF-8",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201218: 56: 00",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "search",
+          "search": "umdalerts",
+          "link": "https: //www.google.com/search?q=umd+alerts&aq=f&sugexp=chrome, mod=11&sourceid=chrome&ie=UTF-8",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201219: 02: 14",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "umdalerts",
+          "link": "https: //alert.umd.edu/index.php?CCheck=1",
+          "link_title": "UMDAlerts",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201219: 02: 19",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/?ui=2&view=btop&ver=d2splbkr2oxk#lhs@google.com",
+          "link_title": "Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201221: 26: 49",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "answer",
+          "search": null,
+          "link": null,
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": "rapere",
+          "answer_explanation": "notetest",
+          "timestamp": "August08, 201222: 27: 45",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "answer",
+          "search": null,
+          "link": null,
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": "rapere",
+          "answer_explanation": "notetest",
+          "timestamp": "August09, 201200: 20: 49",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=new",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 44: 17",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d70780cfd48",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 44: 35",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d738ff3b43f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 44: 48",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d771b713a21",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 45: 01",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d79c6af4947",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 45: 13",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d7aab7a229f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 45: 16",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d7d76688b1b",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 45: 28",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8138b546a4",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 45: 43",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8237594c5f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 45: 47",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d833a1bf259",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 45: 51",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8561d0ac60",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 46: 00",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8797248112",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 46: 09",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8c57bba208",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 46: 29",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "search",
+          "search": "define: undue",
+          "link": "https: //www.google.com/search?q=define%3A+undue&sugexp=chrome, mod=11&sourceid=chrome&ie=UTF-8",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 46: 34",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "define: undue",
+          "link": "https: //www.google.com/search?q=define%3A+undue&sugexp=chrome, mod=11&sourceid=chrome&ie=UTF-8",
+          "link_title": "define: undue-GoogleSearch",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 46: 36",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d921d46a167",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 46: 51",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d94e68c324e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 47: 04",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d96892bebd7",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 47: 10",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d9b03a196fa",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 47: 29",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d9f0a83b352",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 47: 46",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908da317bdf553",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 48: 02",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908da47dfc64c5",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 48: 07",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908da613baff5b",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 48: 14",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908da83dd36d91",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 48: 23",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dab8f98a44a",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 48: 37",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908daf02305a71",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 48: 51",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908db0b3286fe5",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 48: 57",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908db17483869e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 49: 01",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908db764a229be",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 49: 25",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908db9b6581513",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 49: 35",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dc2f9574640",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 50: 12",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dc462b489da",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 50: 19",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dc71f78cc2d",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 50: 29",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dc99c03b344",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 50: 40",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dcbcd41e607",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 50: 49",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dcda3651e5c",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 50: 56",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dd06148d888",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 51: 08",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dd28be131a1",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 51: 16",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dd539ac47f0",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 51: 27",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dd7ef570cb6",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 51: 38",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dda9bf1deba",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 51: 49",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ddd4ea4dd02",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 52: 00",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908de02b3cd972",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 52: 12",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908de3deca1ae8",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 52: 27",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908de82a51ee8d",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 52: 45",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908de9cd505575",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 52: 51",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908deca9ab9a0e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 53: 03",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dedbf1114b9",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 53: 08",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908deff63488b9",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 53: 17",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908df8b73b23bf",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 53: 52",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dfcdef9328e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 54: 10",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dff1795145b",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 54: 19",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e01f51d33c0",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 54: 30",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e0478ee0e6f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 54: 40",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e08517768d8",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 54: 56",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e0b3563b597",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 55: 08",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e0e6fbefd29",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 55: 22",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e12a483d615",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 55: 39",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e158642a716",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 55: 51",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e17760c670f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 55: 58",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e1a9ad85e78",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 56: 11",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e1d66736746",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 56: 23",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e1f6863e8b0",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 56: 31",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e2223b037b4",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 56: 44",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e27a7cda699",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 57: 04",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e2abc0303a4",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 57: 17",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e2d32a972a7",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 57: 27",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e2fbae9cc4e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 57: 38",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e32856b4dc7",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 57: 49",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e350cebd1d7",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 58: 00",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e388f03daa9",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 58: 14",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e3b75ca45af",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 58: 26",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e3d8e2ad243",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 58: 35",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e40ac27355a",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 58: 48",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e428b70a10e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 58: 56",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e448c62b361",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 59: 04",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e464f38211f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 59: 11",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e47c8fb87cf",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 59: 16",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e4af4872054",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 59: 30",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e4d563e5e48",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201200: 59: 40",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e537b9be9c4",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 00: 05",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e548b158e92",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 00: 09",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e58062bc508",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 00: 23",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e5b66d0b4e8",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 00: 37",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e5f87c7c631",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 00: 54",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "define: undue",
+          "link": "chrome: //newtab/",
+          "link_title": "NewTab",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 01: 06",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "search",
+          "search": "define: contension",
+          "link": "https: //www.google.com/search?q=define%3A+contension&sugexp=chrome, mod=11&sourceid=chrome&ie=UTF-8",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 01: 08",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e6a438fc4f4",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 01: 37",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e6d2c2b41d1",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 01: 50",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e706f385c78",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 02: 03",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e786f495bfb",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 02: 35",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e7cde08a583",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 02: 54",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e7fdce57394",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 03: 06",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e81f7b0278e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 03: 15",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e8650816700",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 03: 32",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e8b0b287224",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 03: 52",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e8f495e0756",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 04: 10",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e9198845532",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 04: 19",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e94dceeecbb",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 04: 32",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e96bd5964be",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 04: 40",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e98ea7d690f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 04: 49",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e9c01eafe5a",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 05: 02",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e9ea7b6a752",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 05: 13",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ea1e4aaea46",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 05: 26",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ea567db847f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 05: 40",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ea823827857",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 05: 51",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eab1f480325",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 06: 03",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eabea68c458",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 06: 07",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eafeb976cb9",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 06: 23",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eb2a0a8e092",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 06: 34",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eb614d75fbc",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 06: 48",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eb70a546a21",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 06: 52",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ebc75a793ae",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 07: 14",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ec08ce63d15",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 07: 31",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ec75085b511",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 07: 59",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ecc9341798a",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 08: 20",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ecf8da286ec",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 08: 33",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ed3365276e1",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 08: 47",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ed6aca53768",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 09: 02",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908edb44b944a8",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 09: 21",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ede4cf81d38",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 09: 33",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ee2ecb1f008",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 09: 52",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ee6ab2c3eb9",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 10: 07",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eeb7a750236",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 10: 27",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eef3a18317e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 10: 42",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ef1c1d5c693",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 10: 53",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ef42344fac8",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 11: 03",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ef63fa42c47",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 11: 11",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908efaadd90caa",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 11: 29",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908efcdd6c0f86",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 11: 38",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f0030f95e93",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 11: 52",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f032db2e603",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 12: 04",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f05a1aef914",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 12: 14",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f087e4be62e",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 12: 25",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f0f24cd77cb",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 12: 53",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f1507739315",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 13: 17",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f1bd182a040",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 13: 45",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f1dfc631049",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 13: 54",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f22729faf91",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 14: 12",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f25ff0dbc2f",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 14: 26",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f295438e9be",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 14: 40",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f2dba9e56e1",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 14: 58",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f30eabc823b",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 15: 11",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f35d1bed8e2",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 15: 31",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f3ba91ddf57",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 15: 55",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5",
+          "link_title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 15: 58",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(23)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 16: 08",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(22)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 16: 14",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //gmail.com/",
+          "link_title": "Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 16: 49",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(22)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 16: 52",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#sent",
+          "link_title": "SentMail-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 16: 54",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "search",
+          "search": "sidebysidediv",
+          "link": "https: //www.google.com/search?q=side+by+side+div&sugexp=chrome, mod=11&sourceid=chrome&ie=UTF-8",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 18: 27",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "sidebysidediv",
+          "link": "http: //welovecss.com/showthread.php?t=465",
+          "link_title": "Placing2DIVssidebyside..-WeLoveCSS",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 18: 35",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/138ed95ed6e87f79",
+          "link_title": "Inbox(22)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 24: 17",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(15)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 24: 29",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(14)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 24: 31",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(13)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 24: 35",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(12)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 24: 38",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/138fcebcee3a0996",
+          "link_title": "Inbox(12)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 26: 05",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(11)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 26: 06",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox/13907862e644cf17",
+          "link_title": "Inbox(12)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 38: 19",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //mail.google.com/mail/u/0/#inbox",
+          "link_title": "Inbox(11)-mrgubbels@google.com-Google.comMail",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 38: 21",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //localhost: 8080/",
+          "link_title": "SearchParty",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 38: 59",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //localhost: 8080/student_login",
+          "link_title": "SearchParty-StudentLogin",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 39: 03",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //localhost: 8080/",
+          "link_title": "SearchParty",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 39: 05",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //localhost: 8080/_ah/login?continue=http%3A//localhost%3A8080/teacher_login",
+          "link_title": "Login",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 39: 06",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //localhost: 8080/teacher_dashboard",
+          "link_title": "SearchParty-TeacherDashboard",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 39: 10",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //localhost: 8080/teacher/50518#students",
+          "link_title": "SearchParty-TeacherView",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 39: 21",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //localhost: 8080/teacher/50518#complete",
+          "link_title": "SearchParty-TeacherView",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 39: 24",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "search",
+          "search": "javascriptformatobjectasjson",
+          "link": null,
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 45: 22",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "javascriptformatobjectasjson",
+          "link": "http: //www.w3schools.com/json/default.asp",
+          "link_title": "JSONTutorial",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 45: 25",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "search",
+          "search": "serializejsononchromeconsole",
+          "link": null,
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 47: 49",
+          "student_nickname": "Mike"
+        },
+        {
+          "activity_type": "link",
+          "search": "serializejsononchromeconsole",
+          "link": "http: //blog.maxaller.name/2011/01/javascript-serialization/",
+          "link_title": "JavascriptSerialization«occasionallyuseful",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August09, 201201: 48: 15",
+          "student_nickname": "Mike"
+        }
+      ],
+      [
+        {
+          "activity_type": "answer",
+          "search": null,
+          "link": null,
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": "nope",
+          "answer_explanation": "",
+          "timestamp": "August09, 201200: 36: 21",
+          "student_nickname": "Mike"
+        }
+      ]
+    ],
+    "tasks": [
+      {
+        "searches": [
+          {
+            "query": "birdofprey",
+            "links_followed": [
+              
+            ]
+          },
+          {
+            "query": "contentscriptdocumentready",
+            "links_followed": [
+              
+            ]
+          },
+          {
+            "query": "<empty>",
+            "links_followed": [
+              {
+                "url": "http: //c/",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/?ui=2&view=btop&ver=d2splbkr2oxk#lhs@google.com",
+                "title": "Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=new",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d70780cfd48",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d738ff3b43f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d771b713a21",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d79c6af4947",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d7aab7a229f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d7d76688b1b",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8138b546a4",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8237594c5f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d833a1bf259",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8561d0ac60",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8797248112",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d8c57bba208",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d921d46a167",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d94e68c324e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d96892bebd7",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d9b03a196fa",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908d9f0a83b352",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908da317bdf553",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908da47dfc64c5",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908da613baff5b",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908da83dd36d91",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dab8f98a44a",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908daf02305a71",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908db0b3286fe5",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908db17483869e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908db764a229be",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908db9b6581513",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dc2f9574640",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dc462b489da",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dc71f78cc2d",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dc99c03b344",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dcbcd41e607",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dcda3651e5c",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dd06148d888",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dd28be131a1",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dd539ac47f0",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dd7ef570cb6",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dda9bf1deba",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ddd4ea4dd02",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908de02b3cd972",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908de3deca1ae8",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908de82a51ee8d",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908de9cd505575",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908deca9ab9a0e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dedbf1114b9",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908deff63488b9",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908df8b73b23bf",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dfcdef9328e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908dff1795145b",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e01f51d33c0",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e0478ee0e6f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e08517768d8",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e0b3563b597",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e0e6fbefd29",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e12a483d615",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e158642a716",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e17760c670f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e1a9ad85e78",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e1d66736746",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e1f6863e8b0",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e2223b037b4",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e27a7cda699",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e2abc0303a4",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e2d32a972a7",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e2fbae9cc4e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e32856b4dc7",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e350cebd1d7",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e388f03daa9",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e3b75ca45af",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e3d8e2ad243",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e40ac27355a",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e428b70a10e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e448c62b361",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e464f38211f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e47c8fb87cf",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e4af4872054",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e4d563e5e48",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e537b9be9c4",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e548b158e92",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e58062bc508",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e5b66d0b4e8",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e5f87c7c631",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e6a438fc4f4",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e6d2c2b41d1",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e706f385c78",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e786f495bfb",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e7cde08a583",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e7fdce57394",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e81f7b0278e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e8650816700",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e8b0b287224",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e8f495e0756",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e9198845532",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e94dceeecbb",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e96bd5964be",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e98ea7d690f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e9c01eafe5a",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908e9ea7b6a752",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ea1e4aaea46",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ea567db847f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ea823827857",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eab1f480325",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eabea68c458",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eafeb976cb9",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eb2a0a8e092",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eb614d75fbc",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eb70a546a21",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ebc75a793ae",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ec08ce63d15",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ec75085b511",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ecc9341798a",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ecf8da286ec",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ed3365276e1",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ed6aca53768",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908edb44b944a8",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ede4cf81d38",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ee2ecb1f008",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ee6ab2c3eb9",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eeb7a750236",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908eef3a18317e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ef1c1d5c693",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ef42344fac8",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908ef63fa42c47",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908efaadd90caa",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908efcdd6c0f86",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f0030f95e93",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f032db2e603",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f05a1aef914",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f087e4be62e",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f0f24cd77cb",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f1507739315",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f1bd182a040",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f1dfc631049",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f22729faf91",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f25ff0dbc2f",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f295438e9be",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f2dba9e56e1",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f30eabc823b",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f35d1bed8e2",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5?compose=13908f3ba91ddf57",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/139071a5b57011a5",
+                "title": "WeekendTripIdeas-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(23)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(22)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "http: //gmail.com/",
+                "title": "Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(22)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#sent",
+                "title": "SentMail-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/138ed95ed6e87f79",
+                "title": "Inbox(22)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(15)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(14)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(13)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(12)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/138fcebcee3a0996",
+                "title": "Inbox(12)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(11)-mrgubbels@google.com-Google.comMail",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox/13907862e644cf17",
+                "title": "Inbox(12)-mrgubbels@google.com-Google.comMail"
+              },
+              {
+                "url": "https: //mail.google.com/mail/u/0/#inbox",
+                "title": "Inbox(11)-mrgubbels@google.com-Google.comMail"
+              },
+              {
+                "url": "http: //localhost: 8080/",
+                "title": "SearchParty"
+              },
+              {
+                "url": "http: //localhost: 8080/student_login",
+                "title": "SearchParty-StudentLogin"
+              },
+              {
+                "url": "http: //localhost: 8080/",
+                "title": "SearchParty"
+              },
+              {
+                "url": "http: //localhost: 8080/_ah/login?continue=http%3A//localhost%3A8080/teacher_login",
+                "title": "Login"
+              },
+              {
+                "url": "http: //localhost: 8080/teacher_dashboard",
+                "title": "SearchParty-TeacherDashboard"
+              },
+              {
+                "url": "http: //localhost: 8080/teacher/50518#students",
+                "title": "SearchParty-TeacherView"
+              },
+              {
+                "url": "http: //localhost: 8080/teacher/50518#complete",
+                "title": "SearchParty-TeacherView"
+              }
+            ]
+          },
+          {
+            "query": "define: duo",
+            "links_followed": [
+              
+            ]
+          },
+          {
+            "query": "umdalerts",
+            "links_followed": [
+              {
+                "url": "https: //alert.umd.edu/index.php?CCheck=1",
+                "title": "UMDAlerts",
+                "is_helpful": null
+              }
+            ]
+          },
+          {
+            "query": "define: undue",
+            "links_followed": [
+              {
+                "url": "https: //www.google.com/search?q=define%3A+undue&sugexp=chrome, mod=11&sourceid=chrome&ie=UTF-8",
+                "title": "define: undue-GoogleSearch",
+                "is_helpful": null
+              },
+              {
+                "url": "chrome: //newtab/",
+                "title": "NewTab",
+                "is_helpful": null
+              }
+            ]
+          },
+          {
+            "query": "define: contension",
+            "links_followed": [
+              
+            ]
+          },
+          {
+            "query": "sidebysidediv",
+            "links_followed": [
+              {
+                "url": "http: //welovecss.com/showthread.php?t=465",
+                "title": "Placing2DIVssidebyside..-WeLoveCSS",
+                "is_helpful": null
+              }
+            ]
+          },
+          {
+            "query": "javascriptformatobjectasjson",
+            "links_followed": [
+              {
+                "url": "http: //www.w3schools.com/json/default.asp",
+                "title": "JSONTutorial"
+              }
+            ]
+          },
+          {
+            "query": "serializejsononchromeconsole",
+            "links_followed": [
+              {
+                "url": "http: //blog.maxaller.name/2011/01/javascript-serialization/",
+                "title": "JavascriptSerialization«occasionallyuseful"
+              }
+            ]
+          }
+        ],
+        "answer": {
+          "text": "rapere",
+          "explanation": "notetest"
+        }
+      },
+      {
+        "searches": [
+          
+        ],
+        "answer": {
+          "text": "nope",
+          "explanation": ""
+        }
+      }
+    ]
+  },
+  "Mike-2": {
+    "logged_in": false,
+    "task_idx": 0,
+    "task_history": [
+      [
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //www.coursera.org/",
+          "link_title": "Coursera",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 24: 08",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //google.com/",
+          "link_title": "NewTab",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 37: 17",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "search",
+          "search": "birdofprey",
+          "link": "https: //www.google.com/#hl=en&gs_nf=1&tok=m9rn4160v6mCJXJZzZIf7w&cp=10&gs_id=11&xhr=t&q=bird+of+prey&pf=p&safe=active&output=search&sclient=psy-ab&oq=bird+of+pr&gs_l=&pbx=1&bav=on.2, or.r_gc.r_pw.r_cp.r_qf.&fp=46e1661602240d8a&biw=1680&bih=952",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 37: 36",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "search",
+          "search": "birdofprey",
+          "link": "https: //www.google.com/#hl=en&gs_nf=1&tok=m9rn4160v6mCJXJZzZIf7w&cp=10&gs_id=11&xhr=t&q=bird+of+prey&pf=p&safe=active&output=search&sclient=psy-ab&oq=bird+of+pr&gs_l=&pbx=1&bav=on.2, or.r_gc.r_pw.r_cp.r_qf.&fp=46e1661602240d8a&biw=1680&bih=952",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 37: 42",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "link",
+          "search": "birdofprey",
+          "link": "http: //en.wikipedia.org/wiki/Bird_of_prey",
+          "link_title": "Birdofprey-Wikipedia, thefreeencyclopedia",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 39: 06",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "search",
+          "search": "birdofprey",
+          "link": "https: //www.google.com/#hl=en&gs_nf=1&tok=m9rn4160v6mCJXJZzZIf7w&cp=10&gs_id=11&xhr=t&q=bird+of+prey&pf=p&safe=active&output=search&sclient=psy-ab&oq=bird+of+pr&gs_l=&pbx=1&bav=on.2, or.r_gc.r_pw.r_cp.r_qf.&fp=46e1661602240d8a&biw=1680&bih=952",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 39: 23",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "search",
+          "search": "fakehackersite",
+          "link": "https: //www.google.com/search?sugexp=chrome, mod=19&sourceid=chrome&ie=UTF-8&q=fake+hacker+site",
+          "link_title": null,
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 42: 13",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "link",
+          "search": "fakehackersite",
+          "link": "http: //hackertyper.net/",
+          "link_title": "HackerTyper",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 42: 17",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "link",
+          "search": "fakehackersite",
+          "link": "http: //hackertyper.net/134446936276",
+          "link_title": "HackerTyper",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 42: 21",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //www.blackle.com/",
+          "link_title": "Blackle-EnergySavingSearch",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 42: 56",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "http: //google.com/+",
+          "link_title": "NewTab",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 46: 59",
+          "student_nickname": "Mike-2"
+        },
+        {
+          "activity_type": "link",
+          "search": "<empty>",
+          "link": "https: //plus.google.com/",
+          "link_title": "Google+",
+          "is_helpful": null,
+          "answer_text": null,
+          "answer_explanation": null,
+          "timestamp": "August08, 201223: 47: 13",
+          "student_nickname": "Mike-2"
+        }
+      ],
+      [
+        
+      ]
+    ],
+    "tasks": [
+      {
+        "searches": [
+          {
+            "query": "<empty>",
+            "links_followed": [
+              {
+                "url": "https: //www.coursera.org/",
+                "title": "Coursera",
+                "is_helpful": null
+              },
+              {
+                "url": "http: //google.com/",
+                "title": "NewTab",
+                "is_helpful": null
+              },
+              {
+                "url": "http: //www.blackle.com/",
+                "title": "Blackle-EnergySavingSearch",
+                "is_helpful": null
+              },
+              {
+                "url": "http: //google.com/+",
+                "title": "NewTab",
+                "is_helpful": null
+              },
+              {
+                "url": "https: //plus.google.com/",
+                "title": "Google+",
+                "is_helpful": null
+              }
+            ]
+          },
+          {
+            "query": "birdofprey",
+            "links_followed": [
+              {
+                "url": "http: //en.wikipedia.org/wiki/Bird_of_prey",
+                "title": "Birdofprey-Wikipedia, thefreeencyclopedia",
+                "is_helpful": null
+              }
+            ]
+          },
+          {
+            "query": "fakehackersite",
+            "links_followed": [
+              {
+                "url": "http: //hackertyper.net/",
+                "title": "HackerTyper",
+                "is_helpful": null
+              },
+              {
+                "url": "http: //hackertyper.net/134446936276",
+                "title": "HackerTyper",
+                "is_helpful": null
+              }
+            ]
+          }
+        ],
+        "answer": {
+          "text": "",
+          "explanation": ""
+        }
+      },
+      {
+        "searches": [
+          
+        ],
+        "answer": {
+          "text": "",
+          "explanation": ""
+        }
+      }
+    ]
+  }
+}
