@@ -129,23 +129,24 @@ function createSearchPartyInterface() {
 		<div id="sptask" style="font-weight: normal; padding-bottom: 15px; font-size: 20px; width: 600px; color: #DD4B39;"></div> \
 		\
 		<div> \
-		<div style="width: 300px; border: 1px solid red; float: left;"> \
-		Response<br /> \
-		<input type="text" id="response" name="response" value="" style="float:left; width:300px; height:27px; line-height:27px; text-indent:10px; font-family:arial, sans-serif; font-size:16px; color:#333; background: #fff; border:solid 1px #d9d9d9; border-top:solid 1px #c0c0c0; border-right:none;"> \
-		<br/><br /> \
 		\
-		Note<br/> \
-		<textarea rows="2" name="explanation" id="explanation" style="width:300px"></textarea><br/> \
-		<button id="submit_response" name="submit_response" style="cursor:pointer; width:70px; height: 31px; font-size:13px; color: #ffffff; background: #4d90fe center; border: 1px solid #3079ED; -moz-border-radius: 2px; -webkit-border-radius: 2px;">Save</button> \
-		<span id="response_saved" class="note"></span> \
-		</div> \
-		\
-		<div style="width: 600px; border: 1px solid red; float: left;"> \
-		<div id="complete_history" class="complete_history"></div> \
-		<div id="tag_cloud" class="tag_cloud"></div> \
-		</div> \
-		\
-		<div style="clear: both;"></div> \
+			<div style="width: 300px; border: 1px solid red; float: left;"> \
+			Response<br /> \
+			<input type="text" id="response" name="response" value="" style="float:left; width:300px; height:27px; line-height:27px; text-indent:10px; font-family:arial, sans-serif; font-size:16px; color:#333; background: #fff; border:solid 1px #d9d9d9; border-top:solid 1px #c0c0c0; border-right:none;"> \
+			<br/><br /> \
+			\
+			Note<br/> \
+			<textarea rows="2" name="explanation" id="explanation" style="width:300px"></textarea><br/> \
+			<button id="submit_response" name="submit_response" style="cursor:pointer; width:70px; height: 31px; font-size:13px; color: #ffffff; background: #4d90fe center; border: 1px solid #3079ED; -moz-border-radius: 2px; -webkit-border-radius: 2px;">Save</button> \
+			<span id="response_saved" class="note"></span> \
+			</div> \
+			\
+			<div style="width: 600px; border: 1px solid red; float: left;"> \
+				<div id="complete_history" class="complete_history"></div> \
+				<div id="tag_cloud" class="tag_cloud"></div> \
+			</div> \
+			\
+			<div style="clear: both;"></div> \
 		\
 		</div> \
 		</div>';

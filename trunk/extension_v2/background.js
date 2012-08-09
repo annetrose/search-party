@@ -37,8 +37,6 @@ var g_studentInfo = null;
 $(document).ready(function() {
 	initLocalStorage();
 	
-	console.log('isStudentLoggedIn() = ' + isStudentLoggedIn());
-	
 	// Get student info
 	$.ajax({
 		type : 'POST',
@@ -56,104 +54,9 @@ $(document).ready(function() {
 		}
 	});
 	
-//	loadStudentData();
-	
 	// Initialize SP UI
 	updateTopUi(true);
 });
-
-function loadStudentData() {
-	$.ajax({
-		type : 'POST',
-		url : SEARCH_PARTY_URL + "/student_info",
-		dataType : "json",
-		data : {
-			task_idx : getStoredTask()
-		},
-		cache : false,
-		success : function(data) {
-			alert("loadStudentData A");
-			g_studentInfo = data;
-//			updateBadge(data.status);
-			
-//			if (init) {
-//				initUI(data);
-//			}
-			
-			if (data.status == STUDENT_LOGGED_IN) { // Check if student is logged in
-				alert("loadStudentData B");
-				var taskIndex = getSelectedTaskIndex();
-				var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1];
-//				$('#task_desc').html(taskDesc);
-//				$('#task_history').html(getHistoryHtml());
-
-				if (getStoredLink() != '') {
-//					var ratingHtml = '<h2>Link Rating</h2>';
-//					if (getStoredLinkTitle() != '')
-//						ratingHtml += getStoredLinkTitle() + '<br/>';
-//					ratingHtml += getStoredLink() + '<br/>';
-//					ratingHtml += getRatingSelector() + '<br/>';
-//					ratingHtml += '<hr style="color:grey"/>';
-//					$('#rating_area').html(ratingHtml);
-					updateLinkRating(getStoredLink());
-//					$('input[name=rating]').change(onRatingChanged);
-				} else {
-//					$('#rating_area').html('');
-				}
-				alert("loadStudentData C");
-
-				// var responseStudentJSON = JSON.stringify(g_studentInfo, null, 2);
-//				var responseHtml = '<h2>Response</h2>';
-//				// responseHtml += json_text + '<br /><br />';
-//				responseHtml += getResponseControls() + '<br/>';
-//				responseHtml += '<hr style="color:grey"/>';
-//				$('#response_area').html(responseHtml);
-				updateResponse();
-//				$('#response').change(function() {
-//					onUnsavedResponse();
-//				});
-//				$('#explanation').change(function() {
-//					onUnsavedResponse();
-//				});
-//				$('#submit_response').click(function() {
-//					onResponseChanged();
-//				});
-				alert("loadStudentData D");
-
-				// Send message to content script requesting an update to the
-				// in-browser SearchParty UI
-				chrome.tabs.getSelected(null, function(tab) {
-
-					// Create message on port
-					var port = chrome.tabs.connect(tab.id, {
-						name : "spTopUi"
-					});
-					port.postMessage({
-						type: 'show_top_ui',
-						task_index : taskIndex,
-						task_description : taskDesc
-					});
-					port.postMessage({
-						type: 'request',
-						request: { 'type': 'sync' }
-					});
-
-				});
-				
-				alert("loadStudentData E");
-
-			}
-//			$('#loading').hide();
-//			$('#content').show();
-		},
-		error : function() {
-			g_studentInfo = null;
-			$('#content').html('Error connecting to ' + SEARCH_PARTY_URL);
-			$('#loading').hide();
-			$('#content').show();
-		}
-	});
-}
 
 function updateLinkRating(url) {
 	var history = g_studentInfo.history;
@@ -216,7 +119,7 @@ function updateTopUi(init) {
 			// TODO: If last update is over some specified threshold, then request an update to the stored student data and refresh UIs with that up-to-date data.
 			
 		} else {
-//		if (true) {
+
 			$.ajax({
 				type: 'POST',
 				url: SEARCH_PARTY_URL + "/student_info",
@@ -319,10 +222,13 @@ function initTabs() {
 chrome.extension.onConnect.addListener(function(port) {
 	//console.assert(port.name == "spTopUi");
 	//alert(port.name);
+	
+	console.log("message " + message.type + " received by background.js");
 
 	port.onMessage.addListener(function(message) {
 
 		if (message.type == 'request') {
+			// TODO: Update 'request' to 'dataRequest' or 'stateSyncRequest'
 			
 			if (message.request.type == 'rating') {
 				handleRatingPlus(message.request.rating);
@@ -354,6 +260,35 @@ chrome.extension.onConnect.addListener(function(port) {
 //				};
 			}
 			
+		} else if (message.type == 'functionRequest') {
+			
+			console.log("message " + message.type + " received by background.js");
+			
+			if (message.functionSignature = 'getStoredLink') {
+				var result = getStoredLink();
+				
+				// Send message to content script to update timestamp of last save
+				chrome.tabs.getSelected(null, function(tab) {
+
+					// Create message on port
+					var responsePort = chrome.tabs.connect(tab.id, {
+						name: "spTopUi"
+					});
+					responsePort.postMessage({
+						type: 'functionResponse',
+						functionSignature: 'getStoredLink',
+						functionArguments: {},
+						result: result,
+						stateData: {
+							g_studentInfo: g_studentInfo
+						}
+					});
+				});
+			}
+			
+		} else {
+			// Send a message of type error specifying that its cause was that the received message type was undefined.
+			return { type: 'error', cause: 'undefined' };
 		}
 	});
 });
@@ -807,7 +742,7 @@ function handleRatingPlus(isHelpful) {
 }
 
 function handleRating(isHelpful) {
-	alert("handleRating()");
+	console.log("handleRating() called");
 	var data = {
 		task_idx: getStoredTask(),
 		url : getStoredLink(),
@@ -820,11 +755,6 @@ function handleRating(isHelpful) {
 	if (isHelpful != '') {
 		data.is_helpful = isHelpful;
 	}
-	
-	alert(data.task_idx);
-	alert(data.url);
-	alert(data.title);
-	alert(data.is_helpful);
 
 	$.ajax({
 		type : 'POST',
@@ -833,7 +763,7 @@ function handleRating(isHelpful) {
 		data : data,
 		cache : false,
 		success : function(data) {
-			alert("Success");
+			console.log("handleRating() HTTP response received");
 			updateBadge(data.status);
 			if (data.status == STUDENT_LOGGED_IN) {
 				data['type'] = 'rating';
