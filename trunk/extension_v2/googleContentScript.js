@@ -4727,8 +4727,11 @@ function getCloudOption(label, value, funcName, className) {
 		return '<strong>'+label+'</strong>';
 	}
 	else {
-		//var response = $('#searchPartyTopFrame').contents().find('#response').val();
-		return '<a href="javascript:$(searchPartyTopFrame' + funcName + '(g_itemList, \''+value+'\');">' + label + '</a>';
+		//$('#searchPartyTopFrame').contents().find('#response').val();
+		//var $f = $('#searchPartyTopFrame').contentWindow.;
+		//return '<a href="javascript:$(\'#searchPartyTopFrame\').contentWindow.' + funcName + '(g_itemList, \''+value+'\');">' + label + '</a>';
+		//return '<a href="javascript:parent.' + funcName + '(g_itemList, \''+value+'\');">' + label + '</a>';
+		return '<a href="javascript:alert(\'' + parent.location.href + '\');">' + label + '</a>';
 	}
 }
 
