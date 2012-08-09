@@ -197,8 +197,6 @@ function updateTopUi(init) {
 
 			// Send message to content script requesting an update to the in-browser SearchParty UI
 			chrome.tabs.getSelected(null, function(tab) {
-
-				alert("OYE 1");
 				
 				var mostRecentResponse = getMostRecentResponse();
 				//alert ('mostRecentResponse = ' + mostRecentResponse.response);
@@ -213,8 +211,6 @@ function updateTopUi(init) {
 					task_description: taskDesc,
 					response: mostRecentResponse
 				});
-				
-				alert("OYE 2");
 			});
 			
 			// TODO: If last update is over some specified threshold, then request an update to the stored student data and refresh UIs with that up-to-date data.
@@ -234,10 +230,12 @@ function updateTopUi(init) {
 					if (data.status == STUDENT_LOGGED_IN) {
 						var taskIndex = getStoredTask();
 						var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1];
+						
+						var mostRecentResponse = getMostRecentResponse();
 		
 						// Send message to content script requesting an update to the in-browser SearchParty UI
 						chrome.tabs.getSelected(null, function(tab) {
-		
+							
 							// Create message on port
 							var port = chrome.tabs.connect(tab.id, {
 								name: "spTopUi"
@@ -245,7 +243,8 @@ function updateTopUi(init) {
 							port.postMessage({
 								type: 'update_top_ui',
 								task_index: taskIndex,
-								task_description: taskDesc
+								task_description: taskDesc,
+								response: mostRecentResponse
 							});
 						});
 					}
@@ -334,7 +333,7 @@ chrome.extension.onConnect.addListener(function(port) {
 			
 			else if (message.request.type == 'sync') {
 				
-				alert('background.js received request to sync');
+				//alert('background.js received request to sync');
 				
 				updateTopUi(true);
 				
@@ -342,7 +341,7 @@ chrome.extension.onConnect.addListener(function(port) {
 //				var taskDesc = getStoredTask();
 //				var response = getMostRecentResponse();
 				
-				alert('sync complete');
+				//alert('sync complete');
 //				alert(response);
 				
 				// Send data to content script to populate UI fields
@@ -380,12 +379,9 @@ function getFormattedTimestamp(ts) {
 }
 
 function getMostRecentResponse() {
-	alert("getMostRecentResponse()");
+	console.log("getMostRecentResponse() called");
 	var response = {'response':'', 'explanation':'', 'timestamp':''};
-	alert("a");
-	alert('g_studentInfo = ' + g_studentInfo);
 	var history = g_studentInfo.history;
-	alert("b");
 	for (var i=history.length-1; i>=0; i--) {
 		var taskItem = history[i];
                 var taskType = taskItem.activity_type;
@@ -697,24 +693,31 @@ function handleLogout() {
 }
 
 function handleTaskChange() {
+	//alert("handleTaskChange()");
 	initTabs();
 	updateBadge(TASK_CHANGED);
-
+	
 	// Send message to content script requesting an update to the
 	// in-browser SearchParty UI
 	chrome.tabs.getSelected(null, function(tab) {
-
+		
 		// Create message on port
 		var port = chrome.tabs.connect(tab.id, {
 			name : "spTopUi"
 		});
 
+		//alert("0");
 		var taskIndex = getSelectedTaskIndex();
+//		alert("1");
 		var taskDesc = getStoredTask();
+//		alert("2");
+		var mostRecentResponse = getMostRecentResponse();
+//		alert("mostRecentResponse = " + mostRecentResponse.response);
 		port.postMessage({
-			type: 'show_top_ui',
+			type: 'update_top_ui',
 			task_index : taskIndex,
-			task_description : taskDesc
+			task_description : taskDesc,
+			response: mostRecentResponse
 		});
 
 	});

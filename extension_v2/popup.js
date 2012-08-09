@@ -66,6 +66,8 @@ function loadStudent(init) {
 				$('#submit_response').click(function() {
 					onResponseChanged();
 				});
+				
+				var response = getMostRecentResponse();
 
 				// Send message to content scripts requesting an update to the
 				// in-browser SearchParty UI (sends to googleContentScript.js 
@@ -79,7 +81,8 @@ function loadStudent(init) {
 					port.postMessage({
 						type: 'show_top_ui',
 						task_index : taskIndex,
-						task_description : taskDesc
+						task_description : taskDesc,
+						response: response
 					});
 					port.postMessage({
 						type: 'request',
@@ -89,7 +92,7 @@ function loadStudent(init) {
 				});
 				
 				// Update top UI
-				updateTopUi(true);
+				//updateTopUi(true);
 
 			}
 			$('#loading').hide();
