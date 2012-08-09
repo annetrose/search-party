@@ -3594,7 +3594,7 @@ function updateCompleteHistory() {
 	accumulator.setSort('ABC');
 	var itemList = accumulator.getItems();
 //	alert("B");
-	//updateAnyWithItems(itemList);
+	updateAnyWithItems(itemList);
 //	alert("C");
 	$('#pane_title').html('Complete History');
 	$('#task_activity').hide();
@@ -3615,14 +3615,14 @@ function selectedTaskIdx() {
 
 function updateAnyWithItems(itemList) {
 	g_itemList = itemList;
-	$("#data_display_content").html(itemList.asHTML());
+	//$("#data_display_content").html(itemList.asHTML());
 	
-	$(".logout_btn").click(function(event) {
-		event.stopPropagation();
-	    var lesson = g_lessons[0];
-	    var lessonCode = lesson.lesson_code;
-		logoutStudent($(this).val(), lessonCode);
-	});
+//	$(".logout_btn").click(function(event) {
+//		event.stopPropagation();
+//	    var lesson = g_lessons[0];
+//	    var lessonCode = lesson.lesson_code;
+//		logoutStudent($(this).val(), lessonCode);
+//	});
 }
 
 function escapeForHtml(s) {
@@ -4592,7 +4592,7 @@ function countUnique(list) {
 //=================================================================================
 
 function drawHistoryCloud(itemList, option) {
-	alert("drawHistoryCloud() called");
+//	alert("drawHistoryCloud() called");
 	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
 //	alert("1");
 	var options = [];
@@ -4672,7 +4672,7 @@ function drawAnswerCloud(itemList) {
 }
 
 function drawCloud(divName, itemList, getCloudDataFunc, options) {
-	alert("drawCloud() called");
+//	alert("drawCloud() called");
 	var cloudHtml = '';
 	var maxWeight = 1;
 	$.each(itemList.items, function(i, item) {
@@ -4722,18 +4722,61 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 }
 
 function getCloudOption(label, value, funcName, className) {
-	var isSelected = value==g_cloudShowOption;
+	var isSelected = value == g_cloudShowOption;
 	if (isSelected) {
 		return '<strong>'+label+'</strong>';
-	}
-	else {
+	} else {
 		//$('#searchPartyTopFrame').contents().find('#response').val();
 		//var $f = $('#searchPartyTopFrame').contentWindow.;
 		//return '<a href="javascript:$(\'#searchPartyTopFrame\').contentWindow.' + funcName + '(g_itemList, \''+value+'\');">' + label + '</a>';
 		//return '<a href="javascript:parent.' + funcName + '(g_itemList, \''+value+'\');">' + label + '</a>';
-		return '<a href="javascript:alert(\'' + parent.location.href + '\');">' + label + '</a>';
+		//return '<a href="javascript:alert(\'' + parent.location.href + '\');">' + label + '</a>';
+		//return '<a href="javascript:parent.tester();">' + label + '</a>';
+		var anchorId = value + '_link';
+		var anchorHtml = 
+			'<a id="' + anchorId + '" href="javascript:void(0);">' + label + '</a> \
+			<script> \
+				document.getElementById(\'searchPartyTopFrame\').contentDocument.getElementById("' + anchorId + '").addEventListener("click", function() { \
+				    window.postMessage({ \
+						type: "query_cloud_filter", \
+						value: "' + value + '", \
+						funcName: "' + funcName + '" \
+					}, "*"); \
+				}, false); \
+			</script>'; // Anchor HTML and initialization JavaScript
+		return anchorHtml;
 	}
 }
+
+
+
+
+
+
+var port = chrome.extension.connect();
+window.addEventListener("message", function(event) {
+	// We only accept messages from ourselves
+	if (event.source != window)
+		return;
+	if (event.data.type && (event.data.type == "query_cloud_filter")) {
+		
+		
+		// getCloudOption('Helpful', 'link_helpful', 'drawHistoryCloud')
+		//function drawQueryCloud(itemList, option)
+		
+//		var functionCall = event.data.funcName + "(g_itemList, '" + event.data.value + "')";
+//		alert(functionCall);
+//		var functionReturnValue = eval(functionCall);
+		drawQueryCloud(g_itemList, event.data.value);
+		
+		console.log("Content script received filter request: " + event.data.filter);
+		port.postMessage(event.data.filter);
+	}
+}, false);
+
+
+
+
 
 function openAccordion(index) {
 	$('#task_activity').accordion({active:index});
