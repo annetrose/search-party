@@ -265,6 +265,21 @@ chrome.extension.onConnect.addListener(function(port) {
 				$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
 			}
 			
+			// Update response
+			if (message['response'] !== undefined) {
+				$('#searchPartyTopFrame').contents().find('#response').val(message.response.response);
+			}
+			
+			// Update note
+			if (message['response'] !== undefined) {
+				$('#searchPartyTopFrame').contents().find('#explanation').val(message.response.explanation);
+			}
+			
+			// Update timestamp
+			if (message['response'] !== undefined) {
+				$('#searchPartyTopFrame').contents().find('#response_saved').html(message.response.timestamp);
+			}
+			
 			port.postMessage({
 				type: 'acknowledgment',
 				message: 'show_top_ui'
