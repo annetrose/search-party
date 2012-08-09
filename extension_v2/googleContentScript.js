@@ -344,10 +344,31 @@ chrome.extension.onConnect.addListener(function(port) {
 		} else if (message.type == 'request') {
 			
 			if (message.request.type == 'answer') {
+				
+				// Update timestamp
 				if (message.request.timestamp != '') {
 					var timestamp = getFormattedTimestamp(getLocalTime(new Date(message.request.timestamp)));
 					$('#searchPartyTopFrame').contents().find('#response_saved').html('Saved ' + timestamp);
 				}
+				
+				// Update response
+				$('#searchPartyTopFrame').contents().find('#response').val(message.request.answer_text);
+				
+				// Update note
+				$('#searchPartyTopFrame').contents().find('#explanation').val(message.request.answer_explanation);
+				
+				
+				
+//				// Update task index
+//				if (message['task_index'] !== undefined) {
+//					//$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
+//					g_task_index = message.task_index;
+//				}
+//				
+//				// Update task description
+//				if (message['task_description'] !== undefined) {
+//					
+//				}
 			}
 			
 		}
@@ -4756,21 +4777,22 @@ function getCloudOption(label, value, funcName, className) {
 var port = chrome.extension.connect();
 window.addEventListener("message", function(event) {
 	// We only accept messages from ourselves
-	if (event.source != window)
+	if (event.source != window) {
 		return;
+	}
 	if (event.data.type && (event.data.type == "query_cloud_filter")) {
-		
-		
 		// getCloudOption('Helpful', 'link_helpful', 'drawHistoryCloud')
 		//function drawQueryCloud(itemList, option)
 		
+		// Description of eval():
+		// http://viralpatel.net/blogs/calling-javascript-function-from-string/
 //		var functionCall = event.data.funcName + "(g_itemList, '" + event.data.value + "')";
 //		alert(functionCall);
 //		var functionReturnValue = eval(functionCall);
 		drawQueryCloud(g_itemList, event.data.value);
 		
-		console.log("Content script received filter request: " + event.data.filter);
-		port.postMessage(event.data.filter);
+//		console.log("Content script received filter request: " + event.data.filter);
+//		port.postMessage(event.data.filter);
 	}
 }, false);
 
