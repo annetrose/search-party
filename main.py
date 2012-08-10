@@ -20,6 +20,7 @@ from LinkRatedHandler           import LinkRatedHandler
 from MainPage                   import MainPage
 from SearchExecutedHandler      import SearchExecutedHandler
 from StudentInfoHandler         import StudentInfoHandler
+from AllStudentInfoHandler      import AllStudentInfoHandler
 from StudentLoginHandler        import StudentLoginHandler
 from StudentLoginPage           import StudentLoginPage
 from StudentLogout              import StudentLogout
@@ -43,6 +44,7 @@ application = webapp2.WSGIApplication(
 		  ('/search_executed',           SearchExecutedHandler),
 		  ('/student',                   StudentPage),
           ('/student_info',              StudentInfoHandler),
+          ('/student_info/([-_A-Za-z0-9]+)', AllStudentInfoHandler),
 		  ('/student_login',             StudentLoginPage),
 		  ('/student_login_handler',     StudentLoginHandler),
 		  ('/student_logout',            StudentLogout),

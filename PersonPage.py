@@ -240,6 +240,90 @@ class PersonPage(SearchPartyRequestHandler):
         js = ("\n").join(lines).lstrip()
         return js
     
+    def make_student_structure_json(self, lesson, indent, student=None):
+            
+        from json import JSONEncoder
+        encoder = JSONEncoder()
+        as_json = encoder.encode
+        
+        student_structure = self.make_student_structure(lesson=lesson, student=student)
+
+        students = {}
+        
+        for student_nickname, student_info in sorted(student_structure.items()):
+            
+            student_key = format(student_nickname)
+            students[student_key] = student
+            
+            student = {
+                'logged_in': student_info["logged_in"],
+                'task_idx': student_info["task_idx"],
+                'task_history': [],
+                'tasks': [] 
+            }
+                
+            for task_idx,task_info in enumerate(student_info["tasks"]):
+                
+                task_history = []
+                
+                # Add student's search history for current task 
+                for task_history_item in task_info["history"]:
+                    task_history_item = { 
+                        'activity_type': task_idx,
+                        'search': task_history_item.search,
+                        'link': task_history_item.link,
+                        'link_title': task_history_item.link_title,
+                        'is_helpful': task_history_item.is_helpful,
+                        'answer_text': task_history_item.answer_text,
+                        'answer_explanation': task_history_item.answer_explanation,
+                        'timestamp': task_history_item.timestamp.strftime("%B %d, %Y %H:%M:%S %Z")
+                    }
+                    task_history.append(task_history_item)
+                student['task_history'].append(task_history)
+                 
+                # Define data structure for current task, including the task's searches and answer
+                student['tasks'].append(task_idx);
+                student['tasks'][task_idx] = { 
+                    'searches': [],
+                    'answer': {
+                        'text': '',
+                        'explanation': ''
+                    }
+                }
+
+                # Add student's searches for current task
+                i = 0
+                for query_info in task_info["searches"]:
+                    if query_info["query"] is None:
+                        continue
+#                    add('student.tasks[{0}].searches[{1}] = {{"query":{2}, "links_followed":[]}};'.format(task_idx, i, as_json(query_info["query"])))
+                    
+                    student['tasks'][task_idx]['searches'].append(i)
+                    student['tasks'][task_idx]['searches'][i] = {
+                        'query': query_info['query'],
+                        'links_followed': []
+                    }
+                    
+                    for followed_link_info in query_info["links_followed"]:
+                        
+                        student['tasks'][task_idx]['searches'][i]['links_followed'].append({
+                            'url': followed_link_info['url'],
+                            'title': followed_link_info['title'],
+                            'is_helpful': followed_link_info['is_helpful']
+                        })
+                    i += 1
+
+                # Add student's response and explanation for current task
+                student['tasks'][task_idx]['answer'] = {
+                    'text': task_info['answer']['text'],
+                    'explanation': task_info['answer']['explanation']
+                }
+            
+#            student_key = format(student_nickname)
+#            students[student_key] = student
+            
+        return encoder.encode(students)
+    
     def get_lesson_json(self, lesson_code):
         from model import Lesson
         import json
