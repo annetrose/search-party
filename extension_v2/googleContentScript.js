@@ -372,6 +372,12 @@ chrome.extension.onConnect.addListener(function(port) {
 //				}
 			}
 			
+		} else if (message.type == 'syncDataState') {
+			
+			console.log("googleContentSCript.js dataStateSync received");
+			if (message.state && message.state.g_studentInfo) {
+				g_studentInfo = message.state.g_studentInfo
+			}
 		}
 
 	});

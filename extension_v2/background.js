@@ -33,6 +33,7 @@ var g_last_deleted_tab = null;
 var g_initWhenLogin = true;
 
 var g_studentInfo = null;
+var g_students = null;
 
 $(document).ready(function() {
 	initLocalStorage();
@@ -44,18 +45,147 @@ $(document).ready(function() {
 		dataType : "json",
 		cache : false,
 		success : function(data) {
+			g_studentInfo = data;
+			updateState();
 			updateBadge(data.status);
 			if (isStudentLoggedIn()) {
 				initTabs();
+//				updateTopUi(); // Initialize SP UI
 			}
 		},
 		error : function() {
 			updateBadge(STUDENT_LOGGED_OUT);
 		}
-	});
+	});	
+});
+
+/**
+ * Updates state and sends updated state data content scripts.  Updates state 
+ * by requesting updated state from remote server using HTTP requests. 
+ */
+function refreshState() {
 	
-	// Initialize SP UI
-	updateTopUi(true);
+	// Update g_studentInfo
+	$.ajax({
+		type : 'POST',
+		url : SEARCH_PARTY_URL + "/student_info",
+		dataType : "json",
+		cache : false,
+		success : function(data) {
+			g_studentInfo = data;
+			synchronizeDataState(); // Propogate state data to extension content scripts
+			updateBadge(data.status);
+//			if (isStudentLoggedIn()) {
+//				initTabs();
+//				updateTopUi(); // Initialize SP UI
+//			}
+		},
+		error : function() {
+			updateBadge(STUDENT_LOGGED_OUT);
+		}
+	});	
+}
+
+/**
+ * Sends CURRENT state data to content scripts. 
+ */
+function updateState() {
+	// Send message to content script to update timestamp of last save
+	chrome.tabs.getSelected(null, function(tab) {
+
+		var taskIndex = getStoredTask();
+		var taskDescription = g_studentInfo.lesson.tasks[taskIndex][1]; // TODO: Get stored description
+		var mostRecentResponse = getMostRecentResponse();
+		
+		// Create message on port
+		var port = chrome.tabs.connect(tab.id, {
+			name: "spTopUi"
+		});
+		port.postMessage({
+			type: 'updateState',
+			state: {
+				g_studentInfo: g_studentInfo,
+				g_task: {
+					index: taskIndex,
+					description: taskDescription,
+					response: mostRecentResponse
+				},
+				g_students: g_students
+			}
+		});
+	});
+}
+
+/**
+ * onConnect event is fired when a connection is made from an extension process or content script
+ */
+chrome.extension.onConnect.addListener(function(port) {
+	console.assert(port.name == "spTopUi");
+	//alert(port.name);
+	
+//	console.log("message " + message.type + " received by background.js");
+//	chrome.extension.getBackgroundPage().console.log("message " + message.type + " received by background.js");
+//	alert("message " + message.type + " received by background.js");
+
+	port.onMessage.addListener(function(message) {
+
+		if (message.type == 'request') {
+			// TODO: Update 'request' to 'dataRequest' or 'stateSyncRequest'
+			
+			if (message.request.type == 'rating') {
+				
+				handleRatingPlus(message.request.rating);
+				
+			} else if (message.request.type == 'response') {
+				
+				// chrome.extension.sendRequest(message.request); // This doesn't seem to work.  Why not?  Can this script not send requests to its own handler?
+				handleResponse(message.request.response, message.request.explanation);
+				
+			}
+			
+		} else if (message.type == 'functionRequest') {
+			
+//			console.log("message " + message.type + " received by background.js");
+//			alert("message " + message.type + " received by background.js");
+			
+			if (message.functionSignature = 'getStoredLink') {
+				var result = getStoredLink();
+				
+				// Send message to content script to update timestamp of last save
+				chrome.tabs.getSelected(null, function(tab) {
+
+					// Create message on port
+					var responsePort = chrome.tabs.connect(tab.id, {
+						name: "spTopUi"
+					});
+					responsePort.postMessage({
+						type: 'functionResponse',
+						functionSignature: 'getStoredLink',
+						functionArguments: {},
+						result: result,
+						stateData: {
+							g_studentInfo: g_studentInfo
+						}
+					});
+				});
+			} else if (message.functionSignature = 'updateState') {
+				
+				updateState();
+				
+			}
+			
+		} else if (message.type == 'updateState') {
+			
+			alert("UPDATE STATE");
+			if (message.state && message.state.g_students) {
+				g_students = message.state.g_students
+			}
+			
+		} else {
+			// Send a message of type error specifying that its cause was that the received message type was undefined.
+			return { type: 'error', cause: 'undefined' };
+		}
+	});
 });
 
 function updateLinkRating(url) {
@@ -85,104 +215,103 @@ function updateResponse() {
 
 
 
-function updateTopUi(init) {
-	// $('#content').hide();
-	// $('#loading').show();
-
-	// TODO: Get cached copy of student and task data.
-	if (isStudentLoggedIn()) {
-		
-		if (g_studentInfo != null) {
-			
-			// Create message on port
-			var taskIndex = getStoredTask();
-			var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1]; // TODO: Get stored description
-
-			// Send message to content script requesting an update to the in-browser SearchParty UI
-			chrome.tabs.getSelected(null, function(tab) {
-				
-				var mostRecentResponse = getMostRecentResponse();
-				//alert ('mostRecentResponse = ' + mostRecentResponse.response);
-				
-				// Create message on port
-				var port = chrome.tabs.connect(tab.id, {
-					name: "spTopUi"
-				});
-				port.postMessage({
-					type: 'update_top_ui',
-					task_index: taskIndex,
-					task_description: taskDesc,
-					response: mostRecentResponse
-				});
-			});
-			
-			// TODO: If last update is over some specified threshold, then request an update to the stored student data and refresh UIs with that up-to-date data.
-			
-		} else {
-
-			$.ajax({
-				type: 'POST',
-				url: SEARCH_PARTY_URL + "/student_info",
-				dataType: "json",
-				data: {
-					task_idx: getStoredTask()
-				},
-				cache: false,
-				success: function(data) {
-					g_studentInfo = data;
-					if (data.status == STUDENT_LOGGED_IN) {
-						var taskIndex = getStoredTask();
-						var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1];
-						
-						var mostRecentResponse = getMostRecentResponse();
-		
-						// Send message to content script requesting an update to the in-browser SearchParty UI
-						chrome.tabs.getSelected(null, function(tab) {
-							
-							// Create message on port
-							var port = chrome.tabs.connect(tab.id, {
-								name: "spTopUi"
-							});
-							port.postMessage({
-								type: 'update_top_ui',
-								task_index: taskIndex,
-								task_description: taskDesc,
-								response: mostRecentResponse
-							});
-						});
-					}
-					// $('#loading').hide();
-					// $('#content').show();
-				},
-				error : function() {
-					g_studentInfo = null;
-					$('#content').html('Error connecting to ' + SEARCH_PARTY_URL);
-					$('#loading').hide();
-					$('#content').show();
-				}
-			});
-		}
-		
-	} else {
-	
-		// Send message to remove top pane if it exists, otherwise display nothing, just the vanilla page.
-		
-		// Send message to content script requesting an update to the in-browser SearchParty UI
-		chrome.tabs.getSelected(null, function(tab) {
-
-			// Create message on port
-			var port = chrome.tabs.connect(tab.id, {
-				name: "spTopUi"
-			});
-			port.postMessage({
-				type: 'update_top_ui',
-				task_index: taskIndex,
-				task_description: taskDesc
-			});
-		});
-	
-	}
-}
+//// TODO: REMOVE THIS!  The content scripts should monitor the STATE and update appropriately for their current state.
+//function updateTopUi() {
+//
+//	// TODO: Get cached copy of student and task data.
+//	if (isStudentLoggedIn()) {
+//		
+//		if (g_studentInfo != null) {
+//			
+//			// Create message on port
+//			var taskIndex = getStoredTask();
+//			var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1]; // TODO: Get stored description
+//
+//			// Send message to content script requesting an update to the in-browser SearchParty UI
+//			chrome.tabs.getSelected(null, function(tab) {
+//				
+//				// Get most recent response for current task
+//				var mostRecentResponse = getMostRecentResponse();
+//				
+//				// Create message on port
+//				var port = chrome.tabs.connect(tab.id, {
+//					name: "spTopUi"
+//				});
+//				port.postMessage({
+//					type: 'update_top_ui',
+//					task_index: taskIndex,
+//					task_description: taskDesc,
+//					response: mostRecentResponse
+//				});
+//			});
+//			
+//			// TODO: If last update is over some specified threshold, then request an update to the stored student data and refresh UIs with that up-to-date data.
+//			
+//		} else {
+//
+//			$.ajax({
+//				type: 'POST',
+//				url: SEARCH_PARTY_URL + "/student_info",
+//				dataType: "json",
+//				data: {
+//					task_idx: getStoredTask()
+//				},
+//				cache: false,
+//				success: function(data) {
+//					g_studentInfo = data;
+//					updateState();
+//					if (data.status == STUDENT_LOGGED_IN) {
+//						var taskIndex = getStoredTask();
+//						var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1];
+//						
+//						// Get most recent response for current task
+//						var mostRecentResponse = getMostRecentResponse();
+//		
+//						// Send message to content script requesting an update to the in-browser SearchParty UI
+//						chrome.tabs.getSelected(null, function(tab) {
+//							
+//							// Create message on port
+//							var port = chrome.tabs.connect(tab.id, {
+//								name: "spTopUi"
+//							});
+//							port.postMessage({
+//								type: 'update_top_ui',
+//								task_index: taskIndex,
+//								task_description: taskDesc,
+//								response: mostRecentResponse
+//							});
+//						});
+//					}
+//				},
+//				error : function() {
+//					g_studentInfo = null;
+//					$('#content').html('Error connecting to ' + SEARCH_PARTY_URL);
+//					$('#loading').hide();
+//					$('#content').show();
+//				}
+//			});
+//		}
+//		
+//	} else {
+//	
+//		// Send message to remove top pane if it exists, otherwise display nothing, just the vanilla page.
+//		
+//		// Send message to content script requesting an update to the in-browser SearchParty UI
+//		chrome.tabs.getSelected(null, function(tab) {
+//
+//			// Create message on port
+//			var port = chrome.tabs.connect(tab.id, {
+//				name: "spTopUi"
+//			});
+//			port.postMessage({
+//				type: 'update_top_ui',
+//				task_index: taskIndex,
+//				task_description: taskDesc
+//			});
+//		});
+//	
+//	}
+//}
 
 function initTabs() {
 	g_tabs = [];
@@ -214,84 +343,7 @@ function initTabs() {
 			}
 		}
 	});
-}	
-
-/**
- * onConnect event is fired when a connection is made from an extension process or content script
- */
-chrome.extension.onConnect.addListener(function(port) {
-	//console.assert(port.name == "spTopUi");
-	//alert(port.name);
-	
-	console.log("message " + message.type + " received by background.js");
-
-	port.onMessage.addListener(function(message) {
-
-		if (message.type == 'request') {
-			// TODO: Update 'request' to 'dataRequest' or 'stateSyncRequest'
-			
-			if (message.request.type == 'rating') {
-				handleRatingPlus(message.request.rating);
-			} else if (message.request.type == 'response') {
-				// chrome.extension.sendRequest(message.request); // This doesn't seem to work.  Why not?  Can this script not send requests to its own handler?
-				handleResponse(message.request.response, message.request.explanation);
-			}
-			
-			else if (message.request.type == 'sync') {
-				
-				//alert('background.js received request to sync');
-				
-				updateTopUi(true);
-				
-				//var taskIndex = getSelectedTaskIndex();
-//				var taskDesc = getStoredTask();
-//				var response = getMostRecentResponse();
-				
-				//alert('sync complete');
-//				alert(response);
-				
-				// Send data to content script to populate UI fields
-//				var message = {
-//					type: 'update',
-//					task_idx: taskIndex,
-//					task: taskDesc,
-//					response: ,
-//					explanation: ,
-//				};
-			}
-			
-		} else if (message.type == 'functionRequest') {
-			
-			console.log("message " + message.type + " received by background.js");
-			
-			if (message.functionSignature = 'getStoredLink') {
-				var result = getStoredLink();
-				
-				// Send message to content script to update timestamp of last save
-				chrome.tabs.getSelected(null, function(tab) {
-
-					// Create message on port
-					var responsePort = chrome.tabs.connect(tab.id, {
-						name: "spTopUi"
-					});
-					responsePort.postMessage({
-						type: 'functionResponse',
-						functionSignature: 'getStoredLink',
-						functionArguments: {},
-						result: result,
-						stateData: {
-							g_studentInfo: g_studentInfo
-						}
-					});
-				});
-			}
-			
-		} else {
-			// Send a message of type error specifying that its cause was that the received message type was undefined.
-			return { type: 'error', cause: 'undefined' };
-		}
-	});
-});
+}
 
 function getLocalTime(gmt)  {
     var min = gmt.getTime() / 1000 / 60; // convert gmt date to minutes
@@ -314,8 +366,11 @@ function getFormattedTimestamp(ts) {
 }
 
 function getMostRecentResponse() {
-	console.log("getMostRecentResponse() called");
-	var response = {'response':'', 'explanation':'', 'timestamp':''};
+	var response = { 
+		'response': '',
+		'explanation': '',
+		'timestamp': ''
+	};
 	var history = g_studentInfo.history;
 	for (var i=history.length-1; i>=0; i--) {
 		var taskItem = history[i];
@@ -383,7 +438,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
 	// http://code.google.com/p/chromium/issues/detail?id=96716
 	if (isStudentLoggedIn() && info.status=='complete') {
 		//debug('UPDATED => '+tab.url+','+info.status);
-		updateTopUi(true); // TODO: HACK - Move this somewhere where it makes more sense.
+//		updateTopUi(); // TODO: HACK - Move this somewhere where it makes more sense.
 		window.setTimeout (
 			function() {
 				chrome.tabs.get(tabId, function(tab2) {
@@ -574,31 +629,31 @@ function handleLogin() {
 		
 		
 		
-		g_loginIntervalId = setInterval(function() {			
-			
-			if (!g_initWhenLogin) {
-				
-				// Send message to content script requesting an update to the in-browser SearchParty UI
-				chrome.tabs.getSelected(null, function(tab) {
-	
-					// Create message on port
-					var port = chrome.tabs.connect(tab.id, {
-						name : "spTopUi"
-					});
-					port.postMessage({
-						type: 'show_top_ui'
-					});
-					
-					// Check if Search Party is visible.  If so, terminate this interval function.
-					if (document.getElementById('searchPartyTopFrame') != 'none') {
-						// Clear interval function.  This prevents future calls to the function.
-						clearInterval(g_loginIntervalId);
-					}
-	
-				});
-			}
-			
-		}, 250);
+//		g_loginIntervalId = setInterval(function() {			
+//			
+//			if (!g_initWhenLogin) {
+//				
+//				// Send message to content script requesting an update to the in-browser SearchParty UI
+//				chrome.tabs.getSelected(null, function(tab) {
+//	
+//					// Create message on port
+//					var port = chrome.tabs.connect(tab.id, {
+//						name : "spTopUi"
+//					});
+//					port.postMessage({
+//						type: 'show_top_ui'
+//					});
+//					
+//					// Check if Search Party is visible.  If so, terminate this interval function.
+//					if (document.getElementById('searchPartyTopFrame') != 'none') {
+//						// Clear interval function.  This prevents future calls to the function.
+//						clearInterval(g_loginIntervalId);
+//					}
+//	
+//				});
+//			}
+//			
+//		}, 250);
 		
 		
 		
@@ -611,19 +666,19 @@ function handleLogout() {
 		updateBadge(STUDENT_LOGGED_OUT);
 		g_initWhenLogin = true;
 		
-		// Send message to content script requesting an update to the
-		// in-browser SearchParty UI
-		chrome.tabs.getSelected(null, function(tab) {
-
-			// Create message on port
-			var port = chrome.tabs.connect(tab.id, {
-				name : "spTopUi"
-			});
-			port.postMessage({
-				type: 'hide_top_ui'
-			});
-
-		});
+//		// Send message to content script requesting an update to the
+//		// in-browser SearchParty UI
+//		chrome.tabs.getSelected(null, function(tab) {
+//
+//			// Create message on port
+//			var port = chrome.tabs.connect(tab.id, {
+//				name : "spTopUi"
+//			});
+//			port.postMessage({
+//				type: 'hide_top_ui'
+//			});
+//
+//		});
 	});
 }
 
@@ -704,6 +759,7 @@ function handleLink(query, url, title) {
 }
 
 function handleRatingPlus(isHelpful) {
+//	console.log("handleRatingPlus() called");
 	// check if user is rating an initial tab (i.e., user did not explictly navigate to url 
 	// when they logged in/switched task), and if so, send followed link action in addition to rating link action
 	var tabId = getStoredTab();
@@ -742,7 +798,7 @@ function handleRatingPlus(isHelpful) {
 }
 
 function handleRating(isHelpful) {
-	console.log("handleRating() called");
+//	console.log("handleRating() called");
 	var data = {
 		task_idx: getStoredTask(),
 		url : getStoredLink(),
@@ -763,7 +819,7 @@ function handleRating(isHelpful) {
 		data : data,
 		cache : false,
 		success : function(data) {
-			console.log("handleRating() HTTP response received");
+//			console.log("handleRating() HTTP response received");
 			updateBadge(data.status);
 			if (data.status == STUDENT_LOGGED_IN) {
 				data['type'] = 'rating';
@@ -840,6 +896,7 @@ function isLinkAction(url) {
 }
 
 function handleResponse(response, explanation) {
+//	console.log("handleResponse() called");
 	var saveResponse = response != '';
 	if (saveResponse) {
 		$.ajax({
