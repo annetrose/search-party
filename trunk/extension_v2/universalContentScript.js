@@ -1,12 +1,26 @@
 var g_top_ui_visible = false;
 
-var g_studentInfo = null;
+var g_task = null;
 var g_task_index = 0;
+var g_studentInfo = null;
 
 MAX_TAG_LENGTH = 30;
 var g_groupQueriesWithSameWords = false;
 var g_itemList = null;
 var g_students = null;
+
+//clouds
+var DEFAULT_CLOUD_SHOW_OPTION = 'link';
+var g_cloudShowOption = DEFAULT_CLOUD_SHOW_OPTION;
+var g_actionColors = { search:'#888888', link:'#454C45', link_helpful:'#739c95', link_unhelpful:'#5C091F', answer:'blue' };
+
+// Open port from this content script to extension for message passing
+var port = chrome.extension.connect({ name: "spTopUi" });
+
+createSearchPartyInterface();
+//hideSearchPartyTopUi();
+//showSearchPartyTopUi();
+request_updateState(); // TODO: Call refrest_refreshState() instead to guarantee fresh data on every page?
 
 function onResponseChanged() {
 	//alert("onResponseChanged");
@@ -17,7 +31,10 @@ function onResponseChanged() {
 		//chrome.extension.sendRequest({'type':'response', 'response':response, 'explanation':explanation});
 		
 		// Open port to send message (background.js receives and handles this message)
-		var port = chrome.extension.connect({ name: "spTopUi" });
+//		var port = chrome.extension.connect({ name: "spTopUi" });
+		alert(response);
+		alert(explanation);
+//		var port = chrome.extension.connect({ name: "spTopUi" });
 		port.postMessage({
 			type: 'request',
 			request: { 'type':'response', 'response': response, 'explanation': explanation }
@@ -39,13 +56,17 @@ function onUnsavedResponse() {
 function onRatingChanged() {
 	console.log("onRatingChanged() called");
 	var rating = $('#searchPartyTopFrame').contents().find('input:radio[name=rating]:checked').val();
+//	console.log("rating = " + rating);
 	//chrome.extension.sendRequest({'type':'rating', 'rating':rating});
+	
 	// Open port to send message (background.js receives and handles this message)
-	var port = chrome.extension.connect({ name: "spTopUi" });
+//	var port = chrome.extension.connect({ name: "spTopUi" });
+//	alert("port = " + port);
 	port.postMessage({
 		type: 'request',
 		request: { 'type': 'rating', 'rating': rating }
 	});
+//	console.log("sent request");
 }
 
 function updateLinkRating(url) {
@@ -75,10 +96,40 @@ function updateLinkRating(url) {
 function request_getStoredLink() {
 	console.log("request_getStoredLink() called");
 	// Open port to send request for function call to background.js message handler
-	var port = chrome.extension.connect({ name: "spTopUi" });
+//	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'getStoredLink',
+		functionArguments: {}
+	});
+}
+
+/**
+ * Request to background page to call the function getStoredLink() and return 
+ * the results.
+ */
+function request_updateState() {
+	console.log("request_updateState() called");
+	// Open port to send request for function call to background.js message handler
+//	var port = chrome.extension.connect({ name: "spTopUi" });
+	port.postMessage({
+		type: 'functionRequest',
+		functionSignature: 'updateState',
+		functionArguments: {}
+	});
+}
+
+/**
+ * Request to background page to call the function getStoredLink() and return 
+ * the results.
+ */
+function request_refreshState() {
+	console.log("request_updateState() called");
+	// Open port to send request for function call to background.js message handler
+//	var port = chrome.extension.connect({ name: "spTopUi" });
+	port.postMessage({
+		type: 'functionRequest',
+		functionSignature: 'refreshState',
 		functionArguments: {}
 	});
 }
@@ -148,11 +199,11 @@ function createSearchPartyInterface() {
 		\
 		<div style="background: url(http://search-party.appspot.com/imgs/sp_logo.png) no-repeat left center; background-size: 114px 49px; width: 100%; height: ' + height + '; padding-left: 140px; margin-left: 13px;"> \
 		<div> \
-		<div id="sptask" style="font-weight: normal; padding-bottom: 15px; font-size: 20px; width: 600px; color: #DD4B39;"></div> \
+		<div id="sptask" style="font-weight: normal; padding-bottom: 15px; font-size: 16px; width: 960px; color: #DD4B39;"></div> \
 		\
 		<div> \
 		\
-			<div style="width: 300px; border: 1px solid red; float: left;"> \
+			<div style="width: 300px; border: 0px solid red; float: left;"> \
 			Response<br /> \
 			<input type="text" id="response" name="response" value="" style="float:left; width:300px; height:27px; line-height:27px; text-indent:10px; font-family:arial, sans-serif; font-size:16px; color:#333; background: #fff; border:solid 1px #d9d9d9; border-top:solid 1px #c0c0c0; border-right:none;"> \
 			<br/><br /> \
@@ -163,13 +214,13 @@ function createSearchPartyInterface() {
 			<span id="response_saved" class="note"></span> \
 			</div> \
 			\
-			<div> \
+			<div style="width: 160px; padding-left: 10px; border: 0px solid red; float: left;"> \
 			Page Rating<br/> \
 			<input type="radio" id="helpful" name="rating" value="1"> Helpful</input> \
 			<input type="radio" id="unhelpful" name="rating" value="0"> Unhelpful</input> \
 			</div> \
 			\
-			<div style="width: 600px; border: 1px solid red; float: left;"> \
+			<div style="width: 600px; padding-left: 10px; border: 0px solid red; float: left;"> \
 				<div id="complete_history" class="complete_history"></div> \
 				<div id="tag_cloud" class="tag_cloud"></div> \
 			</div> \
@@ -178,13 +229,6 @@ function createSearchPartyInterface() {
 		\
 		</div> \
 		</div>';
-	
-//		<div id="searchContainer"> \
-//		    <form> \
-//		        <input id="field" name="field" type="text" /> \
-//		        <div id="delete"><span id="x">x</span></div> \
-//		    </form> \
-//		</div> \
 
 	// Set up UI event listeners
 	$('#searchPartyTopFrame').contents().find('#submit_response').click(function() { 
@@ -193,23 +237,8 @@ function createSearchPartyInterface() {
 	
 	$('#searchPartyTopFrame').contents().find('input[name=rating]').change(onRatingChanged);
 	
-//	request_getStoredLink(); // TODO: In callback, set interval until the function puts the result data into the UI form
-	
-	/**
-	 * Request population of UI data
-	 */
-	
-	// Open port to send message (background.js receives and handles this message)
-	syncTopUi();
-}
-
-function syncTopUi() {
-	// Open port to send message (background.js receives and handles this message)
-	var port = chrome.extension.connect({ name: "spTopUi" });
-	port.postMessage({
-		type: 'request',
-		request: { 'type': 'sync' }
-	});
+	// Hide UI
+	hideSearchPartyTopUi();
 }
 
 function hideSearchPartyTopUi() {
@@ -270,20 +299,6 @@ function showSearchPartyTopUi() {
 	g_top_ui_visible = true;
 }
 
-
-
-createSearchPartyInterface();
-//hideSearchPartyTopUi();
-//showSearchPartyTopUi();
-
-//clouds
-var DEFAULT_CLOUD_SHOW_OPTION = 'link';
-var g_cloudShowOption = DEFAULT_CLOUD_SHOW_OPTION;
-var g_actionColors = { search:'#888888', link:'#454C45', link_helpful:'#739c95', link_unhelpful:'#5C091F', answer:'blue' };
-//
-//var itemList = [ 'hey', 'hello', 'what', 'why' ];
-//drawQueryCloud(itemList);
-
 /**
  * "onConnect event is fired when a connection is made from an extension process or content script"
  */
@@ -293,81 +308,7 @@ chrome.extension.onConnect.addListener(function(port) {
 		
 		console.log("message " + message.type + " received by universalContentScript.js");
 
-		if (message.type == 'show_top_ui') {
-			
-			showSearchPartyTopUi();
-			
-			// Update task index
-			if (message['task_index'] !== undefined) {
-				//$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
-				g_task_index = message.task_index;
-			}
-			
-			// Update task description
-			if (message['task_description'] !== undefined) {
-				$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
-			}
-			
-			// Update response
-			if (message['response'] !== undefined) {
-				$('#searchPartyTopFrame').contents().find('#response').val(message.response.response);
-			}
-			
-			// Update note
-			if (message['response'] !== undefined) {
-				$('#searchPartyTopFrame').contents().find('#explanation').val(message.response.explanation);
-			}
-			
-			// Update timestamp
-			if (message['response'] !== undefined) {
-				$('#searchPartyTopFrame').contents().find('#response_saved').html(message.response.timestamp);
-			}
-			
-//			port.postMessage({
-//				type: 'acknowledgment',
-//				message: 'show_top_ui'
-//			});
-			
-			request_getStoredLink();
-			updateStudents(70689);
-			
-		} else if (message.type == 'update_top_ui') {
-			// Update Seach Party UI
-			
-			// Update task index
-			if (message['task_index'] !== undefined) {
-				//$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
-				g_task_index = message.task_index;
-			}
-			
-			// Update task description
-			if (message['task_description'] !== undefined) {
-				$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
-			}
-			
-			// Update response
-			if (message['response'] !== undefined) {
-				$('#searchPartyTopFrame').contents().find('#response').val(message.response.response);
-			}
-			
-			// Update note
-			if (message['response'] !== undefined) {
-				$('#searchPartyTopFrame').contents().find('#explanation').val(message.response.explanation);
-			}
-			
-			// Update timestamp
-			if (message['response'] !== undefined) {
-				$('#searchPartyTopFrame').contents().find('#response_saved').html(message.response.timestamp);
-			}
-			
-			request_getStoredLink();
-			updateStudents(70689);
-			
-		} else if (message.type == 'hide_top_ui') {
-			
-			hideSearchPartyTopUi();
-			
-		} else if (message.type == 'request') {
+		if (message.type == 'request') {
 			
 			if (message.request.type == 'answer') {
 				
@@ -382,19 +323,6 @@ chrome.extension.onConnect.addListener(function(port) {
 				
 				// Update note
 				$('#searchPartyTopFrame').contents().find('#explanation').val(message.request.answer_explanation);
-				
-				
-				
-//				// Update task index
-//				if (message['task_index'] !== undefined) {
-//					//$('#searchPartyTopFrame').contents().find('#sptask').html(message.task_description);
-//					g_task_index = message.task_index;
-//				}
-//				
-//				// Update task description
-//				if (message['task_description'] !== undefined) {
-//					
-//				}
 			}
 			
 		} else if (message.type == 'functionResponse') {
@@ -414,10 +342,59 @@ chrome.extension.onConnect.addListener(function(port) {
 				updateLinkRating(message.result);
 			}
 			
+		} else if (message.type == 'updateState') {
+			
+			console.log("updateState received");
+			if (message.state && message.state.g_studentInfo) {
+				g_studentInfo = message.state.g_studentInfo
+			}
+			
+			if (message.state && message.state.g_task) {
+				g_task = message.state.g_task
+			}
+			
+			if (message.state && message.state.g_students) {
+				g_students = message.state.g_students
+			}
+			
+			// TODO: Update UI with latest received data
+			//createSearchPartyInterface();
+			
+			refreshUi();
 		}
 
 	});
 });
+
+function refreshUi() {
+	
+	// Show or hide the interface
+	if (g_studentInfo.status == 1) {
+//		if (document.getElementById('searchPartyTopFrame').style.display == 'none') {
+			showSearchPartyTopUi();
+//		}
+	} else if (g_studentInfo.status == 1) {
+//		if (document.getElementById('searchPartyTopFrame').style.display == 'block') {
+			hideSearchPartyTopUi();
+//		}
+	}
+	
+	// Update task description
+	$('#searchPartyTopFrame').contents().find('#sptask').html(g_task.description);
+	
+	// Update response
+	$('#searchPartyTopFrame').contents().find('#response').val(g_task.response.response);
+	
+	// Update note
+	$('#searchPartyTopFrame').contents().find('#explanation').val(g_task.response.explanation);
+	
+	// Update timestamp
+	$('#searchPartyTopFrame').contents().find('#response_saved').html(g_task.response.timestamp);
+	
+	request_getStoredLink();
+	updateStudents(g_studentInfo.lesson.lesson_code);
+	
+}
 
 function getLocalTime(gmt)  {
     var min = gmt.getTime() / 1000 / 60; // convert gmt date to minutes
@@ -429,7 +406,7 @@ function getLocalTime(gmt)  {
 function getFormattedTimestamp(ts) {
     var month = ''+(ts.getMonth()+1);
     if (month.length==1) month = '0' + month;
-    var day = ''+ts.getDate();
+    var day = '' + ts.getDate();
     if (day.length == 1) day = '0' + day;
     var date =  month + '/' + day + '/'+ (ts.getFullYear()+'').substr(2);
     var hours = ''+ts.getHours();
@@ -455,7 +432,20 @@ function updateStudents(activity_id) {
 	$.get(requestUrl, function(data) {
 		var parsedData = JSON.parse(data);
 		g_students = JSON.parse(parsedData[0]);
+		updateState();
 		updateCompleteHistory();
+	});
+}
+
+/**
+ * Sends CURRENT state data to background script. 
+ */
+function updateState() {
+	port.postMessage({
+		type: 'updateState',
+		state: {
+			g_students: g_students
+		}
 	});
 }
 
@@ -463,23 +453,18 @@ function updateCompleteHistory() {
 	var accumulator = new QueryAccumulator();
 	$.each(g_students, function (studentNickname, studentInfo) {
 		//$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
-		$.each(studentInfo.tasks[g_task_index].searches, function (i, searchInfo) {
+		$.each(studentInfo.tasks[g_task.index].searches, function (i, searchInfo) {
 			var isHelpful = searchIsHelpful(searchInfo);
 			accumulator.add(searchInfo.query, studentNickname, isHelpful);
 			//alert(searchInfo.query);
 		});
 	});
-//	alert("A");
 	accumulator.setSort('ABC');
 	var itemList = accumulator.getItems();
-//	alert("B");
 	updateAnyWithItems(itemList);
-//	alert("C");
 	$('#pane_title').html('Complete History');
 	$('#task_activity').hide();
-//	alert("D");
 	if (itemList.hasItems()) {
-//		alert("E");
 		var saveState2 = g_groupQueriesWithSameWords;
 		g_groupQueriesWithSameWords=true;
 		drawHistoryCloud(itemList);
@@ -489,7 +474,7 @@ function updateCompleteHistory() {
 }
 
 function selectedTaskIdx() {
-	return g_task_index;
+	return g_task.index;
 }
 
 function updateAnyWithItems(itemList) {
@@ -917,7 +902,7 @@ function QueryDataItem(query, studentNicknames, count, ratings, variations) {
 
 		var query = this.query;
 		var variations = this.variations;
-		$.each(g_students, function (studentNickname,studentInfo) {
+		$.each(g_students, function (studentNickname, studentInfo) {
 			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
 			$.each(taskInfo.searches, function (i,searchInfo) {
 				if (normalizeQuery(searchInfo.query)==normalizeQuery(query)) {
@@ -1632,7 +1617,7 @@ function getCloudOption(label, value, funcName, className) {
 
 
 
-var port = chrome.extension.connect();
+//var port = chrome.extension.connect();
 window.addEventListener("message", function(event) {
 	// We only accept messages from ourselves
 	if (event.source != window) {
