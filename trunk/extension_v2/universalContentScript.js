@@ -222,7 +222,7 @@ function createSearchPartyInterface() {
 			\
 			<div style="width: 600px; padding-left: 10px; border: 0px solid red; float: left;"> \
 				<div id="complete_history" class="complete_history"></div> \
-				<div id="tag_cloud" class="tag_cloud"></div> \
+				<div id="tag_cloud" class="tag_cloud" style="width: 600px; height: 175px;"></div> \
 			</div> \
 			\
 			<div style="clear: both;"></div> \
@@ -297,6 +297,35 @@ function showSearchPartyTopUi() {
 	
 	// Update state variable
 	g_top_ui_visible = true;
+}
+
+function showLoadingSearchPartyTopUi() {
+
+	// SHow the SP "loading" top UI
+	document.getElementById('searchPartyTopFrame').style.display = 'block';
+	
+	var html;
+	if (document.documentElement) {
+		html = $(document.documentElement); //just drop $ wrapper if no jQuery
+	} else if (document.getElementsByTagName('html') && document.getElementsByTagName('html')[0]) {
+		html = $(document.getElementsByTagName('html')[0]);
+	} else if ($('html').length > -1) { // drop this branch if no jQuery
+		html = $('html');
+	} else {
+		alert('No <html> element exists, so Search Party cannot be displayed.');
+		throw 'No <html> element exists, so Search Party cannot be displayed.';
+	}
+	
+	var spTopUiHeightWhileVisible = '75px';
+	
+	// Move HTML page back up to the top of the page since the SP top UI has been hidden
+	html.css(
+		'top',     //make sure we're -adding- to any existing values
+		spTopUiHeightWhileVisible
+	);
+	
+	// Update state variable
+	//g_top_ui_visible = true;
 }
 
 /**
@@ -422,7 +451,7 @@ function getFormattedTimestamp(ts) {
 
 
 //=================================================================================
-//Word Clouds
+// Word Clouds
 //=================================================================================
 
 function updateStudents(activity_id) {
@@ -902,7 +931,7 @@ function QueryDataItem(query, studentNicknames, count, ratings, variations) {
 
 		var query = this.query;
 		var variations = this.variations;
-		$.each(g_students, function (studentNickname, studentInfo) {
+		$.each(g_students, function (studentNickname,studentInfo) {
 			var taskInfo = studentInfo.tasks[selectedTaskIdx()];
 			$.each(taskInfo.searches, function (i,searchInfo) {
 				if (normalizeQuery(searchInfo.query)==normalizeQuery(query)) {
@@ -1452,22 +1481,16 @@ function countUnique(list) {
 }
 
 //=================================================================================
-//Word Clouds
+// Word Clouds
 //=================================================================================
 
 function drawHistoryCloud(itemList, option) {
-//	alert("drawHistoryCloud() called");
 	g_cloudShowOption = (option == undefined) ? g_cloudShowOption : option;
-//	alert("1");
 	var options = [];
 	options.push(getCloudOption('Helpful', 'link_helpful', 'drawHistoryCloud'));
 	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawHistoryCloud'));
 	options.push(getCloudOption('Unrated', 'link', 'drawHistoryCloud'));
 	var showOptions = { label:'Queries: ', options:options };
-	
-//	alert("2");
-	
-//	alert("itemList = " + itemList);
 	
 	drawCloud("tag_cloud", itemList, function(i, item) {
 		var link = item.query;
@@ -1539,14 +1562,44 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 //	alert("drawCloud() called");
 	var cloudHtml = '';
 	var maxWeight = 1;
+	
+	// Variables for calculating size of query cloud
+	var cloudTextPixelWidthTotal    = 0;
+	var cloudTextPixelWidthCounter  = 0;
+	var cloudTextPixelHeightTotal   = 0;
+	var maxCloudElementHeightOnLine = 0;
+	var cloudContainerWidth  = $('#searchPartyTopFrame').contents().find("#" + divName).width();
+	var cloudContainerHeight = $('#searchPartyTopFrame').contents().find("#" + divName).height();
+	
 	$.each(itemList.items, function(i, item) {
 		var data = getCloudDataFunc(i, item);
-		//alert(data.link);
-		if (data.weight>0) {
-			var link = data.link.length<=MAX_TAG_LENGTH ? data.link : data.link.substring(0,MAX_TAG_LENGTH)+"&hellip;";
+		if (data.weight > 0) {
+			var link = data.link.length <= MAX_TAG_LENGTH ? data.link : data.link.substring(0, MAX_TAG_LENGTH) + "&hellip;";
 			link = link.replace("<", "&lt;").replace(">", "&gt;");
-			cloudHtml += '<a'+((options!=undefined && options.className!=undefined)?' class="'+options.className+'"':'')+' href="'+data.url+'" rel="'+data.weight+'" title="'+data.link+'">'+link+'</a>\n';
-			if (data.weight>maxWeight) maxWeight = data.weight;
+			var cloudItemSpanHtml =  '<span id="cloud_' + i + '"><a' + ((options != undefined && options.className != undefined) ?' class="' + options.className + '"' : '') + ' href="' + data.url + '" rel="' + data.weight + '" title="' + data.link + '">' + link + '</a></span>\n';
+			
+			var cloudElementId     = "#cloud_" + i;
+			var cloudElementWidth  = $('#searchPartyTopFrame').contents().find(cloudElementId).width(); // Get width of span containing text
+			var cloudElementHeight = $('#searchPartyTopFrame').contents().find(cloudElementId).height(); // Get height of span containing text
+			if (cloudElementHeight > maxCloudElementHeightOnLine) { // Check if element height is new greatest height encountered in line so far...
+				maxCloudElementHeightOnLine = cloudElementHeight; // ...if so, update the current max to its height.
+			}
+			cloudTextPixelWidthCounter += cloudElementWidth;
+			cloudTextPixelWidthTotal += cloudElementWidth;
+			
+			if (cloudTextPixelWidthCounter > cloudElementWidth) {
+				cloudTextPixelHeightTotal += maxCloudElementHeightOnLine;
+				maxCloudElementHeightOnLine = 0; // Reset max cloud element height for next line of cloud
+				
+				if (cloudTextPixelHeightTotal > cloudContainerHeight) {
+					return false; // break; // Stop adding to the cloud
+				}
+			}
+			
+			cloudHtml += cloudItemSpanHtml; // Append HTML for cloud element to cloud HTML
+			if (data.weight > maxWeight) {
+				maxWeight = data.weight;
+			}
 		}
 	});
 	if (cloudHtml == '') {
@@ -1554,7 +1607,7 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 	}
 	
 	// if items, show cloud options + html
-	if (itemList.items.length>0) {
+	if (itemList.items.length > 0) {
 		var html = '';
 		if (options!=undefined && options.show!=undefined && options.show.options.length>0) {
 			html += '<div class="cloud_options display_options">'+options.show.label+options.show.options.join(' ')+'</div>';
