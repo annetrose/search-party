@@ -87,7 +87,8 @@ function refreshState() {
 }
 
 /**
- * Sends CURRENT state data to content scripts. 
+ * Sends CURRENT state data to content scripts.  A better name for this 
+ * function might be "updateStateOfContentScripts". 
  */
 function updateState() {
 	// Send message to content script to update timestamp of last save
@@ -109,7 +110,7 @@ function updateState() {
 					index: taskIndex,
 					description: taskDescription,
 					response: mostRecentResponse
-				},
+				}, 
 				g_students: g_students
 			}
 		});
@@ -145,10 +146,9 @@ chrome.extension.onConnect.addListener(function(port) {
 			
 		} else if (message.type == 'functionRequest') {
 			
-//			console.log("message " + message.type + " received by background.js");
-//			alert("message " + message.type + " received by background.js");
+//			console.log("message " + message.type + " received by background.js");ssage.type + ": " + message.functionSignature + " received by background.js");
 			
-			if (message.functionSignature = 'getStoredLink') {
+			if (message.functionSignature == 'getStoredLink') {
 				var result = getStoredLink();
 				
 				// Send message to content script to update timestamp of last save
@@ -168,7 +168,8 @@ chrome.extension.onConnect.addListener(function(port) {
 						}
 					});
 				});
-			} else if (message.functionSignature = 'updateState') {
+				
+			} else if (message.functionSignature == 'updateState') {
 				
 				updateState();
 				
@@ -178,7 +179,8 @@ chrome.extension.onConnect.addListener(function(port) {
 			
 			alert("UPDATE STATE");
 			if (message.state && message.state.g_students) {
-				g_students = message.state.g_students
+				alert("Assigned g_students!");
+				g_students = message.state.g_students;
 			}
 			
 		} else {

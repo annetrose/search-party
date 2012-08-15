@@ -112,6 +112,9 @@ function request_updateState() {
 	console.log("request_updateState() called");
 	// Open port to send request for function call to background.js message handler
 //	var port = chrome.extension.connect({ name: "spTopUi" });
+	if (g_top_ui_visible == false) {
+		showLoadingSearchPartyTopUi();
+	}
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'updateState',
@@ -197,7 +200,16 @@ function createSearchPartyInterface() {
 		} \
 		</style> \
 		\
-		<div style="background: url(http://search-party.appspot.com/imgs/sp_logo.png) no-repeat left center; background-size: 114px 49px; width: 100%; height: ' + height + '; padding-left: 140px; margin-left: 13px;"> \
+		<div id="loadingUi" style="display: none;"> \
+		<div style="margin: 10 auto; width: 114px;"> \
+			<img src="http://search-party.appspot.com/imgs/sp_logo.png" style="width: 114px; height: 49px;"> \
+		</div> \
+		<div style="margin: 0 auto; width: 24px;"> \
+			<img src="http://search-party.appspot.com/imgs/loading.gif"> \
+		</div> \
+		</div> \
+		\
+		<div id="completeUi" style="background: url(http://search-party.appspot.com/imgs/sp_logo.png) no-repeat left center; background-size: 114px 49px; width: 100%; height: ' + height + '; padding-left: 140px; margin-left: 13px;"> \
 		<div> \
 		<div id="sptask" style="font-weight: normal; padding-bottom: 15px; font-size: 16px; width: 960px; color: #DD4B39;"></div> \
 		\
@@ -222,7 +234,7 @@ function createSearchPartyInterface() {
 			\
 			<div style="width: 600px; padding-left: 10px; border: 0px solid red; float: left;"> \
 				<div id="complete_history" class="complete_history"></div> \
-				<div id="tag_cloud" class="tag_cloud" style="width: 600px; height: 175px;"></div> \
+				<div id="tag_cloud" class="tag_cloud" style="width: 600px; height: 150px;"></div> \
 			</div> \
 			\
 			<div style="clear: both;"></div> \
@@ -239,11 +251,14 @@ function createSearchPartyInterface() {
 	
 	// Hide UI
 	hideSearchPartyTopUi();
+//	showLoadingSearchPartyTopUi();
 }
 
 function hideSearchPartyTopUi() {
 
 	// Hide the SP top UI
+	$('#searchPartyTopFrame').contents().find('#completeUi').css("display", "none");
+	$('#searchPartyTopFrame').contents().find('#loadingUi').css("display", "block");
 	document.getElementById('searchPartyTopFrame').style.display = 'none';
 	
 	var html;
@@ -272,7 +287,13 @@ function hideSearchPartyTopUi() {
 
 function showSearchPartyTopUi() {
 
+	var spTopUiHeightWhileVisible = '200px';
+	
 	// Hide the SP top UI
+	$('#searchPartyTopFrame').css('height', spTopUiHeightWhileVisible);
+//	$('#searchPartyTopFrame').animate({ 'height': spTopUiHeightWhileVisible }, 400);
+	$('#searchPartyTopFrame').contents().find('#completeUi').css("display", "block");
+	$('#searchPartyTopFrame').contents().find('#loadingUi').css("display", "none");
 	document.getElementById('searchPartyTopFrame').style.display = 'block';
 	
 	var html;
@@ -286,8 +307,6 @@ function showSearchPartyTopUi() {
 		alert('No <html> element exists, so Search Party cannot be displayed.');
 		throw 'No <html> element exists, so Search Party cannot be displayed.';
 	}
-	
-	var spTopUiHeightWhileVisible = '200px';
 	
 	// Move HTML page back up to the top of the page since the SP top UI has been hidden
 	html.css(
@@ -300,8 +319,13 @@ function showSearchPartyTopUi() {
 }
 
 function showLoadingSearchPartyTopUi() {
+	
+	var spTopUiHeightWhileLoading = '110px';
 
 	// SHow the SP "loading" top UI
+	$('#searchPartyTopFrame').css('height', spTopUiHeightWhileLoading);
+	$('#searchPartyTopFrame').contents().find('#completeUi').css("display", "none");
+	$('#searchPartyTopFrame').contents().find('#loadingUi').css("display", "block");
 	document.getElementById('searchPartyTopFrame').style.display = 'block';
 	
 	var html;
@@ -316,16 +340,14 @@ function showLoadingSearchPartyTopUi() {
 		throw 'No <html> element exists, so Search Party cannot be displayed.';
 	}
 	
-	var spTopUiHeightWhileVisible = '75px';
-	
 	// Move HTML page back up to the top of the page since the SP top UI has been hidden
 	html.css(
 		'top',     //make sure we're -adding- to any existing values
-		spTopUiHeightWhileVisible
+		spTopUiHeightWhileLoading
 	);
 	
 	// Update state variable
-	//g_top_ui_visible = true;
+	g_top_ui_visible = false;
 }
 
 /**
@@ -373,7 +395,7 @@ chrome.extension.onConnect.addListener(function(port) {
 			
 		} else if (message.type == 'updateState') {
 			
-			console.log("updateState received");
+//			console.log("updateState received");
 			if (message.state && message.state.g_studentInfo) {
 				g_studentInfo = message.state.g_studentInfo
 			}
@@ -396,13 +418,14 @@ chrome.extension.onConnect.addListener(function(port) {
 });
 
 function refreshUi() {
+	console.log("refreshUi() called");
 	
 	// Show or hide the interface
 	if (g_studentInfo.status == 1) {
 //		if (document.getElementById('searchPartyTopFrame').style.display == 'none') {
 			showSearchPartyTopUi();
 //		}
-	} else if (g_studentInfo.status == 1) {
+	} else if (g_studentInfo.status == 0) {
 //		if (document.getElementById('searchPartyTopFrame').style.display == 'block') {
 			hideSearchPartyTopUi();
 //		}
@@ -458,9 +481,18 @@ function updateStudents(activity_id) {
 	console.log("updateStudents() called");
 	var requestUrl = 'http://search-party.appspot.com/student_info/' + activity_id;
 	
+	// Update with cached data
+	if (g_students != null) {
+		updateCompleteHistory();
+	}
+	
+	// Request refreshed data
 	$.get(requestUrl, function(data) {
 		var parsedData = JSON.parse(data);
+//		alert(data);
+//		alert(parsedData);
 		g_students = JSON.parse(parsedData[0]);
+//		eval(parsedData);
 		updateState();
 		updateCompleteHistory();
 	});
@@ -1577,19 +1609,20 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 			var link = data.link.length <= MAX_TAG_LENGTH ? data.link : data.link.substring(0, MAX_TAG_LENGTH) + "&hellip;";
 			link = link.replace("<", "&lt;").replace(">", "&gt;");
 			var cloudItemSpanHtml =  '<span id="cloud_' + i + '"><a' + ((options != undefined && options.className != undefined) ?' class="' + options.className + '"' : '') + ' href="' + data.url + '" rel="' + data.weight + '" title="' + data.link + '">' + link + '</a></span>\n';
+			$('#searchPartyTopFrame').contents().find("#" + divName).html(cloudItemSpanHtml);
 			
-			var cloudElementId     = "#cloud_" + i;
-			var cloudElementWidth  = $('#searchPartyTopFrame').contents().find(cloudElementId).width(); // Get width of span containing text
-			var cloudElementHeight = $('#searchPartyTopFrame').contents().find(cloudElementId).height(); // Get height of span containing text
+			var cloudElementWidth = $('#searchPartyTopFrame').contents().find("#cloud_" + i).width(); // Get width of span containing text
+			var cloudElementHeight = $('#searchPartyTopFrame').contents().find("#cloud_" + i).height(); // Get height of span containing text
 			if (cloudElementHeight > maxCloudElementHeightOnLine) { // Check if element height is new greatest height encountered in line so far...
 				maxCloudElementHeightOnLine = cloudElementHeight; // ...if so, update the current max to its height.
 			}
 			cloudTextPixelWidthCounter += cloudElementWidth;
 			cloudTextPixelWidthTotal += cloudElementWidth;
-			
-			if (cloudTextPixelWidthCounter > cloudElementWidth) {
+//			alert(cloudTextPixelWidthCounter + " > " + cloudContainerWidth);
+			if (cloudTextPixelWidthCounter > cloudContainerWidth) {
 				cloudTextPixelHeightTotal += maxCloudElementHeightOnLine;
 				maxCloudElementHeightOnLine = 0; // Reset max cloud element height for next line of cloud
+//				alert("cloudTextPixelHeightTotal = " + cloudTextPixelHeightTotal);
 				
 				if (cloudTextPixelHeightTotal > cloudContainerHeight) {
 					return false; // break; // Stop adding to the cloud
@@ -1610,7 +1643,7 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 	if (itemList.items.length > 0) {
 		var html = '';
 		if (options!=undefined && options.show!=undefined && options.show.options.length>0) {
-			html += '<div class="cloud_options display_options">'+options.show.label+options.show.options.join(' ')+'</div>';
+			html += '<div class="cloud_options display_options">' + options.show.label + options.show.options.join(' ') + '</div>';
 		}
 		html += '<div class="cloud"><p>'+cloudHtml+'</p></div>';
 		
