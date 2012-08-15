@@ -43,6 +43,7 @@ class AllStudentInfoHandler(PersonPage):
 #            }
             
             response_data = self.make_student_structure_json(lesson=lesson, indent="  "),
+            #response_data = self.make_student_structure_js(lesson=lesson, indent="  ", declare_variable=False)
 
 #            if self.session.has_key('msg'):
 #                template_values['msg'] = self.session.pop('msg')  # only show the message once

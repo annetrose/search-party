@@ -168,7 +168,7 @@ class PersonPage(SearchPartyRequestHandler):
         js = ("\n").join(lines).lstrip()
         return js
     
-    def make_student_structure_js2(self, lesson, indent, student=None):
+    def make_student_structure_js2(self, lesson, indent, student=None, declare_variable=True):
         lines = []
         indent_level = 1
         def add(s):
@@ -181,7 +181,82 @@ class PersonPage(SearchPartyRequestHandler):
         student_structure = self.make_student_structure(lesson=lesson, student=student)
 
         indent_level += 1
-        add('var g_students = (function() {')
+        if declare_variable:
+            add('var g_students = (function() {')
+        else:
+            add('g_students = (function() {')
+        add('')
+        indent_level += 1
+        add('var students = {};')
+        for student_nickname,student_info in sorted(student_structure.items()):
+            add('')
+            add('//============================================================')
+            add('// STUDENT: {0}'.format(student_nickname))
+            add('var student = {};')
+            add('student.logged_in = {0};'.format(as_json(student_info["logged_in"])))
+            add('student.task_idx = {0};'.format(as_json(student_info["task_idx"])))
+            add('student.task_history = [];')
+            add('student.tasks = [];')
+            
+            for task_idx,task_info in enumerate(student_info["tasks"]):
+                add('')
+                add('// Task {0} History'.format(task_idx+1))
+                add('student.task_history[{0}] = [];'.format(task_idx))
+                for activity in task_info["history"]:
+                    add('student.task_history[{0}].push({{activity_type:{1}, search:{2}, link:{3}, link_title:{4}, is_helpful:{5}, answer_text:{6}, answer_explanation:{7}, timestamp:{8} }});'.format(
+                        task_idx, as_json(activity.activity_type), as_json(activity.search), 
+                        as_json(activity.link), as_json(activity.link_title), as_json(activity.is_helpful), 
+                        as_json(activity.answer_text), as_json(activity.answer_explanation), as_json(activity.timestamp.strftime("%B %d, %Y %H:%M:%S %Z"))))
+                 
+                add('')
+                add('// Task {0} Queries'.format(task_idx+1))
+                add('student.tasks[{0}] = {{"searches":[], answer:{{text:"", explanation:""}}}};'.format(task_idx))
+
+                i = 0
+                for query_info in task_info["searches"]:
+                    if query_info["query"] is None:
+                        continue
+                    add('student.tasks[{0}].searches[{1}] = {{"query":{2}, "links_followed":[]}};'.format(task_idx, i, as_json(query_info["query"])))
+                    for followed_link_info in query_info["links_followed"]:
+                        add('student.tasks[{0}].searches[{1}].links_followed.push({{url:{2}, title:{3}, is_helpful:{4}}});'.format(
+                            task_idx, i, as_json(followed_link_info["url"]), as_json(followed_link_info["title"]), 
+                            as_json(followed_link_info["is_helpful"])))
+                    i += 1
+
+                add('')
+                add('// Task {0} Answer'.format(task_idx+1))
+                add('student.tasks[{0}].answer = {{text:{1}, explanation:{2}}};'.format(
+                    task_idx, as_json(task_info["answer"]["text"]), as_json(task_info["answer"]["explanation"])))
+                        
+            add('students[{0}] = student;'.format(as_json(student_nickname)))
+        
+        add('')
+        add('return students;')
+        indent_level -= 1
+        add('})();')
+
+        if student is not None:
+            assert len(student_structure)==1, repr(student_structure)
+            add('var g_student_nickname = %s;'%(as_json(student.nickname)))
+            add('var g_student_info = g_students[g_student_nickname];')
+            
+        js = ("\n").join(lines).lstrip()
+        return js
+    
+    def make_student_structure_js3(self, lesson, indent, student=None):
+        lines = []
+        indent_level = 1
+        def add(s):
+            lines.append(indent*indent_level + s)
+            
+        from json import JSONEncoder
+        encoder = JSONEncoder()
+        as_json = encoder.encode
+        
+        student_structure = self.make_student_structure(lesson=lesson, student=student)
+
+        indent_level += 1
+        add('g_students = (function() {')
         add('')
         indent_level += 1
         add('var students = {};')
@@ -250,10 +325,7 @@ class PersonPage(SearchPartyRequestHandler):
 
         students = {}
         
-        for student_nickname, student_info in sorted(student_structure.items()):
-            
-            student_key = format(student_nickname)
-            students[student_key] = student
+        for student_nickname,student_info in sorted(student_structure.items()):
             
             student = {
                 'logged_in': student_info["logged_in"],
@@ -319,8 +391,8 @@ class PersonPage(SearchPartyRequestHandler):
                     'explanation': task_info['answer']['explanation']
                 }
             
-#            student_key = format(student_nickname)
-#            students[student_key] = student
+            student_key = format(student_nickname)
+            students[student_key] = student
             
         return encoder.encode(students)
     
