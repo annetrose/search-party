@@ -20,7 +20,8 @@ var port = chrome.extension.connect({ name: "spTopUi" });
 createSearchPartyInterface();
 //hideSearchPartyTopUi();
 //showSearchPartyTopUi();
-request_updateState(); // TODO: Call refrest_refreshState() instead to guarantee fresh data on every page?
+request_refreshState(); // TODO: Call refrest_refreshState() instead to guarantee fresh data on every page?
+request_verifyChannelToken();
 
 function onResponseChanged() {
 	//alert("onResponseChanged");
@@ -110,16 +111,36 @@ function request_getStoredLink() {
  */
 function request_updateState() {
 	console.log("request_updateState() called");
-	if (g_studentInfo && g_studentInfo.status == 1) {
-		if (g_top_ui_visible == false) {
-			showLoadingSearchPartyTopUi();
-		}
-	}
+//	if (g_studentInfo && g_studentInfo.status == 1) {
+//		if (g_top_ui_visible == false) {
+//			showLoadingSearchPartyTopUi();
+//		}
+//	}
 	// Open port to send request for function call to background.js message handler
 	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'updateState',
+		functionArguments: {}
+	});
+}
+
+/**
+ * Request to background page to call the function getStoredLink() and return 
+ * the results.
+ */
+function request_verifyChannelToken() {
+	console.log("request_verifyChannelToken() called");
+//	if (g_studentInfo && g_studentInfo.status == 1) {
+//		if (g_top_ui_visible == false) {
+//			showLoadingSearchPartyTopUi();
+//		}
+//	}
+	// Open port to send request for function call to background.js message handler
+	var port = chrome.extension.connect({ name: "spTopUi" });
+	port.postMessage({
+		type: 'functionRequest',
+		functionSignature: 'verifyChannelToken',
 		functionArguments: {}
 	});
 }
@@ -392,19 +413,23 @@ chrome.extension.onConnect.addListener(function(port) {
 		} else if (message.type == 'updateState') {
 		
 			if (message.state && message.state.g_studentInfo) {
-				g_studentInfo = message.state.g_studentInfo
+				g_studentInfo = message.state.g_studentInfo;
 			}
 			
 			if (message.state && message.state.g_task) {
-				g_task = message.state.g_task
+				g_task = message.state.g_task;
 			}
 			
 			if (message.state && message.state.g_students) {
-				g_students = message.state.g_students
+				g_students = message.state.g_students;
 			}
 			
 			// TODO: Update UI with latest received data
 			//createSearchPartyInterface();
+			
+			if (g_studentInfo) {
+				console.log("g_studentInfo.status = " + g_studentInfo.status);
+			}
 			
 			refreshUi();
 		}
@@ -417,29 +442,31 @@ function refreshUi() {
 	// Show or hide the interface
 	if (g_studentInfo.status == 1) {
 //		if (document.getElementById('searchPartyTopFrame').style.display == 'none') {
-			showSearchPartyTopUi();
+		showSearchPartyTopUi();
 //		}
+			
+		// Update task description
+		$('#searchPartyTopFrame').contents().find('#sptask').html(g_task.description);
+		
+		// Update response
+		$('#searchPartyTopFrame').contents().find('#response').val(g_task.response.response);
+		
+		// Update note
+		$('#searchPartyTopFrame').contents().find('#explanation').val(g_task.response.explanation);
+		
+		// Update timestamp
+		$('#searchPartyTopFrame').contents().find('#response_saved').html(g_task.response.timestamp);
+		
+		request_getStoredLink();
+		updateStudents(g_studentInfo.lesson.lesson_code);
+		
 	} else if (g_studentInfo.status == 0) {
+		
 //		if (document.getElementById('searchPartyTopFrame').style.display == 'block') {
-			hideSearchPartyTopUi();
+		hideSearchPartyTopUi();
 //		}
+
 	}
-	
-	// Update task description
-	$('#searchPartyTopFrame').contents().find('#sptask').html(g_task.description);
-	
-	// Update response
-	$('#searchPartyTopFrame').contents().find('#response').val(g_task.response.response);
-	
-	// Update note
-	$('#searchPartyTopFrame').contents().find('#explanation').val(g_task.response.explanation);
-	
-	// Update timestamp
-	$('#searchPartyTopFrame').contents().find('#response_saved').html(g_task.response.timestamp);
-	
-	request_getStoredLink();
-	updateStudents(g_studentInfo.lesson.lesson_code);
-	
 }
 
 function getLocalTime(gmt)  {
@@ -509,9 +536,12 @@ function updateCompleteHistory() {
 	$.each(g_students, function (studentNickname, studentInfo) {
 		//$.each(studentInfo.tasks[selectedTaskIdx()].searches, function (i,searchInfo) {
 		$.each(studentInfo.tasks[g_task.index].searches, function (i, searchInfo) {
+			// Skip "<empty>".  Do not add it to the list because it's not useful for users!
+			if (searchInfo.query == "<empty>") {
+				return 1; // jQuery equivalent of "continue" for its $.each function
+			}
 			var isHelpful = searchIsHelpful(searchInfo);
 			accumulator.add(searchInfo.query, studentNickname, isHelpful);
-			//alert(searchInfo.query);
 		});
 	});
 	accumulator.setSort('ABC');
@@ -1516,7 +1546,7 @@ function drawHistoryCloud(itemList, option) {
 	options.push(getCloudOption('Helpful', 'link_helpful', 'drawHistoryCloud'));
 	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawHistoryCloud'));
 	options.push(getCloudOption('Unrated', 'link', 'drawHistoryCloud'));
-	var showOptions = { label:'Queries: ', options:options };
+	var showOptions = { label:'Show: ', options:options };
 	
 	drawCloud("tag_cloud", itemList, function(i, item) {
 		var link = item.query;
@@ -1636,10 +1666,11 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 	// if items, show cloud options + html
 	if (itemList.items.length > 0) {
 		var html = '';
-		if (options!=undefined && options.show!=undefined && options.show.options.length>0) {
+		if (options != undefined && options.show != undefined && options.show.options.length > 0) {
 			html += '<div class="cloud_options display_options">' + options.show.label + options.show.options.join(' ') + '</div>';
 		}
-		html += '<div class="cloud"><p>'+cloudHtml+'</p></div>';
+//		html += '<div class="cloud"><p>'+cloudHtml+'</p></div>';
+		html += '<div class="cloud"><p><strong>Queries:</strong> ' + cloudHtml + '</p></div>';
 		
 		var minFont = 10;
 		var maxFont = 26;
