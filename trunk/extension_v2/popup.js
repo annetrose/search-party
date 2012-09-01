@@ -24,6 +24,7 @@ function loadStudent(init) {
 		cache : false,
 		success : function(data) {
 			g_studentInfo = data;
+			chrome.extension.getBackgroundPage().g_studentInfo = g_studentInfo;
 			updateBadge(data.status);
 			
 			if (init) {
@@ -72,30 +73,8 @@ function loadStudent(init) {
 				// Send message to content scripts requesting an update to the
 				// in-browser SearchParty UI (sends to googleContentScript.js 
 				// and universalContentScript.js).
-//				chrome.tabs.getSelected(null, function(tab) {
-//
-//					// Create message on port
-//					var port = chrome.tabs.connect(tab.id, {
-//						name : "spTopUi"
-//					});
-//					port.postMessage({
-//						type: 'show_top_ui',
-//						task_index : taskIndex,
-//						task_description : taskDesc,
-//						response: response
-//					});
-//					port.postMessage({
-//						type: 'request',
-//						request: { 'type': 'sync' }
-//					});
-//
-//				});
-				
-				chrome.extension.getBackgroundPage().updateState();
-				
-				// Update top UI
-				//updateTopUi(true);
-
+				//chrome.extension.getBackgroundPage().updateState();
+				chrome.extension.getBackgroundPage().refreshState();
 			}
 			$('#loading').hide();
 			$('#content').show();
@@ -280,16 +259,16 @@ function onResponseChanged() {
 }
 
 function onLogin() {
-	updateSearchPartyTab(SEARCH_PARTY_URL+'/student_login?ext=1');
+	updateSearchPartyTab(SEARCH_PARTY_URL + '/student_login?ext=1');
 }
 
 function onShowWebInterface() {
 	var taskIdx = getSelectedTaskIndex();
-	updateSearchPartyTab(SEARCH_PARTY_URL+'/student?task='+(taskIdx+1));
+	updateSearchPartyTab(SEARCH_PARTY_URL + '/student?task=' + (taskIdx + 1));
 }
 
 function onLogout() {
-	chrome.extension.sendRequest({'type':'logout'});
+	chrome.extension.sendRequest({ 'type': 'logout' });
 	window.close();
 }
 

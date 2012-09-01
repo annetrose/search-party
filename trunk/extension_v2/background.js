@@ -67,7 +67,15 @@ $(document).ready(function() {
 //		TOKEN = parsed_data.token;
 //		openChannel();
 //	});
+	
+//	var heartbeatInterval = setInterval(heartbeat, 2000);
 });
+
+function heartbeat() {
+	alert("kerthump");
+	verifyChannelToken();
+	updateState();
+}
 
 //openChannel();
 
@@ -75,8 +83,16 @@ function getChannelToken() {
 	$.get(SEARCH_PARTY_URL + "/student_token", function(data) {
 		parsed_data = JSON.parse(data);
 		TOKEN = parsed_data.token;
-		openChannel();
 	});
+}
+
+function verifyChannelToken() {
+//	alert("verifyChannelToken");
+	openChannel();
+//	alert("TOKEN = " + TOKEN);
+	if(TOKEN != undefined) {
+		getChannelToken();
+	}
 }
 
 /**
@@ -85,6 +101,7 @@ function getChannelToken() {
  */
 function refreshState() {
 	
+//	alert("g_students.status = " + g_students.status);
 	// Update g_studentInfo
 	$.ajax({
 		type : 'POST',
@@ -93,7 +110,7 @@ function refreshState() {
 		cache : false,
 		success : function(data) {
 			g_studentInfo = data;
-			synchronizeDataState(); // Propogate state data to extension content scripts
+			updateState(); // Propogate state data to extension content scripts
 			updateBadge(data.status);
 //			if (isStudentLoggedIn()) {
 //				initTabs();
@@ -107,7 +124,7 @@ function refreshState() {
 
 /**
  * Sends CURRENT state data to content scripts.  A better name for this 
- * function might be "updateStateOfContentScripts". 
+ * function might be "updateStateOfContentScripts".
  */
 function updateState() {
 //	alert("calling update state");
@@ -115,8 +132,12 @@ function updateState() {
 	chrome.tabs.getSelected(null, function(tab) {
 
 		var taskIndex = getStoredTask();
-		var taskDescription = g_studentInfo.lesson.tasks[taskIndex][1]; // TODO: Get stored description
+		if (g_studentInfo && g_studentInfo.lesson) {
+			var taskDescription = g_studentInfo.lesson.tasks[taskIndex][1]; // TODO: Get stored description
+		}
 		var mostRecentResponse = getMostRecentResponse();
+		
+//		alert("g_studentInfo.status = " + g_studentInfo.status);
 		
 		// Create message on port
 		var port = chrome.tabs.connect(tab.id, {
@@ -192,6 +213,10 @@ chrome.extension.onConnect.addListener(function(port) {
 			} else if (message.functionSignature == 'updateState') {
 				
 				updateState();
+				
+			} else if (message.functionSignature == 'verifyChannelToken') {
+				
+				verifyChannelToken();
 				
 			}
 			
@@ -308,15 +333,22 @@ function getMostRecentResponse() {
 		'explanation': '',
 		'timestamp': ''
 	};
-	var history = g_studentInfo.history;
-	for (var i=history.length-1; i>=0; i--) {
-		var taskItem = history[i];
-                var taskType = taskItem.activity_type;
-		if (taskType == "answer") {
-			var timestamp = getFormattedTimestamp(getLocalTime(new Date(taskItem.timestamp)));
-			response = {'response':taskItem.answer_text, 'explanation':taskItem.answer_explanation, 'timestamp':timestamp};
-			break;
-		}
+//	alert(g_studentInfo);
+	if (g_studentInfo && g_studentInfo.history) {
+		var history = g_studentInfo.history;
+		for (var i = history.length - 1; i >= 0; i--) {
+			var taskItem = history[i];
+			var taskType = taskItem.activity_type;
+			if (taskType == "answer") {
+				var timestamp = getFormattedTimestamp(getLocalTime(new Date(taskItem.timestamp)));
+				response = {
+					'response': taskItem.answer_text, 
+					'explanation': taskItem.answer_explanation, 
+					'timestamp': timestamp
+				};
+				break;
+			}
+	}
 	}
 	return response;
 }
@@ -561,7 +593,11 @@ function handleLogin() {
 		initLocalStorage();
 		initTabs();
 		g_initWhenLogin = false;
-		updateState();
+		if(g_students != undefined && g_students.status != undefined) {
+			g_students.status = 1;
+		}
+		refreshState();
+		verifyChannelToken();
 	}
 	updateBadge(STUDENT_LOGGED_IN);
 }
@@ -570,8 +606,11 @@ function handleLogout() {
 	$.get(SEARCH_PARTY_URL+"/student_logout?ext=1", function(data) {
 		updateBadge(STUDENT_LOGGED_OUT);
 		g_initWhenLogin = true;
-		g_students.status = 0;
-		updateState();
+		if(g_students != undefined && g_students.status != undefined) {
+			g_students.status = 0;
+		}
+		refreshState();
+		verifyChannelToken();
 	});
 }
 
