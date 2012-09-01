@@ -68,11 +68,10 @@ $(document).ready(function() {
 //		openChannel();
 //	});
 	
-//	var heartbeatInterval = setInterval(heartbeat, 2000);
+	var heartbeatInterval = setInterval(heartbeat, 2000);
 });
 
 function heartbeat() {
-	alert("kerthump");
 	verifyChannelToken();
 	updateState();
 }
@@ -83,12 +82,12 @@ function getChannelToken() {
 	$.get(SEARCH_PARTY_URL + "/student_token", function(data) {
 		parsed_data = JSON.parse(data);
 		TOKEN = parsed_data.token;
+		openChannel();
 	});
 }
 
 function verifyChannelToken() {
 //	alert("verifyChannelToken");
-	openChannel();
 //	alert("TOKEN = " + TOKEN);
 	if(TOKEN != undefined) {
 		getChannelToken();
@@ -937,7 +936,7 @@ function onSocketOpen() {
 
 function onSocketError(error) {
 	alert("socket error");
-	if (error.code==401) {
+	if (error.code == 401) {
 		$.post('/channel_expired/'+g_lessons[0].lesson_code, {}, updateChannelToken, 'json');
 	}
 }
