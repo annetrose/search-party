@@ -110,11 +110,13 @@ function request_getStoredLink() {
  */
 function request_updateState() {
 	console.log("request_updateState() called");
-	// Open port to send request for function call to background.js message handler
-//	var port = chrome.extension.connect({ name: "spTopUi" });
-	if (g_top_ui_visible == false) {
-		showLoadingSearchPartyTopUi();
+	if (g_studentInfo && g_studentInfo.status == 1) {
+		if (g_top_ui_visible == false) {
+			showLoadingSearchPartyTopUi();
+		}
 	}
+	// Open port to send request for function call to background.js message handler
+	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'updateState',
@@ -227,8 +229,8 @@ function createSearchPartyInterface() {
 			</div> \
 			\
 			<div style="width: 160px; padding-left: 10px; border: 0px solid red; float: left;"> \
-			Page Rating<br/> \
-			<input type="radio" id="helpful" name="rating" value="1"> Helpful</input> \
+			Rate This Page:<br/> \
+			<input type="radio" id="helpful" name="rating" value="1"> Helpful</input><br /> \
 			<input type="radio" id="unhelpful" name="rating" value="0"> Unhelpful</input> \
 			</div> \
 			\
@@ -395,7 +397,8 @@ chrome.extension.onConnect.addListener(function(port) {
 			
 		} else if (message.type == 'updateState') {
 			
-//			console.log("updateState received");
+			console.log("updateState received");
+			
 			if (message.state && message.state.g_studentInfo) {
 				g_studentInfo = message.state.g_studentInfo
 			}
@@ -418,7 +421,6 @@ chrome.extension.onConnect.addListener(function(port) {
 });
 
 function refreshUi() {
-	console.log("refreshUi() called");
 	
 	// Show or hide the interface
 	if (g_studentInfo.status == 1) {
@@ -1521,8 +1523,9 @@ function drawHistoryCloud(itemList, option) {
 	var options = [];
 	options.push(getCloudOption('Helpful', 'link_helpful', 'drawHistoryCloud'));
 	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawHistoryCloud'));
-	options.push(getCloudOption('Unrated', 'link', 'drawHistoryCloud'));
-	var showOptions = { label:'Queries: ', options:options };
+//	options.push(getCloudOption('Unrated', 'link', 'drawHistoryCloud'));
+	options.push(getCloudOption('All', 'link', 'drawHistoryCloud'));
+	var showOptions = { label:'Show: ', options:options };
 	
 	drawCloud("tag_cloud", itemList, function(i, item) {
 		var link = item.query;
@@ -1538,7 +1541,7 @@ function drawQueryCloud(itemList, option) {
 	var options = [];
 	options.push(getCloudOption('Helpful', 'link_helpful', 'drawQueryCloud'));
 	options.push(getCloudOption('Unhelpful', 'link_unhelpful', 'drawQueryCloud'));
-	options.push(getCloudOption('Unrated', 'link', 'drawQueryCloud'));
+	options.push(getCloudOption('All', 'link', 'drawQueryCloud'));
 	var showOptions = { label:'Show: ', options:options };
 	
 	drawCloud("tag_cloud", itemList, function(i, item) {
@@ -1606,10 +1609,18 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 	$.each(itemList.items, function(i, item) {
 		var data = getCloudDataFunc(i, item);
 		if (data.weight > 0) {
+			
+			// TODO: Move this to the function that calls this function!
+			// Skip queries that match "<empty>"
+//			if(data.link == "<empty>") {
+//				return 1; // jQuery loop equivalent of "continue" keyword
+//			}
+			
 			var link = data.link.length <= MAX_TAG_LENGTH ? data.link : data.link.substring(0, MAX_TAG_LENGTH) + "&hellip;";
 			link = link.replace("<", "&lt;").replace(">", "&gt;");
+//			var cloudItemSpanHtml =  '<span id="cloud_' + i + '"><a' + ((options != undefined && options.className != undefined) ?' class="' + options.className + '"' : '') + ' href="' + data.url + '" rel="' + data.weight + '" title="' + data.link + '">' + link + '</a></span>\n';
 			var cloudItemSpanHtml =  '<span id="cloud_' + i + '"><a' + ((options != undefined && options.className != undefined) ?' class="' + options.className + '"' : '') + ' href="' + data.url + '" rel="' + data.weight + '" title="' + data.link + '">' + link + '</a></span>\n';
-			$('#searchPartyTopFrame').contents().find("#" + divName).html(cloudItemSpanHtml);
+//			$('#searchPartyTopFrame').contents().find("#" + divName).html(cloudItemSpanHtml);
 			
 			var cloudElementWidth = $('#searchPartyTopFrame').contents().find("#cloud_" + i).width(); // Get width of span containing text
 			var cloudElementHeight = $('#searchPartyTopFrame').contents().find("#cloud_" + i).height(); // Get height of span containing text
@@ -1636,28 +1647,28 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 		}
 	});
 	if (cloudHtml == '') {
-		cloudHtml = '<span class="small">(none)</span>';
+		cloudHtml = '<span class="small">There are no queries in this category.</span>';
 	}
 	
 	// if items, show cloud options + html
 	if (itemList.items.length > 0) {
 		var html = '';
-		if (options!=undefined && options.show!=undefined && options.show.options.length>0) {
+		if (options != undefined && options.show != undefined && options.show.options.length > 0) {
 			html += '<div class="cloud_options display_options">' + options.show.label + options.show.options.join(' ') + '</div>';
 		}
-		html += '<div class="cloud"><p>'+cloudHtml+'</p></div>';
+		html += '<div class="cloud"><p><strong>Queries:</strong> ' + cloudHtml + '</p></div>';
 		
 		var minFont = 10;
 		var maxFont = 26;
-		if (maxWeight<=2) {
+		if (maxWeight <= 2) {
 			maxFont = 16;
 		}
 		
 		var startColor = options!=undefined && options.color!=undefined && options.color.start!=undefined ? options.color.start : g_actionColors['link'];
 		var endColor = options!=undefined && options.color!=undefined && options.color.end!=undefined ? options.color.end : g_actionColors['link'];
 		
-		$('#searchPartyTopFrame').contents().find("#"+divName).html(html);
-		$('#searchPartyTopFrame').contents().find("#"+divName+" a").tagcloud({
+		$('#searchPartyTopFrame').contents().find("#" + divName).html(html);
+		$('#searchPartyTopFrame').contents().find("#" + divName + " a").tagcloud({
 			size: {
 				start: minFont,
 				end: maxFont,
