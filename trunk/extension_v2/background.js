@@ -32,8 +32,10 @@ var g_tabs = [];
 var g_last_deleted_tab = null;
 var g_initWhenLogin = true;
 
+var g_complete_histories = [];
 var g_studentInfo = null;
 var g_students = null;
+//var TOKEN = null;
 
 $(document).ready(function() {
 	initLocalStorage();
@@ -50,14 +52,32 @@ $(document).ready(function() {
 			updateBadge(data.status);
 			if (isStudentLoggedIn()) {
 				initTabs();
-//				updateTopUi(); // Initialize SP UI
+				getChannelToken();
+				initHistoryData();
 			}
 		},
 		error : function() {
-			updateBadge(STUDENT_LOGGED_OUT);
+			updateBadge(STUDENT_LOGGED_OUT); 
 		}
-	});	
+	});
+	
+	// Get student token
+//	$.get(SEARCH_PARTY_URL + "/student_token", function(data) {
+//		parsed_data = JSON.parse(data);
+//		TOKEN = parsed_data.token;
+//		openChannel();
+//	});
 });
+
+//openChannel();
+
+function getChannelToken() {
+	$.get(SEARCH_PARTY_URL + "/student_token", function(data) {
+		parsed_data = JSON.parse(data);
+		TOKEN = parsed_data.token;
+		openChannel();
+	});
+}
 
 /**
  * Updates state and sends updated state data content scripts.  Updates state 
@@ -77,7 +97,6 @@ function refreshState() {
 			updateBadge(data.status);
 //			if (isStudentLoggedIn()) {
 //				initTabs();
-//				updateTopUi(); // Initialize SP UI
 //			}
 		},
 		error : function() {
@@ -91,6 +110,7 @@ function refreshState() {
  * function might be "updateStateOfContentScripts". 
  */
 function updateState() {
+//	alert("calling update state");
 	// Send message to content script to update timestamp of last save
 	chrome.tabs.getSelected(null, function(tab) {
 
@@ -177,9 +197,7 @@ chrome.extension.onConnect.addListener(function(port) {
 			
 		} else if (message.type == 'updateState') {
 			
-			alert("UPDATE STATE");
 			if (message.state && message.state.g_students) {
-				alert("Assigned g_students!");
 				g_students = message.state.g_students;
 			}
 			
@@ -213,107 +231,6 @@ function updateResponse() {
 	$('#explanation').val(response.explanation);
 	if (response.timestamp!='') $('#response_saved').html('Saved '+response.timestamp);
 }
-
-
-
-
-//// TODO: REMOVE THIS!  The content scripts should monitor the STATE and update appropriately for their current state.
-//function updateTopUi() {
-//
-//	// TODO: Get cached copy of student and task data.
-//	if (isStudentLoggedIn()) {
-//		
-//		if (g_studentInfo != null) {
-//			
-//			// Create message on port
-//			var taskIndex = getStoredTask();
-//			var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1]; // TODO: Get stored description
-//
-//			// Send message to content script requesting an update to the in-browser SearchParty UI
-//			chrome.tabs.getSelected(null, function(tab) {
-//				
-//				// Get most recent response for current task
-//				var mostRecentResponse = getMostRecentResponse();
-//				
-//				// Create message on port
-//				var port = chrome.tabs.connect(tab.id, {
-//					name: "spTopUi"
-//				});
-//				port.postMessage({
-//					type: 'update_top_ui',
-//					task_index: taskIndex,
-//					task_description: taskDesc,
-//					response: mostRecentResponse
-//				});
-//			});
-//			
-//			// TODO: If last update is over some specified threshold, then request an update to the stored student data and refresh UIs with that up-to-date data.
-//			
-//		} else {
-//
-//			$.ajax({
-//				type: 'POST',
-//				url: SEARCH_PARTY_URL + "/student_info",
-//				dataType: "json",
-//				data: {
-//					task_idx: getStoredTask()
-//				},
-//				cache: false,
-//				success: function(data) {
-//					g_studentInfo = data;
-//					updateState();
-//					if (data.status == STUDENT_LOGGED_IN) {
-//						var taskIndex = getStoredTask();
-//						var taskDesc = g_studentInfo.lesson.tasks[taskIndex][1];
-//						
-//						// Get most recent response for current task
-//						var mostRecentResponse = getMostRecentResponse();
-//		
-//						// Send message to content script requesting an update to the in-browser SearchParty UI
-//						chrome.tabs.getSelected(null, function(tab) {
-//							
-//							// Create message on port
-//							var port = chrome.tabs.connect(tab.id, {
-//								name: "spTopUi"
-//							});
-//							port.postMessage({
-//								type: 'update_top_ui',
-//								task_index: taskIndex,
-//								task_description: taskDesc,
-//								response: mostRecentResponse
-//							});
-//						});
-//					}
-//				},
-//				error : function() {
-//					g_studentInfo = null;
-//					$('#content').html('Error connecting to ' + SEARCH_PARTY_URL);
-//					$('#loading').hide();
-//					$('#content').show();
-//				}
-//			});
-//		}
-//		
-//	} else {
-//	
-//		// Send message to remove top pane if it exists, otherwise display nothing, just the vanilla page.
-//		
-//		// Send message to content script requesting an update to the in-browser SearchParty UI
-//		chrome.tabs.getSelected(null, function(tab) {
-//
-//			// Create message on port
-//			var port = chrome.tabs.connect(tab.id, {
-//				name: "spTopUi"
-//			});
-//			port.postMessage({
-//				type: 'update_top_ui',
-//				task_index: taskIndex,
-//				task_description: taskDesc
-//			});
-//		});
-//	
-//	}
-//}
 
 function initTabs() {
 	g_tabs = [];
@@ -365,6 +282,24 @@ function getFormattedTimestamp(ts) {
     if (mins.length == 1) mins = '0' + mins;
     var time = hours + ':' + mins;
     return date + '&nbsp;' + time;
+}
+
+function initHistoryData() {
+	for (var taskIdx=0; taskIdx<g_lessons[0].tasks.length; taskIdx++) {
+		g_complete_histories[taskIdx] = [];
+		for (var studentNickname in g_students) {
+			var student = g_students[studentNickname];
+			for (var i=0; i<student.task_history[taskIdx].length; i++) {
+				var task = student.task_history[taskIdx][i];
+				task.student_nickname = studentNickname;
+				g_complete_histories[taskIdx].push(task);
+			}
+		}
+		
+		g_complete_histories[taskIdx].sort(function(x, y) {
+			return new Date(x.timestamp) - new Date(y.timestamp);
+		});		
+	}
 }
 
 function getMostRecentResponse() {
@@ -440,7 +375,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
 	// http://code.google.com/p/chromium/issues/detail?id=96716
 	if (isStudentLoggedIn() && info.status=='complete') {
 		//debug('UPDATED => '+tab.url+','+info.status);
-//		updateTopUi(); // TODO: HACK - Move this somewhere where it makes more sense.
 		window.setTimeout (
 			function() {
 				chrome.tabs.get(tabId, function(tab2) {
@@ -622,43 +556,12 @@ function recordLink(query, url, title) {
 	handleLink(query, url, title);
 }
 
-var g_loginIntervalId = null;
 function handleLogin() {
 	if (g_initWhenLogin) {
 		initLocalStorage();
 		initTabs();
 		g_initWhenLogin = false;
-		
-		
-		
-//		g_loginIntervalId = setInterval(function() {			
-//			
-//			if (!g_initWhenLogin) {
-//				
-//				// Send message to content script requesting an update to the in-browser SearchParty UI
-//				chrome.tabs.getSelected(null, function(tab) {
-//	
-//					// Create message on port
-//					var port = chrome.tabs.connect(tab.id, {
-//						name : "spTopUi"
-//					});
-//					port.postMessage({
-//						type: 'show_top_ui'
-//					});
-//					
-//					// Check if Search Party is visible.  If so, terminate this interval function.
-//					if (document.getElementById('searchPartyTopFrame') != 'none') {
-//						// Clear interval function.  This prevents future calls to the function.
-//						clearInterval(g_loginIntervalId);
-//					}
-//	
-//				});
-//			}
-//			
-//		}, 250);
-		
-		
-		
+		updateState();
 	}
 	updateBadge(STUDENT_LOGGED_IN);
 }
@@ -667,20 +570,8 @@ function handleLogout() {
 	$.get(SEARCH_PARTY_URL+"/student_logout?ext=1", function(data) {
 		updateBadge(STUDENT_LOGGED_OUT);
 		g_initWhenLogin = true;
-		
-//		// Send message to content script requesting an update to the
-//		// in-browser SearchParty UI
-//		chrome.tabs.getSelected(null, function(tab) {
-//
-//			// Create message on port
-//			var port = chrome.tabs.connect(tab.id, {
-//				name : "spTopUi"
-//			});
-//			port.postMessage({
-//				type: 'hide_top_ui'
-//			});
-//
-//		});
+		g_students.status = 0;
+		updateState();
 	});
 }
 
@@ -948,4 +839,239 @@ function getActiveTab(window) {
 		}
 	}
 	return tab;
+}
+
+//=================================================================================
+// Channel Presence
+//=================================================================================
+
+function openChannel() {
+	var channel = new goog.appengine.Channel(TOKEN);
+	var socket = channel.open();
+	socket.onopen = onSocketOpen;
+	socket.onmessage = onSocketMessage;
+	socket.onerror = onSocketError;
+	socket.onclose = onSocketClose;
+}
+
+function onSocketMessage(msg) {
+	// Note:  Messages are limited to 32K.  This is not an issue now, but it
+	// might come up in the future.
+	//
+	// http://code.google.com/appengine/docs/python/channel/overview.html
+	window.status = msg.data;
+	updates = JSON.parse(msg.data);
+	var num_updates = updates.length;
+	for(var i=0; i<num_updates; i++) {
+		var update = updates[i];
+		switch(update.type) {
+			case "log_in":
+				handle_update_log_in(update.student_nickname, update.task_idx);
+				break;
+			case "log_out":
+				handle_update_log_out(update.student_nickname);
+				break;
+			case "task":
+				handle_update_task(update.student_nickname, update.task_idx);
+				break;
+			case "query":
+				handle_update_query(update.student_nickname, update.task_idx, update.query, update.timestamp);
+				break;
+			case "link_followed":
+				handle_update_link_followed(update.student_nickname, update.task_idx, update.query, update.url, update.title, update.timestamp);
+				break;
+			case "link_rated":
+				handle_update_link_rated(update.student_nickname, update.task_idx, update.url, update.is_helpful, update.timestamp);
+				break;
+			case "answer":
+				handle_update_answer(update.student_nickname, update.task_idx, update.text, update.explanation, update.timestamp);
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+function onSocketOpen() {
+	alert("socket opened");
+}
+
+function onSocketError(error) {
+	alert("socket error");
+	if (error.code==401) {
+		$.post('/channel_expired/'+g_lessons[0].lesson_code, {}, updateChannelToken, 'json');
+	}
+}
+
+function onSocketClose() {
+	alert("socket closed");
+}
+
+function updateChannelToken(data) {
+	TOKEN = data['token'];
+	openChannel();
+}
+
+//=================================================================================
+// Task and Message Handlers
+//=================================================================================
+
+function handle_update_log_in(student_nickname, task_idx) {
+	var student_info = g_students[student_nickname];
+	if (student_info==undefined ) {
+		student_info = {};
+		student_info.logged_in = true;
+		student_info.task_idx = task_idx;		
+		student_info.task_history = [];
+		student_info.tasks = [];
+		var numTasks = numberOfTasks();
+		for (var i=0; i<numTasks; i++) {
+			student_info.task_history.push([]);
+			student_info.tasks.push({"searches":[], answer:{text:"", explanation:""}});
+		}
+		g_students[student_nickname] = student_info;
+	}
+	else {
+		student_info.logged_in = true;
+		student_info.task_idx = task_idx;
+	}
+//	updateUI();
+	updateState();
+}
+
+function handle_update_log_out(student_nickname) {
+	if (g_students[student_nickname]!=undefined) {
+		var student_info = g_students[student_nickname];
+		student_info.logged_in = false;
+		student_info.task_idx = null;
+//		updateUI();
+		updateState();
+	}
+}
+
+function handle_update_task(student_nickname, task_idx) {
+	if (g_students[student_nickname]!=undefined) {
+		g_students[student_nickname].task_idx = task_idx;
+	}
+}
+
+function handle_update_query(student_nickname, task_idx, query, timestamp) {
+//	alert("Channel received " + query + " for task " + task_idx);
+	if (g_students[student_nickname] != undefined) {
+		var task = { 
+			activity_type: "search", 
+			search: query, 
+			link: null, 
+			link_title: null, 
+			is_helpful: null, 
+			answer_text: null, 
+			answer_explanation: null, 
+			timestamp: timestamp
+		};
+		g_students[student_nickname].task_history[task_idx].push(task);
+		g_students[student_nickname].tasks[task_idx].searches.push({ "query": query, "links_followed": [] });
+		task.student_nickname = student_nickname;
+//		g_complete_histories[task_idx].push(task);
+		
+//		if (task_idx == selectedTaskIdx()) {
+//		    updateMinMaxTaskTimes(timestamp);
+//			updateUIWithStudentActivity(student_nickname);
+//		}
+
+		updateState();
+	}
+}
+
+function handle_update_link_followed(student_nickname, task_idx, query, url, title, timestamp) {
+	if (g_students[student_nickname]!=undefined) {
+		var task = {activity_type:"link", search:query, link:url, link_title:title, is_helpful:null, answer_text:null, answer_explanation:null, timestamp:timestamp};
+		g_students[student_nickname].task_history[task_idx].push(task);		
+		task.student_nickname = student_nickname;
+		g_complete_histories[task_idx].push(task);
+		
+		var searches = g_students[student_nickname].tasks[task_idx].searches;
+		var num_searches = searches.length;
+		var search_info = null;
+		for (var i=(num_searches-1); i>=0; i--) {
+			var _search_info = searches[i];
+			if(_search_info.query==query) {
+				search_info = _search_info;
+				break;
+			}
+		}
+		if (search_info==null ) {
+			search_info = {"query":query, "links_followed":[]};
+			searches.push(search_info);
+		}
+		search_info.links_followed.push({"url":url, "title":title});
+//		if (task_idx == selectedTaskIdx()) {
+//		    updateMinMaxTaskTimes(timestamp);
+//			updateUIWithStudentActivity(student_nickname);
+//		}
+
+		updateState();
+	}
+}
+
+function handle_update_link_rated(student_nickname, task_idx, url, is_helpful, timestamp) {	
+	if (g_students[student_nickname]!=undefined) {
+		var task = {activity_type:"link_rating", search:null, link:url, link_title:null, is_helpful:is_helpful, answer_text:null, answer_explanation:null, timestamp:timestamp};
+		g_students[student_nickname].task_history[task_idx].push(task);
+		task.student_nickname = student_nickname;
+		g_complete_histories[task_idx].push(task);
+		
+		var searches = g_students[student_nickname].tasks[task_idx].searches;
+		var num_searches = searches.length;
+		for (var i=0; i<num_searches; i++) {
+			var search_info = searches[i];
+			var links_followed = search_info.links_followed;
+			var num_links = links_followed.length;
+			for (var j=0; j<num_links; j++) {
+				var link_info = links_followed[j];
+				var link_url = link_info.url;
+				if (link_url==url) {
+					link_info.is_helpful = is_helpful;
+				}
+			}
+		}
+//		if (task_idx == selectedTaskIdx()) {
+//		    updateMinMaxTaskTimes(timestamp);
+//			updateUIWithStudentActivity(student_nickname);
+//		}
+
+		updateState();
+	}
+}
+
+function handle_update_answer(student_nickname, task_idx, text, explanation, timestamp) {
+	if (g_students[student_nickname]!=undefined) {
+		var task = {activity_type:"answer", search:null, link:null, link_title:null, is_helpful:null, answer_text:text, answer_explanation:explanation, timestamp:timestamp};
+		g_students[student_nickname].task_history[task_idx].push(task);
+		task.student_nickname = student_nickname;
+		g_complete_histories[task_idx].push(task);
+		
+		var answer_info = g_students[student_nickname].tasks[task_idx].answer;
+		answer_info.text = text;
+		answer_info.explanation = explanation;
+//		if (task_idx == selectedTaskIdx()) {
+//		    updateMinMaxTaskTimes(timestamp);
+//			updateUIWithStudentActivity(student_nickname);
+//		}
+
+		updateState(); // MAKE SURE THIS UPDATES THE CACHED g_students AND UPDATES USING THAT ONE!  ONLY LOAD THE WHOLE CLOUD ONE TIME.
+	}
+}
+
+function updateMinMaxTaskTimes(timestamp) {
+	var localTime = getLocalTime(new Date(timestamp));
+	if (!g_minTaskTime) {
+		g_minTaskTime = localTime;
+		g_maxTaskTime = localTime;
+	}
+	else if (localTime < g_minTaskTime) {
+		g_minTaskTime = localTime;
+	}
+	else if (localTime > g_maxTaskTime) {
+		g_maxTaskTime = localTime;
+	}
 }

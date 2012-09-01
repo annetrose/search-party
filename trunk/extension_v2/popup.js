@@ -72,24 +72,26 @@ function loadStudent(init) {
 				// Send message to content scripts requesting an update to the
 				// in-browser SearchParty UI (sends to googleContentScript.js 
 				// and universalContentScript.js).
-				chrome.tabs.getSelected(null, function(tab) {
-
-					// Create message on port
-					var port = chrome.tabs.connect(tab.id, {
-						name : "spTopUi"
-					});
-					port.postMessage({
-						type: 'show_top_ui',
-						task_index : taskIndex,
-						task_description : taskDesc,
-						response: response
-					});
-					port.postMessage({
-						type: 'request',
-						request: { 'type': 'sync' }
-					});
-
-				});
+//				chrome.tabs.getSelected(null, function(tab) {
+//
+//					// Create message on port
+//					var port = chrome.tabs.connect(tab.id, {
+//						name : "spTopUi"
+//					});
+//					port.postMessage({
+//						type: 'show_top_ui',
+//						task_index : taskIndex,
+//						task_description : taskDesc,
+//						response: response
+//					});
+//					port.postMessage({
+//						type: 'request',
+//						request: { 'type': 'sync' }
+//					});
+//
+//				});
+				
+				chrome.extension.getBackgroundPage().updateState();
 				
 				// Update top UI
 				//updateTopUi(true);
