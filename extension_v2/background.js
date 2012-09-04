@@ -931,18 +931,18 @@ function onSocketMessage(msg) {
 }
 
 function onSocketOpen() {
-	alert("socket opened");
+//	alert("socket opened");
 }
 
 function onSocketError(error) {
-	alert("socket error");
+//	alert("socket error");
 	if (error.code == 401) {
 		$.post('/channel_expired/'+g_lessons[0].lesson_code, {}, updateChannelToken, 'json');
 	}
 }
 
 function onSocketClose() {
-	alert("socket closed");
+//	alert("socket closed");
 }
 
 function updateChannelToken(data) {

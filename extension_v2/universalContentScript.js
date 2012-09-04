@@ -34,8 +34,8 @@ function onResponseChanged() {
 		
 		// Open port to send message (background.js receives and handles this message)
 //		var port = chrome.extension.connect({ name: "spTopUi" });
-		alert(response);
-		alert(explanation);
+//		alert(response);
+//		alert(explanation);
 //		var port = chrome.extension.connect({ name: "spTopUi" });
 		port.postMessage({
 			type: 'request',
