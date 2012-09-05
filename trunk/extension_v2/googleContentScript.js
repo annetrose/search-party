@@ -150,7 +150,7 @@ function request_verifyChannelToken() {
  * the results.
  */
 function request_refreshState() {
-	console.log("request_refreshaState() called");
+	console.log("request_refreshState() called");
 	// Open port to send request for function call to background.js message handler
 	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
