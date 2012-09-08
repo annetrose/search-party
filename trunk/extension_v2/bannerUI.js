@@ -227,7 +227,7 @@ function createSearchPartyInterface() {
 				<img src="http://search-party.appspot.com/imgs/sp_logo.png" style="width: 114px; height: 49px;"> \
 			</div> \
 			<div style="margin: 0 auto; width: 24px;"> \
-				<img src="http://search-party.appspot.com/imgs/loading.gif"> \
+				Loading ... \
 			</div> \
 		</div> \
 		\
@@ -1706,9 +1706,9 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 		html += '<div class="cloud"><strong>Queries:</strong> ' + cloudHtml + '</div>';
 		
 		var minFont = 10;
-		var maxFont = 26;
+		var maxFont = 18;
 		if (maxWeight<=2) {
-			maxFont = 16;
+			maxFont = 14;
 		}
 		
 		var startColor = options!=undefined && options.color!=undefined && options.color.start!=undefined ? options.color.start : g_actionColors['link'];
@@ -1789,6 +1789,7 @@ window.addEventListener("message", function(event) {
 
 
 function openAccordion(index) {
+	console.log("openAccordion: " + index);
 	$('#task_activity').accordion({active:index});
 }
 
