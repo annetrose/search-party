@@ -165,13 +165,12 @@ chrome.extension.onConnect.addListener(function(port) {
 	//alert(port.name);
 
 	port.onMessage.addListener(function(message) {
-		console.log("BGND: message " + message.type + " received by background.js");
+		console.log("BGND CONNECT: message " + message.type + " received by background.js");
 		if (message.type == 'request') {
 			// TODO: Update 'request' to 'dataRequest' or 'stateSyncRequest'
 			if (message.request.type == 'rating') {
 				handleRatingPlus(message.request.rating);
 			} else if (message.request.type == 'response') {
-				// chrome.extension.sendRequest(message.request); // This doesn't seem to work.  Why not?  Can this script not send requests to its own handler?
 				handleResponse(message.request.response, message.request.explanation);
 			}
 		} else if (message.type == 'functionRequest') {
@@ -332,28 +331,6 @@ function getMostRecentResponse() {
 	}
 	return response;
 }
-
-/**
- * Set up event listener to handle requests (sent using 
- * chrome.extension.sendRequest()).
- */
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-	if (request.type=='login') {
-		handleLogin();
-	}
-	else if (request.type=='task') {
-		handleTaskChange();
-	}
-	else if (request.type=='rating') {
-		handleRatingPlus(request.rating);
-	}
-	else if (request.type=='response') {
-		handleResponse(request.response, request.explanation);
-	}
-	else if (request.type=='logout') {
-		handleLogout();
-	}
-});
 
 // search: fia umd (in google toolbar)
 // follow: www.fia.umd.edu
@@ -658,7 +635,7 @@ function handleLink(query, url, title) {
                         query : query,
                         url : url,
                         title : title,
-			ext : 1
+			ext : 1702
                 },
                 cache: false,
                 success: function(data) {
@@ -693,7 +670,7 @@ function handleRatingPlus(isHelpful) {
 					if (data.status == STUDENT_LOGGED_IN) {
 						g_tabs[tabId].init = false;
 						data['type'] = 'rating';
-		        			chrome.extension.sendRequest(data);
+	        			chrome.extension.sendRequest(data);
 						handleRating(isHelpful);
 					}
 		                },
@@ -808,7 +785,7 @@ function isLinkAction(url) {
 }
 
 function handleResponse(response, explanation) {
-//	console.log("handleResponse() called");
+	console.log("BGND: handleResponse(): response=" + response + ", explanation = " + explanation);;
 	var saveResponse = response != '';
 	if (saveResponse) {
 		$.ajax({
@@ -826,11 +803,9 @@ function handleResponse(response, explanation) {
 				updateBadge(data.status);
 				if (data.status == STUDENT_LOGGED_IN) {
 					data['type'] = 'answer';
-					chrome.extension.sendRequest(data);
-					
+
 					// Send message to content script to update timestamp of last save
-					chrome.tabs.getSelected(null, function(tab) {
-	
+					chrome.tabs.getSelected(null, function(tab) {	
 						// Create message on port
 						var port = chrome.tabs.connect(tab.id, {
 							name: "spTopUi"
@@ -1065,6 +1040,8 @@ function handle_update_link_rated(student_nickname, task_idx, url, is_helpful, t
 function handle_update_answer(student_nickname, task_idx, text, explanation, timestamp) {
 	if (g_students[student_nickname]!=undefined) {
 		var task = {activity_type:"answer", search:null, link:null, link_title:null, is_helpful:null, answer_text:text, answer_explanation:explanation, timestamp:timestamp};
+		console.log("UPDATE ANSWER");
+		console.log(task);
 		g_students[student_nickname].task_history[task_idx].push(task);
 		task.student_nickname = student_nickname;
 		g_complete_histories[task_idx].push(task);

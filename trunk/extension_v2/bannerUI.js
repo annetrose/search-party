@@ -20,22 +20,18 @@ var port = chrome.extension.connect({ name: "spTopUi" });
 createSearchPartyInterface();
 //hideSearchPartyTopUi();
 //showSearchPartyTopUi();
-request_refreshState(); // TODO: Call refrest_refreshState() instead to guarantee fresh data on every page?
+//request_refreshState(); // TODO: Call refresh_refreshState() instead to guarantee fresh data on every page?
+request_updateState(); // TODO: Call refresh_refreshState() instead to guarantee fresh data on every page?
 request_verifyChannelToken();
 
 function onResponseChanged() {
-	//alert("onResponseChanged");
 	
 	var response = $('#searchPartyTopFrame').contents().find('#response').val();
 	if (response != '') {
 		var explanation = $('#searchPartyTopFrame').contents().find('#explanation').val();
-		//chrome.extension.sendRequest({'type':'response', 'response':response, 'explanation':explanation});
+		console.log("SAVE: " + response);
 		
 		// Open port to send message (background.js receives and handles this message)
-//		var port = chrome.extension.connect({ name: "spTopUi" });
-//		alert(response);
-//		alert(explanation);
-//		var port = chrome.extension.connect({ name: "spTopUi" });
 		port.postMessage({
 			type: 'request',
 			request: { 'type':'response', 'response': response, 'explanation': explanation }
@@ -57,12 +53,7 @@ function onUnsavedResponse() {
 function onRatingChanged() {
 	console.log("onRatingChanged() called");
 	var rating = $('#searchPartyTopFrame').contents().find('input:radio[name=rating]:checked').val();
-//	console.log("rating = " + rating);
-	//chrome.extension.sendRequest({'type':'rating', 'rating':rating});
-	
-	// Open port to send message (background.js receives and handles this message)
-//	var port = chrome.extension.connect({ name: "spTopUi" });
-//	alert("port = " + port);
+
 	port.postMessage({
 		type: 'request',
 		request: { 'type': 'rating', 'rating': rating }
@@ -96,8 +87,6 @@ function updateLinkRating(url) {
  */
 function request_getStoredLink() {
 	console.log("request_getStoredLink() called");
-	// Open port to send request for function call to background.js message handler
-//	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'getStoredLink',
@@ -111,13 +100,6 @@ function request_getStoredLink() {
  */
 function request_updateState() {
 	console.log("request_updateState() called");
-//	if (g_studentInfo && g_studentInfo.status == 1) {
-//		if (g_top_ui_visible == false) {
-//			showLoadingSearchPartyTopUi();
-//		}
-//	}
-	// Open port to send request for function call to background.js message handler
-	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'updateState',
@@ -131,13 +113,6 @@ function request_updateState() {
  */
 function request_verifyChannelToken() {
 	console.log("request_verifyChannelToken() called");
-//	if (g_studentInfo && g_studentInfo.status == 1) {
-//		if (g_top_ui_visible == false) {
-//			showLoadingSearchPartyTopUi();
-//		}
-//	}
-	// Open port to send request for function call to background.js message handler
-	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'verifyChannelToken',
@@ -151,8 +126,6 @@ function request_verifyChannelToken() {
  */
 function request_refreshState() {
 	console.log("request_refreshState() called");
-	// Open port to send request for function call to background.js message handler
-	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'refreshState',
@@ -407,13 +380,11 @@ function showLoadingSearchPartyTopUi() {
 chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == "spTopUi");
 	port.onMessage.addListener(function(message) {
-		
 		console.log("message " + message.type + " received by bannerUI.js");
 
 		if (message.type == 'request') {
 			
 			if (message.request.type == 'answer') {
-				
 				// Update timestamp
 				if (message.request.timestamp != '') {
 					var timestamp = getFormattedTimestamp(getLocalTime(new Date(message.request.timestamp)));
@@ -422,22 +393,20 @@ chrome.extension.onConnect.addListener(function(port) {
 				
 				// Update response
 				$('#searchPartyTopFrame').contents().find('#response').val(message.request.answer_text);
+				console.log("MSG updated to: " + message.request.answer_text);
 				
 				// Update note
 				$('#searchPartyTopFrame').contents().find('#explanation').val(message.request.answer_explanation);
 			}
 			
 		} else if (message.type == 'functionResponse') {
-			
 //			type: 'functionResponse',
 //			functionSignature: 'getStoredLink',
 //			functionArguments: {},
 //			result: result
-			
 			console.log("message functionResponse received by bannerUI.js");
 			
 			if (message.functionSignature == 'getStoredLink') {
-				
 				if (message.stateData && message.stateData.g_studentInfo) {
 					g_studentInfo = message.stateData.g_studentInfo;
 				}
@@ -445,34 +414,26 @@ chrome.extension.onConnect.addListener(function(port) {
 			}
 			
 		} else if (message.type == 'updateState') {
-		
 			if (message.state && message.state.g_studentInfo) {
 				g_studentInfo = message.state.g_studentInfo;
 			}
-			
 			if (message.state && message.state.g_task) {
 				g_task = message.state.g_task;
 			}
-			
 			if (message.state && message.state.g_students) {
 				g_students = message.state.g_students;
 			}
-			
 			// TODO: Update UI with latest received data
 			//createSearchPartyInterface();
-			
 			if (g_studentInfo) {
 				console.log("g_studentInfo.status = " + g_studentInfo.status);
 			}
-			
 			refreshUi();
 		}
-
 	});
 });
 
 function refreshUi() {
-	
 	// Show or hide the interface
 	if (g_studentInfo.status == 1) {
 //		if (document.getElementById('searchPartyTopFrame').style.display == 'none') {
@@ -483,13 +444,23 @@ function refreshUi() {
 		$('#searchPartyTopFrame').contents().find('#sptask').html(g_task.description);
 		
 		// Update response
-		$('#searchPartyTopFrame').contents().find('#response').val(g_task.response.response);
+		var response = $('#searchPartyTopFrame').contents().find('#response');
+		console.log("RESPONSE = " + response.val() + " : " + g_task.response.response);
+		if (response.val() == "") {
+			response.val(g_task.response.response);
+		}
 		
 		// Update note
-		$('#searchPartyTopFrame').contents().find('#explanation').val(g_task.response.explanation);
+		var explanation = $('#searchPartyTopFrame').contents().find('#explanation');
+		if (explanation.val() == "") {
+			explanation.val(g_task.response.explanation);
+		}
 		
 		// Update timestamp
-		$('#searchPartyTopFrame').contents().find('#response_saved').html(g_task.response.timestamp);
+		var saved = $('#searchPartyTopFrame').contents().find('#response_saved');
+		if (saved.html() == "") {
+			saved.html(g_task.response.timestamp);
+		}
 		
 		request_getStoredLink();
 		updateStudents(g_studentInfo.lesson.lesson_code);
@@ -1760,27 +1731,13 @@ function getCloudOption(label, value, funcName, className) {
 
 
 
-
-
-//var port = chrome.extension.connect();
 window.addEventListener("message", function(event) {
 	// We only accept messages from ourselves
 	if (event.source != window) {
 		return;
 	}
 	if (event.data.type && (event.data.type == "query_cloud_filter")) {
-		// getCloudOption('Helpful', 'link_helpful', 'drawHistoryCloud')
-		//function drawQueryCloud(itemList, option)
-		
-		// Description of eval():
-		// http://viralpatel.net/blogs/calling-javascript-function-from-string/
-//		var functionCall = event.data.funcName + "(g_itemList, '" + event.data.value + "')";
-//		alert(functionCall);
-//		var functionReturnValue = eval(functionCall);
 		drawQueryCloud(g_itemList, event.data.value);
-		
-//		console.log("Content script received filter request: " + event.data.filter);
-//		port.postMessage(event.data.filter);
 	}
 }, false);
 
