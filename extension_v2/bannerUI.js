@@ -20,8 +20,7 @@ var port = chrome.extension.connect({ name: "spTopUi" });
 createSearchPartyInterface();
 //hideSearchPartyTopUi();
 //showSearchPartyTopUi();
-//request_refreshState(); // TODO: Call refrest_refreshState() instead to guarantee fresh data on every page?
-request_updateState();
+request_refreshState(); // TODO: Call refrest_refreshState() instead to guarantee fresh data on every page?
 request_verifyChannelToken();
 
 function onResponseChanged() {
@@ -151,9 +150,9 @@ function request_verifyChannelToken() {
  * the results.
  */
 function request_refreshState() {
-	console.log("request_updateState() called");
+	console.log("request_refreshState() called");
 	// Open port to send request for function call to background.js message handler
-//	var port = chrome.extension.connect({ name: "spTopUi" });
+	var port = chrome.extension.connect({ name: "spTopUi" });
 	port.postMessage({
 		type: 'functionRequest',
 		functionSignature: 'refreshState',
@@ -217,53 +216,43 @@ function createSearchPartyInterface() {
 			height: ' + height + '; \
 			width: 100%; \
 			z-index: 2147483647; \
-			background-color: #E5E5E5; \
-			border-bottom: 1px solid #DEDEDE; \
+			background-image:url("http://search-party.appspot.com/imgs/banner-bgnd.png"); \
 			font-family: arial,sans-serif; \
 			font-size: 13px; \
 		} \
 		</style> \
 		\
 		<div id="loadingUi" style="display: none;"> \
-		<div style="margin: 10 auto; width: 114px;"> \
-			<img src="http://search-party.appspot.com/imgs/sp_logo.png" style="width: 114px; height: 49px;"> \
-		</div> \
-		<div style="margin: 0 auto; width: 24px;"> \
-			<img src="http://search-party.appspot.com/imgs/loading.gif"> \
-		</div> \
+			<div style="margin: 10 auto; width: 114px;"> \
+				<img src="http://search-party.appspot.com/imgs/sp_logo.png" style="width: 114px; height: 49px;"> \
+			</div> \
+			<div style="margin: 0 auto; width: 24px;"> \
+				<img src="http://search-party.appspot.com/imgs/loading.gif"> \
+			</div> \
 		</div> \
 		\
-		<div id="completeUi" style="background: url(http://search-party.appspot.com/imgs/sp_logo.png) no-repeat left center; background-size: 114px 49px; width: 100%; height: ' + height + '; padding-left: 140px; margin-left: 13px;"> \
-		<div> \
-		<div id="sptask" style="font-weight: normal; padding-bottom: 15px; font-size: 16px; width: 960px; color: #DD4B39;"></div> \
-		\
-		<div> \
-		\
-			<div style="width: 300px; border: 0px solid red; float: left;"> \
-			Response<br /> \
-			<input type="text" id="response" name="response" value="" style="float:left; width:300px; height:27px; line-height:27px; text-indent:10px; font-family:arial, sans-serif; font-size:16px; color:#333; background: #fff; border:solid 1px #d9d9d9; border-top:solid 1px #c0c0c0; border-right:none;"> \
-			<br/><br /> \
+		<div id="completeUi"><img src="http://search-party.appspot.com/imgs/sp_logo.png" width="114px" height="49px" style="margin-left: 13px; margin-top: 45px"></img> \
+			<div id="sptask" style="position: absolute; font-weight: normal; font-size: 16px; color: #DD4B39;">Next task</div> \
 			\
-			Note<br/> \
-			<textarea rows="2" name="explanation" id="explanation" style="width:300px"></textarea><br/> \
-			<button id="submit_response" name="submit_response" style="cursor:pointer; width:70px; height: 31px; font-size:13px; color: #ffffff; background: #4d90fe center; border: 1px solid #3079ED; -moz-border-radius: 2px; -webkit-border-radius: 2px;">Save</button> \
-			<span id="response_saved" class="note"></span> \
+			<div id="spresponses" style="position: absolute;"> \
+				Response<br /> \
+				<input type="text" id="response" name="response" value="" style="float:left; width:100%; height:27px; line-height:27px; text-indent:10px; font-family:arial, sans-serif; font-size:16px; color:#333; background: #fff; border:solid 1px #d9d9d9; border-top:solid 1px #c0c0c0; border-right:none;"> \
+				<br/><br /> \
+				\
+				Note<br/> \
+				<textarea rows="2" name="explanation" id="explanation" style="width:100%"></textarea><br/> \
+				<button id="submit_response" name="submit_response" style="cursor:pointer; margin-top:5px; width:70px; height: 31px; font-size:13px; color: #ffffff; background: #4d90fe center; border: 1px solid #3079ED; -moz-border-radius: 2px; -webkit-border-radius: 2px;">Save</button> \
+				<div id="response_saved" class="note"></div> \
 			</div> \
 			\
-			<div style="width: 160px; padding-left: 10px; border: 0px solid red; float: left;"> \
-			Rate This Page:<br/> \
-			<input type="radio" id="helpful" name="rating" value="1"> Helpful</input><br /> \
-			<input type="radio" id="unhelpful" name="rating" value="0"> Unhelpful</input> \
+			<div id="spdata" style="position: absolute;"> \
+				<div id="sprate"> \
+					<strong>Rate This Page:</strong> \
+					<input type="radio" id="helpful" name="rating" value="1"> Helpful</input> \
+					<input type="radio" id="unhelpful" name="rating" value="0"> Unhelpful</input><br /><br /> \
+				</div> \
+				<div id="tag_cloud" class="tag_cloud" style="width: 100%; height: 150px;">Loading queries ...</div> \
 			</div> \
-			\
-			<div style="width: 600px; padding-left: 10px; border: 0px solid red; float: left;"> \
-				<div id="complete_history" class="complete_history"></div> \
-				<div id="tag_cloud" class="tag_cloud" style="width: 600px; height: 150px;"></div> \
-			</div> \
-			\
-			<div style="clear: both;"></div> \
-		\
-		</div> \
 		</div>';
 
 	// Set up UI event listeners
@@ -273,14 +262,47 @@ function createSearchPartyInterface() {
 	
 	$('#searchPartyTopFrame').contents().find('input[name=rating]').change(onRatingChanged);
 	
-	if (g_studentInfo != undefined && g_studentInfo.status != undefined) {
-		if (g_studentInfo.status == 0) { // Check if student is logged in
-			hideSearchPartyTopUi(); // Show UI
-		} else if (g_studentInfo.status == 1) {
-			showSearchPartyTopUi(); // Show UI // Show UI (this is the default state, so do nothing
-		}
-	}
+	$(window).resize(resizeFunc);
+	resizeFunc();
+	
+	// Hide UI
+	hideRatingForGooglePages();
+	hideSearchPartyTopUi();
 //	showLoadingSearchPartyTopUi();
+}
+
+function hideRatingForGooglePages() {
+	if (window.location.hostname.indexOf("google.com") != -1) {
+		var sprate = $('#searchPartyTopFrame').contents().find('#sprate');
+		sprate.css("display", "none");
+	}
+}
+
+function resizeFunc() {
+	var w = $(window).width();
+	var x1 = 150;
+	var y1 = 10;
+	var gap = 20
+	var contentW = w - x1;
+	var responsesW = contentW * 0.30;
+	var x2 = x1 + responsesW + gap;
+	var dataW = contentW - responsesW - gap;
+
+	var sptask = $('#searchPartyTopFrame').contents().find('#sptask');
+	sptask.css("left", x1);
+	sptask.css("width", contentW);
+	sptask.css("top", y1);
+	var top = parseInt(sptask.css("height")) + 20;
+	
+	var spresponses = $('#searchPartyTopFrame').contents().find('#spresponses');
+	spresponses.css("left", x1);
+	spresponses.css("width", responsesW);
+	spresponses.css("top", top);
+
+	var spdata = $('#searchPartyTopFrame').contents().find('#spdata');
+	spdata.css("left", x2);
+	spdata.css("width", dataW);
+	spdata.css("top", top);
 }
 
 function hideSearchPartyTopUi() {
@@ -386,7 +408,7 @@ chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == "spTopUi");
 	port.onMessage.addListener(function(message) {
 		
-		console.log("message " + message.type + " received by universalContentScript.js");
+		console.log("message " + message.type + " received by bannerUI.js");
 
 		if (message.type == 'request') {
 			
@@ -412,7 +434,7 @@ chrome.extension.onConnect.addListener(function(port) {
 //			functionArguments: {},
 //			result: result
 			
-			console.log("message functionResponse received by universalContentScript.js");
+			console.log("message functionResponse received by bannerUI.js");
 			
 			if (message.functionSignature == 'getStoredLink') {
 				
@@ -1679,10 +1701,9 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 	if (itemList.items.length > 0) {
 		var html = '';
 		if (options != undefined && options.show != undefined && options.show.options.length > 0) {
-			html += '<div class="cloud_options display_options">' + options.show.label + options.show.options.join(' ') + '</div>';
+			html += '<strong>' + options.show.label + '</strong>' + options.show.options.join(' ');
 		}
-//		html += '<div class="cloud"><p>'+cloudHtml+'</p></div>';
-		html += '<div class="cloud"><p><strong>Queries:</strong> ' + cloudHtml + '</p></div>';
+		html += '<div class="cloud"><strong>Queries:</strong> ' + cloudHtml + '</div>';
 		
 		var minFont = 10;
 		var maxFont = 26;
@@ -1711,7 +1732,8 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 function getCloudOption(label, value, funcName, className) {
 	var isSelected = value == g_cloudShowOption;
 	if (isSelected) {
-		return '<strong>'+label+'</strong>';
+//		return '<strong>'+label+'</strong>';
+		return label;
 	} else {
 		//$('#searchPartyTopFrame').contents().find('#response').val();
 		//var $f = $('#searchPartyTopFrame').contentWindow.;
