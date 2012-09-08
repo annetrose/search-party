@@ -89,7 +89,8 @@ function getChannelToken() {
 function verifyChannelToken() {
 //	alert("verifyChannelToken");
 //	alert("TOKEN = " + TOKEN);
-	if(TOKEN != undefined) {
+	if (typeof TOKEN === undefined) {
+	} else {
 		getChannelToken();
 	}
 }
@@ -99,7 +100,6 @@ function verifyChannelToken() {
  * by requesting updated state from remote server using HTTP requests. 
  */
 function refreshState() {
-	
 //	alert("g_students.status = " + g_students.status);
 	// Update g_studentInfo
 	$.ajax({
@@ -163,37 +163,24 @@ function updateState() {
 chrome.extension.onConnect.addListener(function(port) {
 	console.assert(port.name == "spTopUi");
 	//alert(port.name);
-	
-//	console.log("message " + message.type + " received by background.js");
-//	chrome.extension.getBackgroundPage().console.log("message " + message.type + " received by background.js");
-//	alert("message " + message.type + " received by background.js");
 
 	port.onMessage.addListener(function(message) {
-
+		console.log("BGND: message " + message.type + " received by background.js");
 		if (message.type == 'request') {
 			// TODO: Update 'request' to 'dataRequest' or 'stateSyncRequest'
-			
 			if (message.request.type == 'rating') {
-				
 				handleRatingPlus(message.request.rating);
-				
 			} else if (message.request.type == 'response') {
-				
 				// chrome.extension.sendRequest(message.request); // This doesn't seem to work.  Why not?  Can this script not send requests to its own handler?
 				handleResponse(message.request.response, message.request.explanation);
-				
 			}
-			
 		} else if (message.type == 'functionRequest') {
-			
-//			console.log("message " + message.type + " received by background.js");ssage.type + ": " + message.functionSignature + " received by background.js");
-			
+			console.log("BGND: message signature: " + message.functionSignature);
 			if (message.functionSignature == 'getStoredLink') {
 				var result = getStoredLink();
 				
 				// Send message to content script to update timestamp of last save
 				chrome.tabs.getSelected(null, function(tab) {
-
 					// Create message on port
 					var responsePort = chrome.tabs.connect(tab.id, {
 						name: "spTopUi"
@@ -208,23 +195,17 @@ chrome.extension.onConnect.addListener(function(port) {
 						}
 					});
 				});
-				
 			} else if (message.functionSignature == 'updateState') {
-				
 				updateState();
-				
+			} else if (message.functionSignature == 'refreshState') {
+				refreshState();
 			} else if (message.functionSignature == 'verifyChannelToken') {
-				
 				verifyChannelToken();
-				
 			}
-			
 		} else if (message.type == 'updateState') {
-			
 			if (message.state && message.state.g_students) {
 				g_students = message.state.g_students;
 			}
-			
 		} else {
 			// Send a message of type error specifying that its cause was that the received message type was undefined.
 			return { type: 'error', cause: 'undefined' };
