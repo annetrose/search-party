@@ -71,9 +71,8 @@ function loadStudent(init) {
 				var response = getMostRecentResponse();
 
 				// Send message to content scripts requesting an update to the
-				// in-browser SearchParty UI (sends to googleContentScript.js 
-				// and universalContentScript.js).
-				//chrome.extension.getBackgroundPage().updateState();
+				// in-browser SearchParty UI (sends to bannerUI.js).
+				// chrome.extension.getBackgroundPage().updateState();
 				chrome.extension.getBackgroundPage().refreshState();
 			}
 			$('#loading').hide();
