@@ -3,8 +3,6 @@
   is that the process history isn't being updated.
   Also confused because I can't find the data in the appengine database
 
-* BUG: Links in tag cloud are broken - they get followed inside the banner
-
 * BUG: Looking at background.html (from extension page), visits to "/student_token" URL don't exist
 
 * Need to replace all deprecated uses of sendRequest with postMessage
