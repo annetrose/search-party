@@ -1637,7 +1637,9 @@ function drawCloud(divName, itemList, getCloudDataFunc, options) {
 		if (data.weight > 0) {
 			var link = data.link.length <= MAX_TAG_LENGTH ? data.link : data.link.substring(0, MAX_TAG_LENGTH) + "&hellip;";
 			link = link.replace("<", "&lt;").replace(">", "&gt;");
-			var cloudItemSpanHtml =  '<span id="cloud_' + i + '"><a' + ((options != undefined && options.className != undefined) ?' class="' + options.className + '"' : '') + ' href="' + data.url + '" rel="' + data.weight + '" title="' + data.link + '">' + link + '</a></span>\n';
+			var linkUrl = 'https://www.google.com/#q=' + data.link;
+//			var cloudItemSpanHtml =  '<span id="cloud_' + i + '"><a' + ((options != undefined && options.className != undefined) ?' class="' + options.className + '"' : '') + ' href="' + data.url + '" rel="' + data.weight + '" title="' + data.link + '">' + link + '</a></span>\n';
+			var cloudItemSpanHtml =  '<span id="cloud_' + i + '"><a' + ((options != undefined && options.className != undefined) ?' class="' + options.className + '"' : '') + ' href="' + linkUrl + '" rel="' + data.weight + '" title="' + data.link + '" target="_parent">' + link + '</a></span>\n';
 			$('#searchPartyTopFrame').contents().find("#" + divName).html(cloudItemSpanHtml);
 			
 			var cloudElementWidth = $('#searchPartyTopFrame').contents().find("#cloud_" + i).width(); // Get width of span containing text
