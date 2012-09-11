@@ -331,6 +331,7 @@ function handleTaskChange() {
 }
 
 function handleSearch(query, url) {
+	storeLink('');
 	if (query!=null) {
         	$.ajax({
                		type: 'POST',
