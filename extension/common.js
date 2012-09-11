@@ -2,7 +2,7 @@ var SEARCH_PARTY_URL = 'http://search-party.appspot.com';
 //var SEARCH_PARTY_URL = 'http://hciltest.appspot.com';
 //var SEARCH_PARTY_URL = 'http://localhost:8081';
 
-var DEBUG = true;
+var DEBUG = false;
 
 var STUDENT_LOGGED_OUT = 0;
 var STUDENT_LOGGED_IN = 1;
