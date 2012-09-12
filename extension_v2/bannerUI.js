@@ -17,6 +17,10 @@ var g_actionColors = { search:'#888888', link:'#454C45', link_helpful:'#739c95',
 // Open port from this content script to extension for message passing
 var port = chrome.extension.connect({ name: "spTopUi" });
 
+// SearchParty features
+var spTopUiHeightWhileVisible = '200px';
+
+
 createSearchPartyInterface();
 //hideSearchPartyTopUi();
 //showSearchPartyTopUi();
@@ -134,9 +138,11 @@ function request_refreshState() {
 }
 
 function createSearchPartyInterface() {
-	
-	// Height of embedded top UI, or width in your case
-	var height = '200px';
+	// Special support for Google Images which requires a custom solution
+	var googleImages = false;
+	if (window.location.href.indexOf("www.google.com/imgres") != -1) {
+		googleImages = true;
+	}
 	
 	//resolve html tag, which is more dominant than <body>
 	var html;
@@ -153,21 +159,25 @@ function createSearchPartyInterface() {
 	
 	//position
 	// Change positioning of <html> tag to relative positioning.
-	if (html.css('position') === 'static') { // or getComputedStyle(html).position
-		html.css('position', 'relative'); //or use .style or setAttribute
-	}
-	
-	//top (or right, left, or bottom) offset
-	var currentTop = html.css('top'); //or getComputedStyle(html).top
-	if (currentTop === 'auto') {
-		currentTop = 0;
+	if (googleImages) {
+		$("#il").css("top", spTopUiHeightWhileVisible);
 	} else {
-		currentTop = parseFloat($('html').css('top')); //parseFloat removes any 'px' and returns a number type
+		if (html.css('position') === 'static') { // or getComputedStyle(html).position
+			html.css('position', 'relative'); //or use .style or setAttribute
+		}
+	
+		//top (or right, left, or bottom) offset
+		var currentTop = html.css('top'); //or getComputedStyle(html).top
+		if (currentTop === 'auto') {
+			currentTop = 0;
+		} else {
+			currentTop = parseFloat($('html').css('top')); //parseFloat removes any 'px' and returns a number type
+		}
+		html.css(
+			'top',     //make sure we're -adding- to any existing values
+			currentTop + parseFloat(spTopUiHeightWhileVisible) + 'px'
+		);
 	}
-	html.css(
-		'top',     //make sure we're -adding- to any existing values
-		currentTop + parseFloat(height) + 'px'
-	);
 	
 	// Render the SearchParty Top Frame
 	var searchPartyFrameId = 'searchPartyTopFrame';
@@ -175,10 +185,16 @@ function createSearchPartyInterface() {
 		alert('id:' + searchPartyFrameId + 'taken please dont use this id!');
 		throw 'id:' + searchPartyFrameId + 'taken please dont use this id!';
 	}
-	html.append(
+	var body = $('body');
+	if (body) {
+		var node = body;
+	} else {
+		var node = html
+	}
+	node.append(
 		'<iframe id="' + searchPartyFrameId + '" scrolling="no" frameborder="0" allowtransparency="false" '
 			+ 'style="position: fixed; width: 100%; border:none; z-index: 2147483647; top: 0px;'
-	        + 'height: ' + height + '; right: 0px; left: 0px;">'
+	        + 'height: ' + spTopUiHeightWhileVisible + '; right: 0px; left: 0px;">'
 		+ '</iframe>'
 	);
 	
@@ -186,7 +202,7 @@ function createSearchPartyInterface() {
 	document.getElementById(searchPartyFrameId).contentDocument.body.innerHTML =
 		'<style type="text/css"> \
 		html, body { \
-			height: ' + height + '; \
+			height: ' + spTopUiHeightWhileVisible + '; \
 			width: 100%; \
 			z-index: 2147483647; \
 			background-image:url("http://search-party.appspot.com/imgs/banner-bgnd.png"); \
@@ -239,7 +255,7 @@ function createSearchPartyInterface() {
 	resizeFunc();
 	
 	// Hide UI
-	hideRatingForGooglePages();
+//	hideRatingForGooglePages();
 	hideSearchPartyTopUi();
 //	showLoadingSearchPartyTopUi();
 }
@@ -311,8 +327,6 @@ function hideSearchPartyTopUi() {
 
 function showSearchPartyTopUi() {
 
-	var spTopUiHeightWhileVisible = '200px';
-	
 	// Hide the SP top UI
 	$('#searchPartyTopFrame').css('height', spTopUiHeightWhileVisible);
 //	$('#searchPartyTopFrame').animate({ 'height': spTopUiHeightWhileVisible }, 400);
