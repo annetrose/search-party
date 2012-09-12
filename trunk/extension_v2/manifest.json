@@ -1,35 +1,42 @@
 {
-  "name": "Search Party",
-  "version": "1.6",
-  "manifest_version": 2,
-  "description": "Allows Search Party students to search within google.com directly",
-  "background": {
-    "page": "background.html"
-  },
-  "browser_action": {
-    "default_icon": "images/icon-16-logged-out.png",
-    "default_title": "Search Party",
-    "default_popup": "popup.html"
-  },
-  "icons": { 
-    "16": "images/icon-16-logged-in.png", 
-    "48": "images/icon-48.png",
-    "128": "images/icon-128.png"
-  },
-  "permissions": [
-    "history",
-    "tabs",
-    "webNavigation",
-    "http://*/*",
-    "https://*/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": [
-    	"http://*/*", "https://*/*"
-      ],
-      "js": ["jquery-1.7.1.min.js", "stemmer_snowball.js", "jquery.tagcloud.js", "bannerUI.js"],
-      "css": ["mystyles.css"]
-    }
-  ]
+	"name": "Search Party",
+	"version": "1.7",
+	"manifest_version": 2,
+	"description": "Allows Search Party students to search within google.com directly",
+	"background": {
+		"page": "background.html"
+	},
+	"browser_action": {
+		"default_icon": "images/icon-16-logged-out.png",
+		"default_title": "Search Party",
+		"default_popup": "popup.html"
+	},
+	"icons": { 
+		"16": "images/icon-16-logged-in.png", 
+		"48": "images/icon-48.png",
+		"128": "images/icon-128.png"
+	},
+	"permissions": [
+		"history",
+		"tabs",
+		"webNavigation",
+		"http://*/*",
+		"https://*/*"
+	],
+	"content_scripts": [
+		{
+			"matches": [
+				"http://*/*",
+				"https://*/*"
+			],
+			"exclude_matches": [
+				"https://drive.google.com/*",
+				"https://docs.google.com/*",
+				"https://plus.google.com/*",
+				"https://mail.google.com/*"
+			],
+			"js": ["jquery-1.7.1.min.js", "stemmer_snowball.js", "jquery.tagcloud.js", "bannerUI.js"],
+			"css": ["mystyles.css"]
+		}
+	]
 }
