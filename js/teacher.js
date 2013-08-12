@@ -98,30 +98,32 @@ function onSocketMessage(msg) {
 	var num_updates = updates.length;
 	for(var i=0; i<num_updates; i++) {
 		var update = updates[i];
-		switch(update.type) {
-			case "log_in":
-				handle_update_log_in(update.student_nickname, update.task_idx);
-				break;
-			case "log_out":
-				handle_update_log_out(update.student_nickname);
-				break;
-			case "task":
-				handle_update_task(update.student_nickname, update.task_idx);
-				break;
-			case "query":
-				handle_update_query(update.student_nickname, update.task_idx, update.query, update.timestamp);
-				break;
-			case "link_followed":
-				handle_update_link_followed(update.student_nickname, update.task_idx, update.query, update.url, update.title, update.timestamp);
-				break;
-			case "link_rated":
-				handle_update_link_rated(update.student_nickname, update.task_idx, update.url, update.is_helpful, update.timestamp);
-				break;
-			case "answer":
-				handle_update_answer(update.student_nickname, update.task_idx, update.text, update.explanation, update.timestamp);
-				break;
-			default:
-				break;
+		if (update.lesson_code == g_lessons[0].lesson_code) {
+			switch(update.type) {
+				case "log_in":
+					handle_update_log_in(update.student_nickname, update.task_idx);
+					break;
+				case "log_out":
+					handle_update_log_out(update.student_nickname);
+					break;
+				case "task":
+					handle_update_task(update.student_nickname, update.task_idx);
+					break;
+				case "query":
+					handle_update_query(update.student_nickname, update.task_idx, update.query, update.timestamp);
+					break;
+				case "link_followed":
+					handle_update_link_followed(update.student_nickname, update.task_idx, update.query, update.url, update.title, update.timestamp);
+					break;
+				case "link_rated":
+					handle_update_link_rated(update.student_nickname, update.task_idx, update.url, update.is_helpful, update.timestamp);
+					break;
+				case "answer":
+					handle_update_answer(update.student_nickname, update.task_idx, update.text, update.explanation, update.timestamp);
+					break;
+				default:
+					break;
+			}
 		}
 	}
 }
