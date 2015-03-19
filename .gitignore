@@ -1,0 +1,4 @@
+.project
+.pydevproject
+*.pyc
+gaesessions/__init__.pyc
